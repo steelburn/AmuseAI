@@ -26,3 +26,11 @@
 
 ## Archive:
 https://huggingface.co/TensorStack/Amuse
+
+
+
+## Screenshots
+
+<p align="center" width="100%">
+    <img src="Assets/Screenshots/TextToImage.png">
+</p>
