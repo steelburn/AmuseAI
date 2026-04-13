@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amuse.UI", "Amuse.UI\Amuse.UI.csproj", "{135BE435-46D9-4CF8-9B6F-E1F420CB005A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amuse.Host", "Amuse.Host\Amuse.Host.csproj", "{506FAB17-69C6-428C-AF32-0D2F113C0918}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amuse.Common", "Amuse.Common\Amuse.Common.csproj", "{0DAD39DD-8CE0-49BD-A264-222BCBAD98E4}"
@@ -28,22 +26,6 @@ Global
 		Release-Installer|x64 = Release-Installer|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Debug_Direct|Any CPU.ActiveCfg = Debug_Direct|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Debug_Direct|Any CPU.Build.0 = Debug_Direct|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Debug_Direct|x64.ActiveCfg = Debug_Direct|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Debug_Direct|x64.Build.0 = Debug_Direct|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Debug|Any CPU.Build.0 = Debug|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Debug|x64.ActiveCfg = Debug|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Debug|x64.Build.0 = Debug|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Release|Any CPU.ActiveCfg = Release|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Release|Any CPU.Build.0 = Release|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Release|x64.ActiveCfg = Release|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Release|x64.Build.0 = Release|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Release-Installer|Any CPU.ActiveCfg = Release-Installer|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Release-Installer|Any CPU.Build.0 = Release-Installer|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Release-Installer|x64.ActiveCfg = Release-Installer|x64
-		{135BE435-46D9-4CF8-9B6F-E1F420CB005A}.Release-Installer|x64.Build.0 = Release-Installer|x64
 		{506FAB17-69C6-428C-AF32-0D2F113C0918}.Debug_Direct|Any CPU.ActiveCfg = Debug|Any CPU
 		{506FAB17-69C6-428C-AF32-0D2F113C0918}.Debug_Direct|Any CPU.Build.0 = Debug|Any CPU
 		{506FAB17-69C6-428C-AF32-0D2F113C0918}.Debug_Direct|x64.ActiveCfg = Debug|Any CPU
