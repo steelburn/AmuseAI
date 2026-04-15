@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Amuse.App.Views;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Serialization;
 using TensorStack.Common;
@@ -21,6 +22,8 @@ namespace Amuse.App.Common
         public string Variant { get; set; }
         public ModelSourceType Source { get; set; }
         public bool IsDefault { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public View[] ViewFilter { get; set; }
         public bool IsGated { get; set; }
         public VendorType[] Vendor { get; set; }
         public ModelStatusType Status

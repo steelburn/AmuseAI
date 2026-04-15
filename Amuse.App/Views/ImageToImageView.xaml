@@ -30,6 +30,7 @@
                             <Grid IsEnabled="{Binding DiffusionService.IsExecuting, Converter={StaticResource InverseBoolConverter}}">
                                 <Controls:DiffusionModelControl
                                     x:Name="ModelControl"
+                                    ViewType="ImageToImage"
                                     ProcessType="ImageToImage"
                                     IsLoraSupported="True"
                                     IsUpscalerSupported="True"

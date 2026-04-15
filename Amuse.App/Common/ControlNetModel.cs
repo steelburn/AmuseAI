@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using Amuse.App.Views;
+using System.IO;
 using System.Text.Json.Serialization;
 using TensorStack.Common.Common;
 using TensorStack.WPF;
@@ -17,6 +18,8 @@ namespace Amuse.App.Common
         public ModelSourceType Source { get; set; }
         public string Pipeline { get; set; }
         public bool IsDefault { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public View[] ViewFilter { get; set; }
         public bool IsGated { get; set; }
         public ModelStatusType Status
         {

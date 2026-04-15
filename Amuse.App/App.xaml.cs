@@ -377,7 +377,7 @@ namespace Amuse.App
             try
             {
                 Log.Logger.Information("[GetUpdateInfo] - Check for update...");
-                using (var response = await _httpClient.GetAsync("https://api.github.com/repos/TensorStack-AI/Amuse/releases/latest"))
+                using (var response = await _httpClient.GetAsync("https://api.github.com/repos/TensorStack-AI/AmuseAI/releases/latest"))
                 {
                     response.EnsureSuccessStatusCode();
                     var versionResponse = await response.Content.ReadFromJsonAsync<AppVersion>();

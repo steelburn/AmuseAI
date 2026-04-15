@@ -18,6 +18,7 @@ namespace Amuse.App.Views
         ImageToImage = 101,
         ImageEdit = 102,
         ImageInpaint = 103,
+        PaintToImage = 104,
 
         ImageUpscale = 150,
         ImageExtract = 151,
@@ -80,6 +81,7 @@ namespace Amuse.App.Views
             { View.ImageToImage, ViewCategory.Image  },
             { View.ImageEdit, ViewCategory.Image  },
             { View.ImageInpaint, ViewCategory.Image  },
+            { View.PaintToImage, ViewCategory.Image  },
             { View.ImageExtract, ViewCategory.Image  },
             { View.ImageUpscale, ViewCategory.Image  },
             { View.ImageCompose, ViewCategory.Image  },

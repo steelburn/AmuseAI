@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using Amuse.App.Views;
+using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -19,6 +20,8 @@ namespace Amuse.App.Common
         public BackendType Backend { get; set; }
         public string Name { get; set; }
         public bool IsDefault { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public View[] ViewFilter { get; set; }
         public bool IsGated { get; set; }
         public ModelStatusType Status
         {

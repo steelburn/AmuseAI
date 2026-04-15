@@ -327,6 +327,14 @@
                                 IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=ImageInpaint}">
                             </CommonControls:IconButton>
                             <CommonControls:IconButton 
+                                Text="Paint To Image" 
+                                Icon="f044"
+                                Style="{StaticResource SubmenuIconButton}"
+                                Command="{Binding NavigateCommand}" 
+                                CommandParameter="{x:Static Views:View.PaintToImage}" 
+                                IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=PaintToImage}">
+                            </CommonControls:IconButton>
+                            <CommonControls:IconButton 
                                 Text="Image Extract" 
                                 Icon="f302"
                                 Style="{StaticResource SubmenuIconButton}"
@@ -447,28 +455,6 @@
 
 
         <!--History-->
-        <!--<Border Panel.ZIndex="0" DockPanel.Dock="Bottom" BorderThickness="0,2,0,0" BorderBrush="{StaticResource DefaultBorderColor}" Opacity=".8" Margin="7,0,0,0">
-            <Controls:HistoryControl 
-                Orientation="Horizontal"
-                ItemSource="{Binding HistoryService.HistoryCollection}"
-                RemoveItemCommand="{Binding RemoveHistoryItemCommand}" 
-                PreviewItemCommand="{Binding PreviewHistoryItemCommand}"/>
-            <Border.Style>
-                <Style TargetType="{x:Type Border}">
-                    <Setter Property="Visibility" Value="Visible"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ViewCategory}" Value="Settings">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding ViewCategory}" Value="Other">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-        </Border>-->
-
-
         <Border Panel.ZIndex="0" BorderBrush="{StaticResource DefaultBorderColor}" Opacity=".8" >
             <Controls:HistoryControl 
             
@@ -499,7 +485,6 @@
                 </Style>
             </Border.Style>
         </Border>
-
 
 
         <!--View Container-->

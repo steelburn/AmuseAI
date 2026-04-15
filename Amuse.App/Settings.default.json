@@ -41,10 +41,10 @@
     },
     {
       "Id": 100,
-      "Name": "ROCM (7.2.0)",
+      "Name": "ROCM (7.2.1)",
       "Type": "Vendor",
       "Vendor": "AMD",
-      "Environment": "rocm-720",
+      "Environment": "rocm-721",
       "Version": 0,
       "Status": "Create",
       "IsDefault": true,
@@ -54,12 +54,13 @@
         "TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL": "1"
       },
       "Requirements": [
-        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2/rocm-7.2.0.dev0.tar.gz",
-        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2/rocm_sdk_core-7.2.0.dev0-py3-none-win_amd64.whl",
-        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2/rocm_sdk_devel-7.2.0.dev0-py3-none-win_amd64.whl",
-        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2/rocm_sdk_libraries_custom-7.2.0.dev0-py3-none-win_amd64.whl",
-        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2/torch-2.9.1%2Brocmsdk20260116-cp312-cp312-win_amd64.whl",
-        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2/torchvision-0.24.1%2Brocmsdk20260116-cp312-cp312-win_amd64.whl",
+        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/rocm-7.2.1.tar.gz",
+        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/rocm_sdk_core-7.2.1-py3-none-win_amd64.whl",
+        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/rocm_sdk_devel-7.2.1-py3-none-win_amd64.whl",
+        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/rocm_sdk_libraries_custom-7.2.1-py3-none-win_amd64.whl",
+        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/torch-2.9.1%2Brocm7.2.1-cp312-cp312-win_amd64.whl",
+        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/torchaudio-2.9.1%2Brocm7.2.1-cp312-cp312-win_amd64.whl",
+        "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/torchvision-0.24.1%2Brocm7.2.1-cp312-cp312-win_amd64.whl",
         "typing==3.7.4.3",
         "wheel==0.45.1",
         "transformers==4.57.3",
@@ -768,7 +769,6 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageInpaint", "ImageControlNet", "ImageToImageControlNet" ],
-      "IsDefault": true,
       "Link": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0",
       "DefaultOptions": {
         "Steps": 30,
@@ -2941,6 +2941,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "IsDefault": true,
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageEdit" ],
       "Link": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B",
       "DefaultOptions": {
@@ -6310,10 +6311,10 @@
       "Name": "Union",
       "Path": "InstantX/Qwen-Image-ControlNet-Union",
       "Pipeline": "QwenImagePipeline",
+      "ViewFilter": [ "ImageToImage", "ImageInpaint" ],
       "IsDefault": true,
       "Link": "https://huggingface.co/InstantX/Qwen-Image-ControlNet-Union"
     },
-
     {
       "Id": 102,
       "Backend": "PyTorch",
@@ -6321,6 +6322,7 @@
       "Name": "Canny",
       "Path": "InstantX/FLUX.1-dev-controlnet-canny",
       "Pipeline": "FluxPipeline",
+      "ViewFilter": [ "ImageToImage" ],
       "IsDefault": true,
       "Link": "https://huggingface.co/InstantX/FLUX.1-dev-controlnet-canny"
     },
@@ -6331,6 +6333,7 @@
       "Name": "Union",
       "Path": "xinsir/controlnet-union-sdxl-1.0",
       "Pipeline": "StableDiffusionXLPipeline",
+      "ViewFilter": [ "ImageToImage", "ImageInpaint" ],
       "IsDefault": true,
       "Link": "https://huggingface.co/xinsir/controlnet-union-sdxl-1.0"
     },
@@ -6341,6 +6344,7 @@
       "Name": "Canny",
       "Path": "xinsir/controlnet-canny-sdxl-1.0",
       "Pipeline": "StableDiffusionXLPipeline",
+      "ViewFilter": [ "ImageToImage" ],
       "Link": "https://huggingface.co/xinsir/controlnet-canny-sdxl-1.0"
     },
     {
@@ -6350,6 +6354,7 @@
       "Name": "Depth",
       "Path": "xinsir/controlnet-depth-sdxl-1.0",
       "Pipeline": "StableDiffusionXLPipeline",
+      "ViewFilter": [ "ImageToImage" ],
       "Link": "https://huggingface.co/xinsir/controlnet-depth-sdxl-1.0"
     },
     {
@@ -6359,6 +6364,7 @@
       "Name": "OpenPose",
       "Path": "xinsir/controlnet-openpose-sdxl-1.0",
       "Pipeline": "StableDiffusionXLPipeline",
+      "ViewFilter": [ "ImageToImage" ],
       "Link": "https://huggingface.co/xinsir/controlnet-openpose-sdxl-1.0"
     },
     {
@@ -6368,6 +6374,7 @@
       "Name": "Scribble",
       "Path": "xinsir/controlnet-scribble-sdxl-1.0",
       "Pipeline": "StableDiffusionXLPipeline",
+      "ViewFilter": [ "ImageToImage", "PaintToImage" ],
       "Link": "https://huggingface.co/xinsir/controlnet-scribble-sdxl-1.0"
     },
     {
@@ -6377,6 +6384,7 @@
       "Name": "Tile",
       "Path": "xinsir/controlnet-tile-sdxl-1.0",
       "Pipeline": "StableDiffusionXLPipeline",
+      "ViewFilter": [ "ImageToImage" ],
       "Link": "https://huggingface.co/xinsir/controlnet-tile-sdxl-1.0"
     },
     {
@@ -6386,6 +6394,8 @@
       "Name": "Union",
       "Path": "hlky/Z-Image-Turbo-Fun-Controlnet-Union",
       "Pipeline": "ZImagePipeline",
+      "IsDefault": true,
+      "ViewFilter": [ "ImageToImage", "ImageInpaint" ],
       "Link": "https://huggingface.co/hlky/Z-Image-Turbo-Fun-Controlnet-Union"
     }
   ]

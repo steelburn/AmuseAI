@@ -90,6 +90,7 @@ namespace Amuse.App.Controls
         public static readonly DependencyProperty NavigationServiceProperty = DependencyProperty.Register(nameof(NavigationService), typeof(NavigationService), typeof(DiffusionModelControl));
 
         public event EventHandler<PipelineModel> SelectionChanged;
+        public View ViewType { get; set; }
         public AsyncRelayCommand LoadCommand { get; }
         public AsyncRelayCommand UnloadCommand { get; }
         public MemoryProfileModel[] MemoryModes { get; }
@@ -410,19 +411,22 @@ namespace Amuse.App.Controls
             ModelCollectionView = new ListCollectionView(Settings.DiffusionModels);
             ModelCollectionView.Filter = (obj) =>
             {
-                if (obj is not DiffusionModel model)
+                if (obj is not DiffusionModel viewModel)
                     return false;
 
                 if (_selectedDevice is null)
                     return false;
 
-                if (!model.ProcessTypes.Contains(_processType))
+                if (!viewModel.ProcessTypes.Contains(_processType))
                     return false;
 
-                if (!model.Vendor.IsNullOrEmpty() && !model.Vendor.Contains(_selectedDevice.Vendor))
+                if (!viewModel.Vendor.IsNullOrEmpty() && !viewModel.Vendor.Contains(_selectedDevice.Vendor))
                     return false;
 
-                if (IsControlNetSupported && !Settings.ControlNetModels.Any(x => x.Pipeline.Equals(model.Pipeline)))
+                if (IsControlNetSupported && !Settings.ControlNetModels.Any(x => x.Pipeline.Equals(viewModel.Pipeline)))
+                    return false;
+
+                if (!viewModel.ViewFilter.IsNullOrEmpty() && !viewModel.ViewFilter.Contains(ViewType))
                     return false;
 
                 return true;
@@ -441,6 +445,9 @@ namespace Amuse.App.Controls
                 if (_selectedModel.Pipeline != viewModel.Pipeline)
                     return false;
 
+                if (!viewModel.ViewFilter.IsNullOrEmpty() && !viewModel.ViewFilter.Contains(ViewType))
+                    return false;
+
                 return true;
             };
 
@@ -452,6 +459,9 @@ namespace Amuse.App.Controls
                     return false;
 
                 if (_selectedModel is null)
+                    return false;
+
+                if (!viewModel.ViewFilter.IsNullOrEmpty() && !viewModel.ViewFilter.Contains(ViewType))
                     return false;
 
                 return true;
@@ -469,6 +479,9 @@ namespace Amuse.App.Controls
                 if (_selectedModel.Pipeline != viewModel.Pipeline)
                     return false;
 
+                if (!viewModel.ViewFilter.IsNullOrEmpty() && !viewModel.ViewFilter.Contains(ViewType))
+                    return false;
+
                 return true;
             };
 
@@ -476,16 +489,20 @@ namespace Amuse.App.Controls
             UpscaleCollectionView = new ListCollectionView(Settings.UpscaleModels);
             UpscaleCollectionView.Filter = (obj) =>
             {
-                if (obj is not UpscaleModel model)
+                if (obj is not UpscaleModel viewModel)
                     return false;
 
                 if (_selectedModel is null)
+                    return false;
+
+                if (!viewModel.ViewFilter.IsNullOrEmpty() && !viewModel.ViewFilter.Contains(ViewType))
                     return false;
 
                 return true;
             };
 
             SelectedDevice = Settings.GetDefaultDevice();
+            Device_SelectionChanged(default, default);
             return Task.CompletedTask;
         }
 

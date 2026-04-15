@@ -1,13 +1,16 @@
-﻿<Views:ViewBaseDiffusion x:Class="Amuse.App.Views.VideoToVideoView"
+﻿<Views:ViewBaseDiffusion x:Class="Amuse.App.Views.PaintToImageView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:local="clr-namespace:Amuse.App.Views"
+    xmlns:CommonBehaviors="clr-namespace:TensorStack.WPF.Behaviors;assembly=TensorStack.WPF"
     xmlns:CommonControls="clr-namespace:TensorStack.WPF.Controls;assembly=TensorStack.WPF"
+    xmlns:Views="clr-namespace:Amuse.App.Views"
     xmlns:Controls="clr-namespace:Amuse.App.Controls"
-    xmlns:Views="clr-namespace:Amuse.App.Views">
-    <Grid DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:VideoToVideoView}}}" >
+    xmlns:Base="clr-namespace:Amuse.App">
+    <Grid DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:PaintToImageView}}}" >
         <Grid.RowDefinitions>
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
@@ -30,11 +33,12 @@
                             <Grid IsEnabled="{Binding DiffusionService.IsExecuting, Converter={StaticResource InverseBoolConverter}}">
                                 <Controls:DiffusionModelControl
                                     x:Name="ModelControl"
-                                    ViewType="VideoToVideo"
-                                    ProcessType="VideoToVideo"
+                                    ViewType="PaintToImage"
+                                    ProcessType="ImageToImage"
                                     IsLoraSupported="True"
-                                    IsUpscalerSupported="True"
-                                    IsExtractorSupported="True"
+                                    IsUpscalerSupported="False"
+                                    IsExtractorSupported="False"
+                                    IsControlNetSupported="True"
                                     Settings="{Binding Settings, Mode=OneWay}"
                                     IsPipelineLoaded="{Binding IsPipelineLoaded, Mode=OneWay}"
                                     DownloadService="{Binding DownloadService, Mode=OneTime}"
@@ -73,14 +77,13 @@
                             </UniformGrid>
 
                             <!--InputControl-->
-                            <Grid IsEnabled="{Binding DiffusionService.IsLoaded}">
-                                <Controls:DiffusionInputControl 
-                                    ProcessType="VideoToVideo"
+                            <Grid  IsEnabled="{Binding DiffusionService.IsLoaded}" >
+                                <Controls:DiffusionInputControl
+                                    ProcessType="ImageToImage"
                                     Options="{Binding Options, Mode=OneWayToSource}"
                                     UpscaleOptions="{Binding UpscaleOptions, Mode=OneWayToSource}"
-                                    ExtractOptions="{Binding ExtractOptions, Mode=OneWayToSource}"
                                     Pipeline="{Binding CurrentPipeline}" 
-                                    IsImageInputEnabled="True"
+                                    IsImageInputEnabled="False"
                                     IsControlNetEnabled="False"
                                     IsEnabled="{Binding CurrentPipeline, Converter={StaticResource InverseNullBooleanConverter}}"/>
                             </Grid>
@@ -109,34 +112,18 @@
                         Progress="{Binding Progress}" />
 
                     <Border Margin="4" IsEnabled="{Binding IsViewBusy, Converter={StaticResource InverseBoolConverter}}">
-                        <UniformGrid Columns="2">
-                            <Border Margin="10,10,10,2" Style="{StaticResource VideoDropZoneStyle}" IsEnabled="{Binding IsPipelineLoaded}" >
-                                <CommonControls:VideoStreamElement 
-                                    SplitterVisibility="Auto"
-                                    SplitterPosition="Source"
-                                    SplitterDirection="LeftToRight"
-                                    Source="{Binding SourceVideo, Mode=TwoWay}" 
-                                    IsLoadEnabled="True" 
-                                    IsSaveEnabled="False"
-                                    IsLoadOverlayEnabled="False"
-                                    Volume="{Binding Settings.VolumeInput, Mode=TwoWay}"
-                                    IsVolumeMute="{Binding Settings.IsVolumeInputMute, Mode=TwoWay}"
-                                    IsEnabled="{Binding DiffusionService.IsExecuting, Converter={StaticResource InverseBoolConverter}}"/>
-                            </Border>
-                            <Grid Margin="10,10,10,2" >
-                                <CommonControls:VideoStreamElement 
-                                    x:Name="ResultControl" 
-                                    SplitterVisibility="Auto"
-                                    SplitterPosition="Source"
-                                    SplitterDirection="LeftToRight"
-                                    Source="{Binding ResultVideo, Mode=TwoWay}" 
-                                    OverlaySource="{Binding CompareVideo, Mode=TwoWay}" 
-                                    Volume="{Binding Settings.VolumeOutput, Mode=TwoWay}"
-                                    IsVolumeMute="{Binding Settings.IsVolumeOutputMute, Mode=TwoWay}"
-                                    IsLoadEnabled="False" 
-                                    IsLoadOverlayEnabled="False"/>
-                            </Grid>
-                        </UniformGrid>
+                        <Grid Margin="10,10,10,2" IsEnabled="{Binding DiffusionService.IsLoaded}">
+                            <Controls:PaintSurfaceControl
+                                x:Name="PaintSurface"
+                                Settings="{Binding Settings}"
+                                Options="{Binding Options}"
+                                ExecuteCommand="{Binding ExecuteCommand}"
+                                CancelCommand="{Binding CancelCommand}"
+                                IsGenerating="{Binding DiffusionService.IsExecuting}"
+                                IsControlNetEnabled="{Binding CurrentPipeline.ControlNetModel, Converter={StaticResource InverseNullBooleanConverter}}"
+                                OverlayImage="{Binding ResultImage}">
+                            </Controls:PaintSurfaceControl>
+                        </Grid>
                     </Border>
                 </DockPanel>
 
