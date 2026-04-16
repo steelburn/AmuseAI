@@ -2075,7 +2075,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageInpaint", "ImageControlNet" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Qwen/Qwen-Image-2512",
       "DefaultOptions": {
         "Steps": 30,
@@ -2201,7 +2201,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "ImageEdit" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Qwen/Qwen-Image-Edit-2511",
       "IsDefault": true,
       "DefaultOptions": {
@@ -3557,7 +3557,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo", "VideoToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Wan-AI/Wan2.1-T2V-1.3B-Diffusers",
       "DefaultOptions": {
         "Steps": 30,
@@ -3686,7 +3686,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Wan-AI/Wan2.1-T2V-14B-Diffusers",
       "DefaultOptions": {
         "Steps": 30,
@@ -3790,7 +3790,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "ImageToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Wan-AI/Wan2.1-I2V-14B-480P-Diffusers",
       "IsDefault": true,
       "DefaultOptions": {
@@ -3888,7 +3888,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo", "VideoToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B-Diffusers",
       "DefaultOptions": {
         "Steps": 50,
@@ -3989,7 +3989,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Wan-AI/Wan2.2-T2V-A14B-Diffusers",
       "DefaultOptions": {
         "Steps": 40,
@@ -4086,7 +4086,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToImage" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/kandinskylab/Kandinsky-5.0-T2I-Lite-sft-Diffusers",
       "DefaultOptions": {
         "Steps": 30,
@@ -4169,7 +4169,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "ImageEdit" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/kandinskylab/Kandinsky-5.0-I2I-Lite-sft-Diffusers",
       "DefaultOptions": {
         "Steps": 30,
@@ -4252,7 +4252,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/kandinskylab/Kandinsky-5.0-T2V-Lite-sft-5s-Diffusers",
       "DefaultOptions": {
         "Steps": 30,
@@ -4323,7 +4323,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "ImageToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/kandinskylab/Kandinsky-5.0-I2V-Pro-sft-5s-Diffusers",
       "DefaultOptions": {
         "Steps": 30,
@@ -4392,7 +4392,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/zai-org/CogVideoX-2b",
       "DefaultOptions": {
         "Steps": 30,
@@ -4479,7 +4479,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/zai-org/CogVideoX-5b",
       "DefaultOptions": {
         "Steps": 30,
@@ -4566,7 +4566,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "ImageToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/zai-org/CogVideoX-5b-I2V",
       "DefaultOptions": {
         "Steps": 30,
@@ -4651,7 +4651,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/zai-org/CogVideoX1.5-5B",
       "DefaultOptions": {
         "Steps": 30,
@@ -4738,7 +4738,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "ImageToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/zai-org/CogVideoX1.5-5B-I2V",
       "DefaultOptions": {
         "Steps": 30,
@@ -4936,7 +4936,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Lightricks/LTX-2",
       "DefaultOptions": {
         "Steps": 40,
@@ -5104,7 +5104,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Lightricks/LTX-2",
       "DefaultOptions": {
         "Steps": 8,
@@ -5269,7 +5269,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Lightricks/LTX-2",
       "DefaultOptions": {
         "Steps": 40,
@@ -5434,7 +5434,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Lightricks/LTX-2",
       "DefaultOptions": {
         "Steps": 8,
@@ -5599,7 +5599,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo", "VideoToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Skywork/SkyReels-V2-DF-1.3B-540P-Diffusers",
       "DefaultOptions": {
         "Steps": 30,
@@ -5707,7 +5707,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo", "VideoToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Skywork/SkyReels-V2-DF-14B-540P-Diffusers",
       "DefaultOptions": {
         "Steps": 30,
@@ -5815,7 +5815,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo", "VideoToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/BestWishYsh/Helios-Base",
       "DefaultOptions": {
         "Steps": 20,
@@ -5945,7 +5945,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo", "VideoToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/BestWishYsh/Helios-Mid",
       "DefaultOptions": {
         "Steps": 20,
@@ -6075,7 +6075,7 @@
       ],
       "BaseType": "bfloat16",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo", "VideoToVideo" ],
-      "Vendor": [ "Nvidia" ],
+      "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/BestWishYsh/Helios-Distilled",
       "DefaultOptions": {
         "Steps": 3,
