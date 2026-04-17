@@ -105,7 +105,7 @@ namespace Amuse.App.Dialogs
         {
             var modelId = environmentModel.Id;
             _originalEnvironmentModel = environmentModel;
-            EnvironmentModel = DeepClone(environmentModel, modelId);
+            EnvironmentModel = environmentModel.DeepClone(modelId);
             IsFixedEnvironment = modelId <= Utils.FixedIdRange;
             Populate();
             return base.ShowDialogAsync();
@@ -115,7 +115,7 @@ namespace Amuse.App.Dialogs
         public Task<bool> CopyAsync(EnvironmentModel environmentModel)
         {
             var modelId = GetNextModelId();
-            EnvironmentModel = DeepClone(environmentModel, modelId);
+            EnvironmentModel = environmentModel.DeepClone(modelId);
             Populate();
             EnvironmentModel.Name += " copy";
             EnvironmentModel.Environment += "-copy";
@@ -293,24 +293,6 @@ namespace Amuse.App.Dialogs
                 if (string.IsNullOrEmpty(EnvironmentModel.Pipeline))
                     yield return "Pipeline cannot be empty";
             }
-        }
-
-
-        private static EnvironmentModel DeepClone(EnvironmentModel environmentModel, int modelId)
-        {
-            return new EnvironmentModel
-            {
-                Id = modelId,
-                Name = environmentModel.Name,
-                IsDefault = environmentModel.IsDefault,
-                Environment = environmentModel.Environment,
-                Vendor = environmentModel.Vendor,
-                Variables = environmentModel.Variables?.ToDictionary() ?? new Dictionary<string, string>(),
-                Requirements = environmentModel.Requirements.ToArray(),
-                Pipeline = environmentModel.Pipeline,
-                Device = environmentModel.Device,
-                Type = environmentModel.Type,
-            };
         }
 
 

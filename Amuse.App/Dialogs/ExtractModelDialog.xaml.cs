@@ -76,7 +76,7 @@ namespace Amuse.App.Dialogs
         {
             var modelId = extractModel.Id;
             _originalExtractModel = extractModel;
-            ExtractModel = DeepClone(extractModel, modelId);
+            ExtractModel = extractModel.DeepClone(modelId);
             foreach (var path in ExtractModel.UrlPaths)
             {
                 Files.Add(path);
@@ -88,7 +88,7 @@ namespace Amuse.App.Dialogs
         public Task<bool> CopyAsync(ExtractModel extractModel)
         {
             var modelId = GetNextModelId();
-            ExtractModel = DeepClone(extractModel, modelId);
+            ExtractModel = extractModel.DeepClone(modelId);
             foreach (var path in ExtractModel.UrlPaths)
             {
                 Files.Add(path);
@@ -193,44 +193,5 @@ namespace Amuse.App.Dialogs
                 yield return $"Model with name '{ExtractModel.Name}' already exists";
         }
 
-
-        private static ExtractModel DeepClone(ExtractModel extractModel, int modelId)
-        {
-            return new ExtractModel
-            {
-                Id = modelId,
-                Backend = extractModel.Backend,
-                Name = extractModel.Name,
-                Path = extractModel.Path,
-                Channels = extractModel.Channels,
-                IsDefault = extractModel.IsDefault,
-                Normalization = extractModel.Normalization,
-                OutputNormalization = extractModel.OutputNormalization,
-                SampleSize = extractModel.SampleSize,
-                OutputChannels = extractModel.OutputChannels,
-                IsDynamicOutput = extractModel.IsDynamicOutput,
-                Type = extractModel.Type,
-                UrlPaths = extractModel.UrlPaths.ToArray(),
-                IsGated = extractModel.IsGated,
-                Link = extractModel.Link,
-                DefaultOptions = new ExtractInputOptions
-                {
-                    BodyConfidence = extractModel.DefaultOptions.BodyConfidence,
-                    BoneRadius = extractModel.DefaultOptions.BoneRadius,
-                    BoneThickness = extractModel.DefaultOptions.BoneThickness,
-                    ColorAlpha = extractModel.DefaultOptions.ColorAlpha,
-                    Detections = extractModel.DefaultOptions.Detections,
-                    IsInverted = extractModel.DefaultOptions.IsInverted,
-                    IsTransparent = extractModel.DefaultOptions.IsTransparent,
-                    JointConfidence = extractModel.DefaultOptions.JointConfidence,
-                    JointRadius = extractModel.DefaultOptions.JointRadius,
-                    MergeInput = extractModel.DefaultOptions.MergeInput,
-                    Mode = extractModel.DefaultOptions.Mode,
-                    IsTileEnabled = extractModel.DefaultOptions.IsTileEnabled,
-                    TileOverlap = extractModel.DefaultOptions.TileOverlap,
-                    TileSize = extractModel.DefaultOptions.TileSize
-                }
-            };
-        }
     }
 }

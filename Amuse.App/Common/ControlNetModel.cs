@@ -1,5 +1,6 @@
 ﻿using Amuse.App.Views;
 using System.IO;
+using System.Linq;
 using System.Text.Json.Serialization;
 using TensorStack.Common.Common;
 using TensorStack.WPF;
@@ -49,6 +50,23 @@ namespace Amuse.App.Common
                 Status = ModelStatusType.Pending;
             else if (Status == ModelStatusType.Downloading || Status == ModelStatusType.DownloadQueue || Status == ModelStatusType.DownloadFailed || Status == ModelStatusType.Verifying)
                 Status = ModelStatusType.Pending;
+        }
+
+
+        public ControlNetModel DeepClone(int id)
+        {
+            return new ControlNetModel
+            {
+                Id = id,
+                Name = Name,
+                Path = Path,
+                Pipeline = Pipeline,
+                Backend = Backend,
+                Source = Source,
+                IsGated = IsGated,
+                Link = Link,
+                ViewFilter = ViewFilter?.ToArray()
+            };
         }
     }
 }

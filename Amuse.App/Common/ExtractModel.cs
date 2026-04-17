@@ -72,5 +72,46 @@ namespace Amuse.App.Common
 
             return Status == ModelStatusType.Installed;
         }
+
+
+        public ExtractModel DeepClone(int id)
+        {
+            return new ExtractModel
+            {
+                Id = id,
+                Backend = Backend,
+                Name = Name,
+                Path = Path,
+                Channels = Channels,
+                IsDefault = IsDefault,
+                Normalization = Normalization,
+                OutputNormalization = OutputNormalization,
+                SampleSize = SampleSize,
+                OutputChannels = OutputChannels,
+                IsDynamicOutput = IsDynamicOutput,
+                Type = Type,
+                UrlPaths = UrlPaths.ToArray(),
+                IsGated = IsGated,
+                Link = Link,
+                ViewFilter = ViewFilter?.ToArray(),
+                DefaultOptions = new ExtractInputOptions
+                {
+                    BodyConfidence = DefaultOptions.BodyConfidence,
+                    BoneRadius = DefaultOptions.BoneRadius,
+                    BoneThickness = DefaultOptions.BoneThickness,
+                    ColorAlpha = DefaultOptions.ColorAlpha,
+                    Detections = DefaultOptions.Detections,
+                    IsInverted = DefaultOptions.IsInverted,
+                    IsTransparent = DefaultOptions.IsTransparent,
+                    JointConfidence = DefaultOptions.JointConfidence,
+                    JointRadius = DefaultOptions.JointRadius,
+                    MergeInput = DefaultOptions.MergeInput,
+                    Mode = DefaultOptions.Mode,
+                    IsTileEnabled = DefaultOptions.IsTileEnabled,
+                    TileOverlap = DefaultOptions.TileOverlap,
+                    TileSize = DefaultOptions.TileSize
+                }
+            };
+        }
     }
 }

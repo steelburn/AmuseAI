@@ -1,5 +1,6 @@
 ﻿using Amuse.App.Views;
 using System.IO;
+using System.Linq;
 using System.Text.Json.Serialization;
 using TensorStack.Common.Common;
 using TensorStack.WPF;
@@ -57,6 +58,26 @@ namespace Amuse.App.Common
                 Status = ModelStatusType.Pending;
             else if (Status == ModelStatusType.Downloading || Status == ModelStatusType.DownloadQueue || Status == ModelStatusType.DownloadFailed || Status == ModelStatusType.Verifying)
                 Status = ModelStatusType.Pending;
+        }
+
+
+        public LoraAdapterModel DeepClone(int id)
+        {
+            return new LoraAdapterModel
+            {
+                Id = id,
+                Name = Name,
+                Key = Key,
+                Path = Path,
+                Pipeline = Pipeline,
+                Weights = Weights,
+                Triggers = Triggers?.ToArray(),
+                Source = Source,
+                Backend = Backend,
+                IsGated = IsGated,
+                Link = Link,
+                ViewFilter = ViewFilter?.ToArray(),
+            };
         }
     }
 }

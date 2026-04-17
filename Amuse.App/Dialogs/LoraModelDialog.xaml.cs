@@ -105,7 +105,7 @@ namespace Amuse.App.Dialogs
         {
             var modelId = loraModel.Id;
             _originalLoraModel = loraModel;
-            LoraModel = DeepClone(loraModel, modelId);
+            LoraModel = loraModel.DeepClone(modelId);
             Populate();
             return base.ShowDialogAsync();
         }
@@ -114,7 +114,7 @@ namespace Amuse.App.Dialogs
         public Task<bool> CopyAsync(LoraAdapterModel loraModel)
         {
             var modelId = GetNextModelId();
-            LoraModel = DeepClone(loraModel, modelId);
+            LoraModel = loraModel.DeepClone(modelId);
             LoraModel.Name += " copy";
             Populate();
             return base.ShowDialogAsync();
@@ -257,23 +257,5 @@ namespace Amuse.App.Dialogs
             return File.Exists(loraAdapterPath) || Utils.IsLoraAdapterInstalled(Settings.DirectoryModel, loraAdapterPath, loraWeightsPath) || Utils.IsHuggingFaceLink(loraAdapterPath);
         }
 
-
-        private static LoraAdapterModel DeepClone(LoraAdapterModel loraModel, int modelId)
-        {
-            return new LoraAdapterModel
-            {
-                Id = modelId,
-                Name = loraModel.Name,
-                Key = loraModel.Key,
-                Path = loraModel.Path,
-                Pipeline = loraModel.Pipeline,
-                Weights = loraModel.Weights,
-                Triggers = loraModel.Triggers,
-                Source = loraModel.Source,
-                Backend = loraModel.Backend,
-                IsGated = loraModel.IsGated,
-                Link = loraModel.Link,
-            };
-        }
     }
 }

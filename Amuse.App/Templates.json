@@ -3640,7 +3640,7 @@
         "FrameChunkOverlap": 0,
         "NoiseCondition": 0,
         "Strength": 1,
-        "Scheduler": "DDPM",
+        "Scheduler": "EulerAncestral",
         "Schedulers": {
           "LMS": {
             "Scheduler": "LMS",
@@ -4442,7 +4442,7 @@
         "FrameChunkOverlap": 0,
         "NoiseCondition": 0,
         "Strength": 1,
-        "Scheduler": "DDPM",
+        "Scheduler": "EulerAncestral",
         "Schedulers": {
           "LMS": {
             "Scheduler": "LMS",

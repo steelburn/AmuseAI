@@ -69,5 +69,34 @@ namespace Amuse.App.Common
 
             return Status == ModelStatusType.Installed;
         }
+
+
+        public UpscaleModel DeepClone(int id)
+        {
+            return new UpscaleModel
+            {
+                Id = id,
+                Backend = Backend,
+                Name = Name,
+                Path = Path,
+                Channels = Channels,
+                IsDefault = IsDefault,
+                Normalization = Normalization,
+                OutputNormalization = OutputNormalization,
+                SampleSize = SampleSize,
+                ScaleFactor = ScaleFactor,
+                UrlPaths = UrlPaths?.ToArray(),
+                IsGated = IsGated,
+                Link = Link,
+                ViewFilter = ViewFilter?.ToArray(),
+                MemorySize = MemorySize,
+                DefaultOptions = new UpscaleInputOptions
+                {
+                    IsTileEnabled = DefaultOptions.IsTileEnabled,
+                    TileOverlap = DefaultOptions.TileOverlap,
+                    TileSize = DefaultOptions.TileSize,
+                }
+            };
+        }
     }
 }

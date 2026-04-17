@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TensorStack.Common;
-using TensorStack.Common.Common;
 using TensorStack.Python.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
@@ -87,7 +86,7 @@ namespace Amuse.App.Dialogs
         {
             var modelId = diffusionModel.Id;
             _originalDiffusionModel = diffusionModel;
-            DiffusionModel = DeepClone(diffusionModel, modelId);
+            DiffusionModel = diffusionModel.DeepClone(modelId);
             Populate();
             return base.ShowDialogAsync();
         }
@@ -96,7 +95,7 @@ namespace Amuse.App.Dialogs
         public Task<bool> CopyAsync(DiffusionModel diffusionModel)
         {
             var modelId = GetNextModelId();
-            DiffusionModel = DeepClone(diffusionModel, modelId);
+            DiffusionModel = diffusionModel.DeepClone(modelId);
             Populate();
             return base.ShowDialogAsync();
         }
@@ -133,7 +132,7 @@ namespace Amuse.App.Dialogs
 
             if (DiffusionModel.Source == ModelSourceType.SingleFile)
             {
-                _checkpointModel.TextEncoder= null;
+                _checkpointModel.TextEncoder = null;
                 _checkpointModel.TextEncoder2 = null;
                 _checkpointModel.TextEncoder3 = null;
                 _checkpointModel.Transformer = null;
@@ -291,7 +290,7 @@ namespace Amuse.App.Dialogs
 
                 if (DiffusionModel.Source == ModelSourceType.Checkpoint)
                 {
-                    if (string.IsNullOrEmpty(CheckpointModel.TextEncoder) 
+                    if (string.IsNullOrEmpty(CheckpointModel.TextEncoder)
                      && string.IsNullOrEmpty(CheckpointModel.TextEncoder2)
                      && string.IsNullOrEmpty(CheckpointModel.TextEncoder3)
                      && string.IsNullOrEmpty(CheckpointModel.Transformer)
@@ -408,70 +407,5 @@ namespace Amuse.App.Dialogs
             return [.. ProcessTypes()];
         }
 
-
-        private static DiffusionModel DeepClone(DiffusionModel diffusionModel, int modelId)
-        {
-            return new DiffusionModel
-            {
-                Id = modelId,
-                Backend = diffusionModel.Backend,
-                Name = diffusionModel.Name,
-                Path = diffusionModel.Path,
-                Variant = diffusionModel.Variant,
-                Pipeline = diffusionModel.Pipeline,
-                IsDefault = diffusionModel.IsDefault,
-                BaseType = diffusionModel.BaseType,
-                IsGated = diffusionModel.IsGated,
-                Link = diffusionModel.Link,
-                MemoryProfile = diffusionModel.MemoryProfile.Select(x => new MemoryProfile
-                {
-                    QualityMode = x.QualityMode,
-                    MemoryModes = x.MemoryModes.ToArray(),
-                }).ToArray(),
-                ProcessTypes = [.. diffusionModel.ProcessTypes],
-                Vendor = diffusionModel.Vendor.IsNullOrEmpty() ? null : [.. diffusionModel.Vendor],
-                Source = diffusionModel.Source,
-                Resolutions = [.. diffusionModel.Resolutions.Select(x => new SizeOption
-                {
-                    Height = x.Height,
-                    Width = x.Width,
-                    IsDefault = x.IsDefault,
-                })],
-                DefaultOptions = new DiffusionDefaultOptions
-                {
-                    Width = diffusionModel.DefaultOptions.Width,
-                    Height = diffusionModel.DefaultOptions.Height,
-                    Steps = diffusionModel.DefaultOptions.Steps,
-                    Steps2 = diffusionModel.DefaultOptions.Steps2,
-                    GuidanceScale = diffusionModel.DefaultOptions.GuidanceScale,
-                    GuidanceScale2 = diffusionModel.DefaultOptions.GuidanceScale2,
-                    Frames = diffusionModel.DefaultOptions.Frames,
-                    FrameRate = diffusionModel.DefaultOptions.FrameRate,
-                    SampleRate = diffusionModel.DefaultOptions.SampleRate,
-                    FrameChunk = diffusionModel.DefaultOptions.FrameChunk,
-                    FrameChunkOverlap = diffusionModel.DefaultOptions.FrameChunkOverlap,
-                    FrameOptions = diffusionModel.DefaultOptions.FrameOptions?.ToArray(),
-                    NoiseCondition = diffusionModel.DefaultOptions.NoiseCondition,
-                    Scheduler = diffusionModel.DefaultOptions.Scheduler,
-                    Schedulers = diffusionModel.DefaultOptions.Schedulers with { },
-                    Strength = diffusionModel.DefaultOptions.Strength,
-                    IsVaeSlicingEnabled = diffusionModel.DefaultOptions.IsVaeSlicingEnabled,
-                    IsVaeTilingEnabled = diffusionModel.DefaultOptions.IsVaeTilingEnabled,
-                },
-                Checkpoint = diffusionModel.Checkpoint is null ? null : new DiffusionCheckpointModel
-                {
-                    SingleFile = diffusionModel.Checkpoint.SingleFile,
-                    TextEncoder = diffusionModel.Checkpoint.TextEncoder,
-                    TextEncoder2 = diffusionModel.Checkpoint.TextEncoder2,
-                    TextEncoder3 = diffusionModel.Checkpoint.TextEncoder3,
-                    Transformer = diffusionModel.Checkpoint.Transformer,
-                    Transformer2 = diffusionModel.Checkpoint.Transformer2,
-                    Vae = diffusionModel.Checkpoint.Vae,
-                    AudioVae = diffusionModel.Checkpoint.AudioVae,
-                    Vocoder = diffusionModel.Checkpoint.Vocoder,
-                    Connectors = diffusionModel.Checkpoint.Connectors
-                }
-            };
-        }
     }
 }

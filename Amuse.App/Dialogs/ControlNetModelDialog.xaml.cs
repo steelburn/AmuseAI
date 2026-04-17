@@ -63,7 +63,7 @@ namespace Amuse.App.Dialogs
         {
             var modelId = controlNetModel.Id;
             _originalControlNetModel = controlNetModel;
-            ControlNetModel = DeepClone(controlNetModel, modelId);
+            ControlNetModel = controlNetModel.DeepClone(modelId);
             return base.ShowDialogAsync();
         }
 
@@ -71,7 +71,7 @@ namespace Amuse.App.Dialogs
         public Task<bool> CopyAsync(ControlNetModel controlNetModel)
         {
             var modelId = GetNextModelId();
-            ControlNetModel = DeepClone(controlNetModel, modelId);
+            ControlNetModel = controlNetModel.DeepClone(modelId);
             return base.ShowDialogAsync();
         }
 
@@ -158,20 +158,5 @@ namespace Amuse.App.Dialogs
             return File.Exists(controlNetPath) || Utils.IsCheckpointInstalled(Settings.DirectoryModel, controlNetPath) || Utils.IsHuggingFaceLink(controlNetPath);
         }
 
-
-        private static ControlNetModel DeepClone(ControlNetModel controlNetModel, int modelId)
-        {
-            return new ControlNetModel
-            {
-                Id = modelId,
-                Name = controlNetModel.Name,
-                Path = controlNetModel.Path,
-                Pipeline = controlNetModel.Pipeline,
-                Backend = controlNetModel.Backend,
-                Source = controlNetModel.Source,
-                IsGated = controlNetModel.IsGated,
-                Link = controlNetModel.Link,
-            };
-        }
     }
 }

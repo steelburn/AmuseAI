@@ -78,7 +78,7 @@ namespace Amuse.App.Dialogs
         {
             var modelId = upscaleModel.Id;
             _originalUpscaleModel = upscaleModel;
-            UpscaleModel = DeepClone(upscaleModel, modelId);
+            UpscaleModel = upscaleModel.DeepClone(modelId);
             foreach (var path in UpscaleModel.UrlPaths)
             {
                 Files.Add(path);
@@ -90,7 +90,7 @@ namespace Amuse.App.Dialogs
         public Task<bool> CopyAsync(UpscaleModel upscaleModel)
         {
             var modelId = GetNextModelId();
-            UpscaleModel = DeepClone(upscaleModel, modelId);
+            UpscaleModel = upscaleModel.DeepClone(modelId);
             foreach (var path in UpscaleModel.UrlPaths)
             {
                 Files.Add(path);
@@ -197,31 +197,5 @@ namespace Amuse.App.Dialogs
                 yield return $"Model with name '{UpscaleModel.Name}' already exists";
         }
 
-
-        private static UpscaleModel DeepClone(UpscaleModel upscaleModel, int modelId)
-        {
-            return new UpscaleModel
-            {
-                Id = modelId,
-                Backend = upscaleModel.Backend,
-                Name = upscaleModel.Name,
-                Path = upscaleModel.Path,
-                Channels = upscaleModel.Channels,
-                IsDefault = upscaleModel.IsDefault,
-                Normalization = upscaleModel.Normalization,
-                OutputNormalization = upscaleModel.OutputNormalization,
-                SampleSize = upscaleModel.SampleSize,
-                ScaleFactor = upscaleModel.ScaleFactor,
-                UrlPaths = upscaleModel.UrlPaths.ToArray(),
-                IsGated = upscaleModel.IsGated,
-                Link = upscaleModel.Link,
-                DefaultOptions = new UpscaleInputOptions
-                {
-                    IsTileEnabled = upscaleModel.DefaultOptions.IsTileEnabled,
-                    TileOverlap = upscaleModel.DefaultOptions.TileOverlap,
-                    TileSize = upscaleModel.DefaultOptions.TileSize,
-                }
-            };
-        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Amuse.App.Views;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json.Serialization;
 using TensorStack.Common;
 using TensorStack.Common.Common;
@@ -90,5 +91,71 @@ namespace Amuse.App.Common
             }
         }
 
+
+        public DiffusionModel DeepClone(int id)
+        {
+            return new DiffusionModel
+            {
+                Id = id,
+                Backend = Backend,
+                Name = Name,
+                Path = Path,
+                Variant = Variant,
+                Pipeline = Pipeline,
+                IsDefault = IsDefault,
+                ViewFilter = ViewFilter?.ToArray(),
+                BaseType = BaseType,
+                IsGated = IsGated,
+                Link = Link,
+                MemoryProfile = MemoryProfile.Select(x => new MemoryProfile
+                {
+                    QualityMode = x.QualityMode,
+                    MemoryModes = x.MemoryModes.ToArray(),
+                }).ToArray(),
+                ProcessTypes = [.. ProcessTypes],
+                Vendor = Vendor.IsNullOrEmpty() ? null : [.. Vendor],
+                Source = Source,
+                Resolutions = [.. Resolutions.Select(x => new SizeOption
+                {
+                    Height = x.Height,
+                    Width = x.Width,
+                    IsDefault = x.IsDefault
+                })],
+                DefaultOptions = new DiffusionDefaultOptions
+                {
+                    Width = DefaultOptions.Width,
+                    Height = DefaultOptions.Height,
+                    Steps = DefaultOptions.Steps,
+                    Steps2 = DefaultOptions.Steps2,
+                    GuidanceScale = DefaultOptions.GuidanceScale,
+                    GuidanceScale2 = DefaultOptions.GuidanceScale2,
+                    Frames = DefaultOptions.Frames,
+                    FrameRate = DefaultOptions.FrameRate,
+                    SampleRate = DefaultOptions.SampleRate,
+                    FrameChunk = DefaultOptions.FrameChunk,
+                    FrameChunkOverlap = DefaultOptions.FrameChunkOverlap,
+                    FrameOptions = DefaultOptions.FrameOptions?.ToArray(),
+                    NoiseCondition = DefaultOptions.NoiseCondition,
+                    Scheduler = DefaultOptions.Scheduler,
+                    Schedulers = DefaultOptions.Schedulers with { },
+                    Strength = DefaultOptions.Strength,
+                    IsVaeSlicingEnabled = DefaultOptions.IsVaeSlicingEnabled,
+                    IsVaeTilingEnabled = DefaultOptions.IsVaeTilingEnabled,
+                },
+                Checkpoint = Checkpoint is null ? null : new DiffusionCheckpointModel
+                {
+                    SingleFile = Checkpoint.SingleFile,
+                    TextEncoder = Checkpoint.TextEncoder,
+                    TextEncoder2 = Checkpoint.TextEncoder2,
+                    TextEncoder3 = Checkpoint.TextEncoder3,
+                    Transformer = Checkpoint.Transformer,
+                    Transformer2 = Checkpoint.Transformer2,
+                    Vae = Checkpoint.Vae,
+                    AudioVae = Checkpoint.AudioVae,
+                    Vocoder = Checkpoint.Vocoder,
+                    Connectors = Checkpoint.Connectors
+                }
+            };
+        }
     }
 }

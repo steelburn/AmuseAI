@@ -1,7 +1,6 @@
 ﻿// Copyright (c) TensorStack. All rights reserved.
 // Licensed under the Apache 2.0 License.
 using Amuse.App.Common;
-using Amuse.App.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -55,7 +54,7 @@ namespace Amuse.App.Dialogs
         public List<DiffusionModel> Templates { get; }
         public List<WizardItemModel> Items { get; }
         public ModelSourceType[] ModelSources { get; }
-        public DiffusionModel SelectedTemplate =>  _selectedTemplate;
+        public DiffusionModel SelectedTemplate => _selectedTemplate;
         public WizardItemModel SelectedItem
         {
             get { return _selectedItem; }
@@ -73,7 +72,7 @@ namespace Amuse.App.Dialogs
             set
             {
                 SetProperty(ref _selectedOption, value);
-                _selectedTemplate = Templates.FirstOrDefault(x => x.Name == _selectedOption?.Template);
+                _selectedTemplate = GetTemplate(_selectedOption?.Template);
             }
         }
 
@@ -129,7 +128,6 @@ namespace Amuse.App.Dialogs
 
         protected override Task SaveAsync()
         {
-            _selectedTemplate.Id = GetNextModelId();
             _selectedTemplate.Name = SelectedName;
             _selectedTemplate.Source = _selectedSource;
             _selectedTemplate.Path = _selectedModelPath;
@@ -257,6 +255,20 @@ namespace Amuse.App.Dialogs
             SelectedModelPath = null;
             SelectedSource = ModelSourceType.HuggingFace;
             CheckpointModel = new DiffusionCheckpointModel();
+        }
+
+
+        private DiffusionModel GetTemplate(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return null;
+
+            var template = Templates.FirstOrDefault(x => x.Name == name);
+            if (template == null)
+                return null;
+
+            var modelId = GetNextModelId();
+            return template.DeepClone(modelId);
         }
 
 

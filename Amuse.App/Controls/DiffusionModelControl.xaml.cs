@@ -4,7 +4,6 @@ using Amuse.App.Services;
 using Amuse.App.Views;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -555,6 +554,9 @@ namespace Amuse.App.Controls
 
             RefreshMemoryProfile();
 
+            if (_selectedModel is null)
+                return;
+
             SelectedQualityMode = _selectedModel.UserQualityMode is null
                 ? _selectedDevice.DefaultQualityMode
                 : _selectedModel.UserQualityMode.Value;
@@ -695,7 +697,7 @@ namespace Amuse.App.Controls
                 await DialogService.ShowMessageAsync("Model Downloading", "This model is downloading or queued for download", TensorStack.WPF.Dialogs.MessageDialogType.Ok, TensorStack.WPF.Dialogs.MessageBoxIconType.Info, TensorStack.WPF.Dialogs.MessageBoxStyleType.Info);
                 return true;
             }
-            else if(model.Status == ModelStatusType.Verifying)
+            else if (model.Status == ModelStatusType.Verifying)
             {
                 await DialogService.ShowMessageAsync("Verifying Model", "This model is verifying or queued for verification", TensorStack.WPF.Dialogs.MessageDialogType.Ok, TensorStack.WPF.Dialogs.MessageBoxIconType.Info, TensorStack.WPF.Dialogs.MessageBoxStyleType.Info);
                 return true;
