@@ -28,20 +28,22 @@
                         <!--ModelControl-->
                         <StackPanel DockPanel.Dock="Top" IsEnabled="{Binding DiffusionService.IsLoading, Converter={StaticResource InverseBoolConverter}}">
                             <Grid IsEnabled="{Binding DiffusionService.IsExecuting, Converter={StaticResource InverseBoolConverter}}">
-                                <Controls:DiffusionModelControl
-                                    x:Name="ModelControl"
-                                    ViewType="ImageToImage"
-                                    ProcessType="ImageToImage"
-                                    IsLoraSupported="True"
-                                    IsUpscalerSupported="True"
-                                    IsExtractorSupported="True"
-                                    IsControlNetSupported="True"
-                                    Settings="{Binding Settings, Mode=OneWay}" 
-                                    IsPipelineLoaded="{Binding IsPipelineLoaded, Mode=OneWay}"
-                                    DownloadService="{Binding DownloadService, Mode=OneTime}"
-                                    EnvironmentService="{Binding EnvironmentService, Mode=OneTime}"
-                                    NavigationService="{Binding NavigationService, Mode=OneTime}"
-                                    SelectionChanged="SelectedPipelineChanged"/>
+                                <Grid IsEnabled="{Binding IsAutomating, Converter={StaticResource InverseBoolConverter}}">
+                                    <Controls:DiffusionModelControl
+                                        x:Name="ModelControl"
+                                        ViewType="ImageToImage"
+                                        ProcessType="ImageToImage"
+                                        IsLoraSupported="True"
+                                        IsUpscalerSupported="True"
+                                        IsExtractorSupported="True"
+                                        IsControlNetSupported="True"
+                                        Settings="{Binding Settings, Mode=OneWay}" 
+                                        IsPipelineLoaded="{Binding IsPipelineLoaded, Mode=OneWay}"
+                                        DownloadService="{Binding DownloadService, Mode=OneTime}"
+                                        EnvironmentService="{Binding EnvironmentService, Mode=OneTime}"
+                                        NavigationService="{Binding NavigationService, Mode=OneTime}"
+                                        SelectionChanged="SelectedPipelineChanged"/>
+                                </Grid>
                             </Grid>
                         </StackPanel>
 
@@ -69,21 +71,28 @@
                                     </Grid>
                                 </DockPanel>
                                 <Grid IsEnabled="{Binding IsSelectionValid, ElementName=ModelControl}">
-                                    <Button Content="Generate" Command="{Binding ExecuteCommand}" />
+                                    <Button Content="Generate" Command="{Binding ExecuteCommand}" Visibility="{Binding SelectedOption, ElementName=InputControl, Converter={StaticResource InverseEnumToVisibilityConverter}, ConverterParameter=Automation}"/>
+                                    <Button Content="Automate" Command="{Binding ExecuteAutomationCommand}" Visibility="{Binding SelectedOption, ElementName=InputControl, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Automation}"/>
                                 </Grid>
                             </UniformGrid>
 
                             <!--InputControl-->
                             <Grid IsEnabled="{Binding DiffusionService.IsLoaded}">
                                 <Controls:DiffusionInputControl 
+                                    x:Name="InputControl"
+                                    ViewType="ImageToImage"
                                     ProcessType="ImageToImage"
                                     Options="{Binding Options, Mode=OneWayToSource}"
                                     UpscaleOptions="{Binding UpscaleOptions, Mode=OneWayToSource}"
                                     ExtractOptions="{Binding ExtractOptions, Mode=OneWayToSource}"
-                                    Pipeline="{Binding CurrentPipeline}" 
+                                    AutomationOptions="{Binding AutomationOptions, Mode=OneWayToSource}"
+                                    AutomationProgress="{Binding AutomationProgress, Mode=OneWay}"
+                                    Pipeline="{Binding CurrentPipeline, Mode=OneWay}" 
+                                    IsExecuting="{Binding DiffusionService.IsExecuting, Mode=OneWay}"
+                                    IsAutomating="{Binding IsAutomating, Mode=OneWay}"
                                     IsImageInputEnabled="True"
                                     IsControlNetEnabled="False"
-                                    IsEnabled="{Binding CurrentPipeline, Converter={StaticResource InverseNullBooleanConverter}}"/>
+                                    IsEnabled="{Binding CurrentPipeline, Mode=OneWay, Converter={StaticResource InverseNullBooleanConverter}}"/>
                             </Grid>
 
                         </DockPanel>
@@ -112,18 +121,36 @@
                     <Border Margin="4" IsEnabled="{Binding IsViewBusy, Converter={StaticResource InverseBoolConverter}}">
                         <UniformGrid Columns="2" >
                             <Border Margin="10,10,10,2" Style="{StaticResource ImageDropZoneStyle}" IsEnabled="{Binding IsPipelineLoaded}">
-                                <CommonControls:ImageElement 
-                                    CropWidth="{Binding Options.Width}"
-                                    CropHeight="{Binding Options.Height}"
-                                    SplitterVisibility="Auto"
-                                    SplitterPosition="Source"
-                                    SplitterDirection="LeftToRight"
-                                    Source="{Binding SourceImage, Mode=TwoWay}" 
-                                    IsLoadEnabled="True" 
-                                    IsSaveEnabled="False"
-                                    IsLoadOverlayEnabled="False"
-                                    SourceChanged="OnSourceImageChanged"
-                                    IsEnabled="{Binding DiffusionService.IsExecuting, Converter={StaticResource InverseBoolConverter}}"/>
+                                <Grid>
+                                    <CommonControls:ImageElement 
+                                        CropWidth="{Binding Options.Width}"
+                                        CropHeight="{Binding Options.Height}"
+                                        SplitterVisibility="Auto"
+                                        SplitterPosition="Source"
+                                        SplitterDirection="LeftToRight"
+                                        Source="{Binding SourceImage, Mode=TwoWay}" 
+                                        IsLoadEnabled="True" 
+                                        IsSaveEnabled="False"
+                                        IsLoadOverlayEnabled="False"
+                                        SourceChanged="OnSourceImageChanged"
+                                        IsEnabled="{Binding DiffusionService.IsExecuting, Converter={StaticResource InverseBoolConverter}}"/>
+
+                                    <Grid.Style>
+                                        <Style TargetType="{x:Type Grid}">
+                                            <Style.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding SelectedOption, Mode=OneWay, ElementName=InputControl, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Automation}" Value="True"/>
+                                                        <Condition Binding="{Binding AutomationOptions.Type, Mode=OneWay, ElementName=InputControl, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=InputFiles}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <MultiDataTrigger.Setters>
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                    </MultiDataTrigger.Setters>
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                </Grid>
                             </Border>
                             <Grid Margin="10,10,10,2" >
                                 <CommonControls:ImageElement 

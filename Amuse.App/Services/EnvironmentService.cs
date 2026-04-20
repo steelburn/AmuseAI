@@ -3,6 +3,7 @@ using Amuse.Common;
 using Amuse.Common.Config;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -218,16 +219,19 @@ namespace Amuse.App.Services
         }
 
 
-        private static EnvironmentConfig FromModel(EnvironmentModel environment, bool isDebugEnabled)
+        private EnvironmentConfig FromModel(EnvironmentModel environment, bool isDebugEnabled)
         {
-            return new EnvironmentConfig
+            var environmentConfig = new EnvironmentConfig
             {
                 IsDebug = isDebugEnabled,
                 Directory = App.DirectoryPython,
-                Variables = environment.Variables,
                 Environment = environment.Environment,
-                Requirements = environment.Requirements
+                Requirements = environment.Requirements.ToArray(),
+                Variables = environment.Variables?.ToDictionary() ?? new Dictionary<string, string>(),
             };
+
+            environmentConfig.Variables.Add("HF_HUB_CACHE", _settings.DirectoryModel);
+            return environmentConfig;
         }
     }
 

@@ -209,11 +209,98 @@ namespace Amuse.App.Views
 
 
         /// <summary>
+        /// Executes the pipeline automation.
+        /// </summary>
+        protected override async Task ExecuteAutomationAsync()
+        {
+            IsAutomating = true;
+            var timestamp = Stopwatch.GetTimestamp();
+            Logger.LogInformation("[VideoUpscale] [ExecuteAutomation] Executing pipeline...");
+
+            try
+            {
+                await ResultControl.ClearAsync();
+                Progress.Clear();
+                AutomationProgress.Clear();
+                Statistics.Clear();
+                ResultVideo = default;
+                CompareVideo = default;
+                Statistics.Start();
+
+                AutomationProgress.Indeterminate($"Loading Automations...");
+                var automationJobs = await AutomationManager.CreateJobsAsync(AutomationOptions, Options, MediaType.Video, MediaType.Video);
+                AutomationProgress.Update(0, automationJobs.Count, $"Automation: {0}/{automationJobs.Count}");
+                foreach (var automationJob in automationJobs)
+                {
+                    // Source
+                    SourceVideo = automationJob.VideoStreams[0];
+
+                    // Upscale
+                    var resultVideo = await UpscaleService.ExecuteAsync(new UpscaleVideoRequest
+                    {
+                        VideoStream = _sourceVideo,
+                        Options = automationJob.UpscaleOptions
+                    }, ProgressCallback);
+
+                    // Result
+                    ResultVideo = !AutomationOptions.IsHistoryEnabled
+                        ? resultVideo
+                        : await HistoryService.AddAsync(resultVideo, new UpscaleHistory
+                        {
+                            Options = automationJob.UpscaleOptions,
+                            Model = CurrentPipeline.UpscaleModel.Name,
+                            Source = View.VideoUpscale,
+                            OriginalWidth = _sourceVideo.Width,
+                            OriginalHeight = _sourceVideo.Height,
+                            ScaleFactor = CurrentPipeline.UpscaleModel.ScaleFactor
+                        });
+
+                    CompareVideo = _sourceVideo;
+
+                    // Output
+                    await automationJob.SaveAsync(ResultVideo);
+                    AutomationProgress.Update(automationJob.Id, automationJobs.Count, $"Automation: {automationJob.Id}/{automationJobs.Count}");
+                }
+
+                Statistics.Stop();
+                Logger.LogInformation("[VideoUpscale] [ExecuteAutomation] Executing pipeline complete, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+            }
+            catch (OperationCanceledException)
+            {
+                Statistics.Clear();
+                Logger.LogInformation("[VideoUpscale] [ExecuteAutomation] Executing pipeline cancelled, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+            }
+            catch (Exception ex)
+            {
+                Statistics.Clear();
+                IsPipelineLoaded = UpscaleService.IsLoaded;
+                Logger.LogError(ex, "[VideoUpscale] [ExecuteAutomation] An exception occurred executing pipeline, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+                await DialogService.ShowErrorAsync("Execute Automation", ex.Message);
+            }
+            finally
+            {
+                Progress.Clear();
+                AutomationProgress.Clear();
+                IsAutomating = false;
+            }
+        }
+
+
+        /// <summary>
         /// Determines whether this instance can execute.
         /// </summary>
         protected override bool CanExecute()
         {
             return _sourceVideo is not null && UpscaleService.IsLoaded && !UpscaleService.IsExecuting;
+        }
+
+
+        /// <summary>
+        /// Determines whether this process can execute automations.
+        /// </summary>
+        protected override bool CanExecuteAutomation()
+        {
+            return UpscaleService.IsLoaded && !UpscaleService.IsExecuting && AutomationOptions?.IsValid() == true;
         }
 
 

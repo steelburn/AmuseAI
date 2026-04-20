@@ -95,6 +95,75 @@ namespace Amuse.App.Views
 
 
         /// <summary>
+        /// Executes the pipeline automation.
+        /// </summary>
+        /// <returns>A Task representing the asynchronous operation.</returns>
+        protected override async Task ExecuteAutomationAsync()
+        {
+            IsAutomating = true;
+            var timestamp = Stopwatch.GetTimestamp();
+            Logger.LogInformation($"[TextToImage] [ExecuteAutomation] Executing pipeline...");
+
+            try
+            {
+                var previousImage = ResultImage;
+                Progress.Clear();
+                AutomationProgress.Clear();
+                Statistics.Clear();
+                ResultImage = default;
+                CompareImage = default;
+                Statistics.Start();
+
+                AutomationProgress.Indeterminate($"Loading Automations...");
+                var automationJobs = await AutomationManager.CreateJobsAsync(AutomationOptions, Options, MediaType.Image, MediaType.Text);
+                AutomationProgress.Update(0, automationJobs.Count, $"Automation: {0}/{automationJobs.Count}");
+                foreach (var automationJob in automationJobs)
+                {
+                    // Diffusion
+                    var resultTensor = await ExecuteImageDiffusionAsync(automationJob.DiffusionOptions);
+
+                    // Upscale
+                    resultTensor = await ExecuteImageUpscaleAsync(resultTensor);
+
+                    // Result
+                    ResultImage = await resultTensor.ToImageInputAsync();
+
+                    // History
+                    if (AutomationOptions.IsHistoryEnabled)
+                    {
+                        await SaveHistoryAsync(automationJob.DiffusionOptions);
+                    }
+
+                    // Output
+                    await automationJob.SaveAsync(ResultImage);
+                    AutomationProgress.Update(automationJob.Id, automationJobs.Count, $"Automation: {automationJob.Id}/{automationJobs.Count}");
+                }
+
+                Statistics.Stop();
+                Logger.LogInformation("[TextToImage] [ExecuteAutomation] Executing pipeline complete, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+            }
+            catch (OperationCanceledException)
+            {
+                Statistics.Clear();
+                Logger.LogInformation("[TextToImage] [ExecuteAutomation] Executing pipeline cancelled, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+            }
+            catch (Exception ex)
+            {
+                Statistics.Clear();
+                IsPipelineLoaded = DiffusionService.IsLoaded;
+                Logger.LogError(ex, "[TextToImage] [ExecuteAutomation] An exception occurred executing pipeline, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+                await DialogService.ShowErrorAsync("Execute Automation", ex.Message);
+            }
+            finally
+            {
+                Progress.Clear();
+                AutomationProgress.Clear();
+                IsAutomating = false;
+            }
+        }
+
+
+        /// <summary>
         /// Save history
         /// </summary>
         /// <param name="options">The options.</param>

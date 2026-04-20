@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using TensorStack.Common;
 using TensorStack.Common.Tensor;
 using TensorStack.Image;
 using TensorStack.WPF.Controls;
@@ -141,6 +142,91 @@ namespace Amuse.App.Views
                 Progress.Clear();
             }
         }
+
+
+        /// <summary>
+        /// Executes the pipeline automation.
+        /// </summary>
+        /// <returns>A Task representing the asynchronous operation.</returns>
+        protected override async Task ExecuteAutomationAsync()
+        {
+            IsAutomating = true;
+            var timestamp = Stopwatch.GetTimestamp();
+            Logger.LogInformation($"[ImageEdit] [ExecuteAutomation] Executing pipeline...");
+
+            try
+            {
+                Progress.Clear();
+                AutomationProgress.Clear();
+                Statistics.Clear();
+                ResultImage = default;
+                CompareImage = default;
+                Statistics.Start();
+
+                AutomationProgress.Indeterminate($"Loading Automations...");
+                var automationJobs = await AutomationManager.CreateJobsAsync(AutomationOptions, Options, MediaType.Image, MediaType.Image);
+                AutomationProgress.Update(0, automationJobs.Count, $"Automation: {0}/{automationJobs.Count}");
+                foreach (var automationJob in automationJobs)
+                {
+                    // Source
+                    if (!automationJob.InputImages.IsNullOrEmpty())
+                        SourceImage1 = automationJob.InputImages[0];
+
+                    // Images
+                    var inputImages = new List<ImageTensor>
+                    {
+                        _sourceImage1,
+                        _sourceImage2,
+                        _sourceImage3,
+                        _sourceImage4
+                    };
+
+                    // Diffusion
+                    var resultTensor = await ExecuteImageDiffusionAsync(automationJob.DiffusionOptions with
+                    {
+                        InputImages = inputImages
+                    });
+
+                    // Upscale
+                    resultTensor = await ExecuteImageUpscaleAsync(resultTensor);
+
+                    // Result
+                    ResultImage = await resultTensor.ToImageInputAsync();
+                    CompareImage = SourceImage1;
+
+                    // History
+                    if (AutomationOptions.IsHistoryEnabled)
+                    {
+                        await SaveHistoryAsync(automationJob.DiffusionOptions);
+                    }
+
+                    await automationJob.SaveAsync(ResultImage);
+                    AutomationProgress.Update(automationJob.Id, automationJobs.Count, $"Automation: {automationJob.Id}/{automationJobs.Count}");
+                }
+
+                Statistics.Stop();
+                Logger.LogInformation("[ImageEdit] [ExecuteAutomation] Executing pipeline complete, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+            }
+            catch (OperationCanceledException)
+            {
+                Statistics.Clear();
+                Logger.LogInformation("[ImageEdit] [ExecuteAutomation] Executing pipeline cancelled, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+            }
+            catch (Exception ex)
+            {
+                Statistics.Clear();
+                IsPipelineLoaded = DiffusionService.IsLoaded;
+                Logger.LogError(ex, "[ImageEdit] [ExecuteAutomation] An exception occurred executing pipeline, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+                await DialogService.ShowErrorAsync("Execute Automation", ex.Message);
+            }
+            finally
+            {
+                Progress.Clear();
+                AutomationProgress.Clear();
+                IsAutomating = false;
+            }
+        }
+
 
         /// <summary>
         /// Save history

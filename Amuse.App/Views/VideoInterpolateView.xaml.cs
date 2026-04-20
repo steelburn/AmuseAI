@@ -19,7 +19,7 @@ namespace Amuse.App.Views
         private VideoInputStream _sourceVideo;
         private VideoInputStream _resultVideo;
         private VideoInputStream _compareVideo;
-        private int _multiplier = 2;
+        private InterpolateInputOptions _options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VideoInterpolateView"/> class.
@@ -69,12 +69,12 @@ namespace Amuse.App.Views
         }
 
         /// <summary>
-        /// Gets or sets the multiplier.
+        /// Gets or sets the options.
         /// </summary>
-        public int Multiplier
+        public InterpolateInputOptions Options
         {
-            get { return _multiplier; }
-            set { SetProperty(ref _multiplier, value); }
+            get { return _options; }
+            set { SetProperty(ref _options, value); }
         }
 
 
@@ -170,7 +170,7 @@ namespace Amuse.App.Views
                     VideoStream = _sourceVideo,
                     Frames = _sourceVideo.FrameCount,
                     FrameRate = _sourceVideo.FrameRate,
-                    Multiplier = _multiplier
+                    Multiplier = _options.Multiplier
                 }, ProgressCallback);
 
                 Statistics.Stop();
@@ -178,7 +178,7 @@ namespace Amuse.App.Views
                 // Result
                 ResultVideo = await HistoryService.AddAsync(resultVideo, new InterpolateHistory
                 {
-                    Multiplier = _multiplier,
+                    Multiplier = _options.Multiplier,
                     Source = View.VideoInterpolate,
                     FrameRate = resultVideo.FrameRate,
                     OriginalFrameRate = _sourceVideo.FrameRate
@@ -207,11 +207,99 @@ namespace Amuse.App.Views
 
 
         /// <summary>
+        /// Executes the pipeline automation.
+        /// </summary>
+        protected override async Task ExecuteAutomationAsync()
+        {
+            IsAutomating = true;
+            var timestamp = Stopwatch.GetTimestamp();
+            Logger.LogInformation("[VideoInterpolate] [ExecuteAutomation] Executing pipeline...");
+
+            try
+            {
+                await ResultControl.ClearAsync();
+                Progress.Clear();
+                AutomationProgress.Clear();
+                Statistics.Clear();
+                ResultVideo = default;
+                CompareVideo = default;
+                Statistics.Start();
+
+                AutomationProgress.Indeterminate($"Loading Automations...");
+                var automationJobs = await AutomationManager.CreateJobsAsync(AutomationOptions, Options, MediaType.Video, MediaType.Video);
+                AutomationProgress.Update(0, automationJobs.Count, $"Automation: {0}/{automationJobs.Count}");
+                foreach (var automationJob in automationJobs)
+                {
+                    // Source
+                    SourceVideo = automationJob.VideoStreams[0];
+                    var options = automationJob.InterpolateOptions;
+
+                    // Interpolate
+                    var resultVideo = await InterpolationService.ExecuteAsync(new InterpolationRequest
+                    {
+                        VideoStream = _sourceVideo,
+                        Frames = _sourceVideo.FrameCount,
+                        FrameRate = _sourceVideo.FrameRate,
+                        Multiplier = options.Multiplier
+                    }, ProgressCallback);
+
+                    // Result
+                    ResultVideo = !AutomationOptions.IsHistoryEnabled
+                        ? resultVideo
+                        : await HistoryService.AddAsync(resultVideo, new InterpolateHistory
+                        {
+                            Multiplier = options.Multiplier,
+                            Source = View.VideoInterpolate,
+                            FrameRate = resultVideo.FrameRate,
+                            OriginalFrameRate = _sourceVideo.FrameRate
+                        });
+
+                    CompareVideo = _sourceVideo;
+
+                    // Output
+                    await automationJob.SaveAsync(ResultVideo);
+                    AutomationProgress.Update(automationJob.Id, automationJobs.Count, $"Automation: {automationJob.Id}/{automationJobs.Count}");
+                }
+
+                Statistics.Stop();
+                Logger.LogInformation("[VideoInterpolate] [ExecuteAutomation] Executing pipeline complete, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+            }
+            catch (OperationCanceledException)
+            {
+                Statistics.Clear();
+                Logger.LogInformation("[VideoInterpolate] [ExecuteAutomation] Executing pipeline cancelled, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+            }
+            catch (Exception ex)
+            {
+                Statistics.Clear();
+                IsPipelineLoaded = InterpolationService.IsLoaded;
+                Logger.LogError(ex, "[VideoInterpolate] [ExecuteAutomation] An exception occurred executing pipeline, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+                await DialogService.ShowErrorAsync("Execute Automation", ex.Message);
+            }
+            finally
+            {
+                Progress.Clear();
+                AutomationProgress.Clear();
+                IsAutomating = false;
+            }
+        }
+
+
+        /// <summary>
         /// Determines whether this instance can execute.
         /// </summary>
         protected override bool CanExecute()
         {
             return _sourceVideo is not null && InterpolationService.IsLoaded && !InterpolationService.IsExecuting;
+        }
+
+
+        /// <summary>
+        /// Determines whether this process can execute automations.
+        /// </summary>
+        protected override bool CanExecuteAutomation()
+        {
+            return InterpolationService.IsLoaded && !InterpolationService.IsExecuting && AutomationOptions?.IsValid() == true;
         }
 
 

@@ -26,6 +26,8 @@ namespace Amuse.App.Views
         private DiffusionInputOptions _options;
         private ExtractInputOptions _extractOptions;
         private UpscaleInputOptions _upscaleOptions;
+        private AutomationOptions _automationOptions;
+        private bool _isAutomating;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewBaseDiffusion"/> class.
@@ -40,8 +42,10 @@ namespace Amuse.App.Views
             ProgressCallback = new Progress<RunProgress>(OnProgress);
             CancelCommand = new AsyncRelayCommand(CancelAsync, CanCancel);
             ExecuteCommand = new AsyncRelayCommand(ExecuteAsync, CanExecute);
+            ExecuteAutomationCommand = new AsyncRelayCommand(ExecuteAutomationAsync, CanExecuteAutomation);
             StopCommand = new AsyncRelayCommand(DiffusionService.StopAsync);
             PythonProgressCallback = new Progress<PipelineProgress>(OnProgress);
+            AutomationProgress = new ProgressInfo();
         }
 
         /// <summary>
@@ -70,6 +74,10 @@ namespace Amuse.App.Views
         public AsyncRelayCommand ExecuteCommand { get; set; }
 
         /// <summary>
+        /// Gets or sets the execute automation command.
+        public AsyncRelayCommand ExecuteAutomationCommand { get; set; }
+
+        /// <summary>
         /// Gets or sets the cancel command.
         /// </summary>
         public AsyncRelayCommand CancelCommand { get; set; }
@@ -88,6 +96,11 @@ namespace Amuse.App.Views
         /// Gets the python progress callback.
         /// </summary>
         protected IProgress<PipelineProgress> PythonProgressCallback { get; }
+
+        /// <summary>
+        /// Gets or sets the automation progress.
+        /// </summary>
+        public ProgressInfo AutomationProgress { get;}
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is pipeline loaded.
@@ -170,11 +183,37 @@ namespace Amuse.App.Views
             set { SetProperty(ref _upscaleOptions, value); }
         }
 
+        /// <summary>
+        /// Gets or sets the automation options.
+        /// </summary>
+        public AutomationOptions AutomationOptions
+        {
+            get { return _automationOptions; }
+            set { SetProperty(ref _automationOptions, value); }
+        }
+
 
         /// <summary>
-        /// Executes the asynchronous.
+        /// Gets or sets a value indicating whether this instance is automating.
+        /// </summary>
+        public bool IsAutomating
+        {
+            get { return _isAutomating; }
+            set { SetProperty(ref _isAutomating, value); }
+        }
+
+
+        /// <summary>
+        /// Executes the pipeline.
         /// </summary>
         protected abstract Task ExecuteAsync();
+
+
+        /// <summary>
+        /// Executes the pipeline automation.
+        /// </summary>
+        /// <returns>Task.</returns>
+        protected abstract Task ExecuteAutomationAsync();
 
 
         /// <summary>
@@ -269,6 +308,15 @@ namespace Amuse.App.Views
             return !DiffusionService.IsExecuting
                 && !UpscaleService.IsExecuting
                 && !ExtractService.IsExecuting;
+        }
+
+
+        /// <summary>
+        /// Determines whether this process can execute automations.
+        /// </summary>
+        protected virtual bool CanExecuteAutomation()
+        {
+            return CanExecute();
         }
 
 

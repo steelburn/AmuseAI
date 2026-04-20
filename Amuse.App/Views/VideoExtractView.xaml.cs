@@ -207,11 +207,95 @@ namespace Amuse.App.Views
 
 
         /// <summary>
+        /// Executes the pipeline automation.
+        /// </summary>
+        protected override async Task ExecuteAutomationAsync()
+        {
+            IsAutomating = true;
+            var timestamp = Stopwatch.GetTimestamp();
+            Logger.LogInformation("[VideoExtract] [ExecuteAutomation] Executing pipeline...");
+
+            try
+            {
+                await ResultControl.ClearAsync();
+                Progress.Clear();
+                AutomationProgress.Clear();
+                Statistics.Clear();
+                ResultVideo = default;
+                CompareVideo = default;
+                Statistics.Start();
+
+                AutomationProgress.Indeterminate($"Loading Automations...");
+                var automationJobs = await AutomationManager.CreateJobsAsync(AutomationOptions, Options, MediaType.Video, MediaType.Video);
+                AutomationProgress.Update(0, automationJobs.Count, $"Automation: {0}/{automationJobs.Count}");
+                foreach (var automationJob in automationJobs)
+                {
+                    // Source
+                    SourceVideo = automationJob.VideoStreams[0];
+
+                    // Extract
+                    var resultVideo = await ExtractService.ExecuteAsync(new ExtractVideoRequest
+                    {
+                        VideoStream = _sourceVideo,
+                        Options = automationJob.ExtractOptions,
+                    }, ProgressCallback);
+
+                    // Result
+                    ResultVideo = !AutomationOptions.IsHistoryEnabled
+                        ? resultVideo
+                        : await HistoryService.AddAsync(resultVideo, new ExtractHistory
+                        {
+                            Options = _options,
+                            Model = CurrentPipeline.ExtractModel.Name,
+                            ExtractorType = CurrentPipeline.ExtractModel.Type,
+                            Source = View.VideoExtract,
+                        });
+                    CompareVideo = _sourceVideo;
+
+                    // Output
+                    await automationJob.SaveAsync(ResultVideo);
+                    AutomationProgress.Update(automationJob.Id, automationJobs.Count, $"Automation: {automationJob.Id}/{automationJobs.Count}");
+                }
+
+                Statistics.Stop();
+                Logger.LogInformation("[VideoExtract] [ExecuteAutomation] Executing pipeline complete, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+            }
+            catch (OperationCanceledException)
+            {
+                Statistics.Clear();
+                Logger.LogInformation("[VideoExtract] [ExecuteAutomation] Executing pipeline cancelled, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+            }
+            catch (Exception ex)
+            {
+                Statistics.Clear();
+                IsPipelineLoaded = ExtractService.IsLoaded;
+                Logger.LogError(ex, "[VideoExtract] [ExecuteAutomation] An exception occurred executing pipeline, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+                await DialogService.ShowErrorAsync("Execute Automation", ex.Message);
+            }
+            finally
+            {
+                Progress.Clear();
+                AutomationProgress.Clear();
+                IsAutomating = false;
+            }
+        }
+
+
+        /// <summary>
         /// Determines whether this instance can execute.
         /// </summary>
         protected override bool CanExecute()
         {
             return _sourceVideo is not null && ExtractService.IsLoaded && !ExtractService.IsExecuting;
+        }
+
+
+        /// <summary>
+        /// Determines whether this process can execute automations.
+        /// </summary>
+        protected override bool CanExecuteAutomation()
+        {
+            return ExtractService.IsLoaded && !ExtractService.IsExecuting && AutomationOptions?.IsValid() == true;
         }
 
 

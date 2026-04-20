@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using TensorStack.Common.Pipeline;
 using TensorStack.WPF;
+using TensorStack.WPF.Controls;
 using TensorStack.WPF.Services;
 
 namespace Amuse.App.Views
@@ -13,6 +14,8 @@ namespace Amuse.App.Views
     {
         private bool _isPipelineLoaded;
         private PipelineModel _currentPipeline;
+        private AutomationOptions _automationOptions;
+        private bool _isAutomating;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewBaseModel"/> class.
@@ -24,6 +27,8 @@ namespace Amuse.App.Views
             ProgressCallback = new Progress<RunProgress>(OnProgress);
             CancelCommand = new AsyncRelayCommand(CancelAsync, CanCancel);
             ExecuteCommand = new AsyncRelayCommand(ExecuteAsync, CanExecute);
+            ExecuteAutomationCommand = new AsyncRelayCommand(ExecuteAutomationAsync, CanExecuteAutomation);
+            AutomationProgress = new ProgressInfo();
         }
 
         /// <summary>
@@ -37,6 +42,10 @@ namespace Amuse.App.Views
         public AsyncRelayCommand ExecuteCommand { get; set; }
 
         /// <summary>
+        /// Gets or sets the execute automation command.
+        public AsyncRelayCommand ExecuteAutomationCommand { get; set; }
+
+        /// <summary>
         /// Gets or sets the cancel command.
         /// </summary>
         public AsyncRelayCommand CancelCommand { get; set; }
@@ -45,6 +54,11 @@ namespace Amuse.App.Views
         /// Gets the progress callback.
         /// </summary>
         public IProgress<RunProgress> ProgressCallback { get; }
+
+        /// <summary>
+        /// Gets or sets the automation progress.
+        /// </summary>
+        public ProgressInfo AutomationProgress { get; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is pipeline loaded.
@@ -64,11 +78,37 @@ namespace Amuse.App.Views
             set { SetProperty(ref _currentPipeline, value); }
         }
 
+        /// <summary>
+        /// Gets or sets the automation options.
+        /// </summary>
+        public AutomationOptions AutomationOptions
+        {
+            get { return _automationOptions; }
+            set { SetProperty(ref _automationOptions, value); }
+        }
+
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is automating.
+        /// </summary>
+        public bool IsAutomating
+        {
+            get { return _isAutomating; }
+            set { SetProperty(ref _isAutomating, value); }
+        }
+
 
         /// <summary>
         /// Executes the asynchronous.
         /// </summary>
         protected abstract Task ExecuteAsync();
+
+
+        /// <summary>
+        /// Executes the pipeline automation.
+        /// </summary>
+        /// <returns>Task.</returns>
+        protected abstract Task ExecuteAutomationAsync();
 
 
         /// <summary>
@@ -89,6 +129,15 @@ namespace Amuse.App.Views
         protected virtual bool CanExecute()
         {
             return true;
+        }
+
+
+        /// <summary>
+        /// Determines whether this process can execute automations.
+        /// </summary>
+        protected virtual bool CanExecuteAutomation()
+        {
+            return CanExecute();
         }
 
 

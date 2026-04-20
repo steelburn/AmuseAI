@@ -14,10 +14,36 @@
              xmlns:Common="clr-namespace:Amuse.App.Common"
              xmlns:Views="clr-namespace:Amuse.App.Views">
     <Grid  DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:DiffusionInputControl}}}">
-        <TabControl Margin="0,14,0,14">
+        <Grid.Resources>
+            <Style x:Key="DiffusionInputTab" TargetType="{x:Type TabItem}" BasedOn="{StaticResource {x:Type TabItem}}">
+                <Style.Triggers>
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding IsExecuting}" Value="True"/>
+                            <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="False"/>
+                        </MultiDataTrigger.Conditions>
+                        <MultiDataTrigger.Setters>
+                            <Setter Property="IsEnabled" Value="False"/>
+                        </MultiDataTrigger.Setters>
+                    </MultiDataTrigger>
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding IsAutomating}" Value="True"/>
+                            <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="False"/>
+                        </MultiDataTrigger.Conditions>
+                        <MultiDataTrigger.Setters>
+                            <Setter Property="IsEnabled" Value="False"/>
+                        </MultiDataTrigger.Setters>
+                    </MultiDataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Resources>
+
+
+        <TabControl Margin="0,14,0,14" SelectedIndex="{Binding SelectedOption}">
 
             <!--Options-->
-            <TabItem>
+            <TabItem Style="{StaticResource DiffusionInputTab}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Margin="3">
                         <CommonControls:FontAwesome Icon="f1de" IconStyle="Solid" Color="{StaticResource AccentColour2}" Size="13"/>
@@ -191,7 +217,7 @@
                                 <CommonControls:SliderControl Text="Strength" Value="{Binding Options.Strength}"  IsPercent="True"  Minimum="0.01" Maximum="1" TickFrequency="0.01" />
                             </StackPanel>
 
-                           <!--ControlNet-->
+                            <!--ControlNet-->
                             <StackPanel Visibility="{Binding Pipeline.ControlNetModel, Converter={StaticResource NullVisibilityConverter}, FallbackValue=Collapsed}">
                                 <CommonControls:SliderControl Text="Control Strength" Value="{Binding Options.ControlNetStrength}" IsPercent="True" Minimum="0.01" Maximum="1" TickFrequency="0.01"/>
                                 <!--<DockPanel Visibility="{Binding IsImageToImageControlNetSupported, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -298,11 +324,12 @@
                     </DockPanel>
 
                 </DockPanel>
+
             </TabItem>
 
 
             <!--Advanced-->
-            <TabItem>
+            <TabItem Style="{StaticResource DiffusionInputTab}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Margin="3">
                         <CommonControls:FontAwesome Icon="f085" IconStyle="Solid" Color="{StaticResource AccentColour2}" Size="12"/>
@@ -335,6 +362,99 @@
                     </GroupBox>
 
                 </StackPanel>
+
+            </TabItem>
+
+
+            <!--Automation-->
+            <TabItem Style="{StaticResource DiffusionInputTab}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Margin="3">
+                        <CommonControls:FontAwesome Icon="e0b6" IconStyle="Solid" Color="{StaticResource AccentColour2}" Size="12"/>
+                        <TextBlock Text="Automation" FontSize="11" FontWeight="DemiBold" Opacity=".9" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </TabItem.Header>
+                <DockPanel>
+
+                    <!--Progress-->
+                    <CommonControls:ProgressElement DockPanel.Dock="Bottom" Progress="{Binding AutomationProgress}" />
+
+                    <StackPanel VerticalAlignment="Top" Margin="0,4,0,0">
+
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="Automation" Style="{StaticResource FieldTextBlockStyle}" />
+                            <ComboBox ItemsSource="{Binding AutomationOptions.Types}" SelectedItem="{Binding AutomationOptions.Type}" Style="{StaticResource EnumComboBox}" />
+                        </StackPanel>
+
+                        <!--Seed-->
+                        <Grid Visibility="{Binding AutomationOptions.Type, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Seed}">
+                            <UniformGrid Margin="0,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Image Count" Style="{StaticResource FieldTextBlockStyle}"/>
+                                    <TextBox Text="{Binding AutomationOptions.Count, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                            </UniformGrid>
+                        </Grid>
+
+                        <!--PromptFiles-->
+                        <Grid Visibility="{Binding AutomationOptions.Type, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=PromptFiles}">
+                            <UniformGrid Margin="0,0,0,0" >
+                                <StackPanel>
+                                    <TextBlock Text="Prompt Folder" Style="{StaticResource FieldTextBlockStyle}"/>
+                                    <CommonControls:FilePickerTextBox FileName="{Binding AutomationOptions.InputDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsFolderPicker="True" IsRequired="True" />
+                                </StackPanel>
+                            </UniformGrid>
+                        </Grid>
+
+                        <!--PromptLines-->
+                        <Grid Visibility="{Binding AutomationOptions.Type, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=PromptLines}">
+                            <UniformGrid Margin="0,0,0,0" >
+                                <StackPanel>
+                                    <TextBlock Text="Prompt File" Style="{StaticResource FieldTextBlockStyle}"/>
+                                    <CommonControls:FilePickerTextBox FileName="{Binding AutomationOptions.InputFile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsRequired="True" Filter="Text Files|*.txt;" DefaultExt="txt"/>
+                                </StackPanel>
+                            </UniformGrid>
+                        </Grid>
+
+                        <!--ImageFiles-->
+                        <Grid Visibility="{Binding AutomationOptions.Type, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=InputFiles}">
+                            <StackPanel Visibility="{Binding ProcessType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=ImageToImage|ImageEdit|ImageToVideo}">
+                                <UniformGrid Margin="0,0,0,0" >
+                                    <StackPanel>
+                                        <TextBlock Text="Image Folder" Style="{StaticResource FieldTextBlockStyle}"/>
+                                        <CommonControls:FilePickerTextBox FileName="{Binding AutomationOptions.InputDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsFolderPicker="True" IsRequired="True" />
+                                    </StackPanel>
+                                </UniformGrid>
+                                <CheckBox Content="Use Input Size" IsChecked="{Binding AutomationOptions.UseInputSize}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                            <StackPanel  Visibility="{Binding ProcessType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=VideoToVideo}">
+                                <UniformGrid Margin="0,0,0,0" >
+                                    <StackPanel>
+                                        <TextBlock Text="Video Folder" Style="{StaticResource FieldTextBlockStyle}"/>
+                                        <CommonControls:FilePickerTextBox FileName="{Binding AutomationOptions.InputDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsFolderPicker="True" IsRequired="True" />
+                                    </StackPanel>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Grid>
+
+
+                        <!--HistoryEnabled-->
+                        <CheckBox Content="Output History" IsChecked="{Binding AutomationOptions.IsHistoryEnabled}" Margin="0,4,0,0"/>
+
+
+                        <!--OutputDirectory-->
+                        <CheckBox  Content="Output Location" IsChecked="{Binding AutomationOptions.UseOutputDirectory}" Margin="0,4,0,0"/>
+                        <Grid Visibility="{Binding AutomationOptions.UseOutputDirectory,Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <UniformGrid Margin="0,0,0,0" >
+                                <StackPanel>
+                                    <TextBlock Text="Output Folder" Style="{StaticResource FieldTextBlockStyle}"/>
+                                    <CommonControls:FilePickerTextBox FileName="{Binding AutomationOptions.OutputDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsFolderPicker="True" IsRequired="True" />
+                                </StackPanel>
+                            </UniformGrid>
+                        </Grid>
+                    </StackPanel>
+
+                </DockPanel>
             </TabItem>
 
 

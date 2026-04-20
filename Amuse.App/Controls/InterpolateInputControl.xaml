@@ -1,13 +1,13 @@
-﻿<CommonControls:BaseControl x:Class="Amuse.App.Controls.UpscaleInputControl"
+﻿<CommonControls:BaseControl x:Class="Amuse.App.Controls.InterpolateInputControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Amuse.App.Controls"
              xmlns:CommonControls="clr-namespace:TensorStack.WPF.Controls;assembly=TensorStack.WPF">
-    <Grid  DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:UpscaleInputControl}}}">
+    <Grid  DataContext="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:InterpolateInputControl}}}">
         <Grid.Resources>
-            <Style x:Key="UpscaleInputTab" TargetType="{x:Type TabItem}" BasedOn="{StaticResource {x:Type TabItem}}">
+            <Style x:Key="InterpolateInputTab" TargetType="{x:Type TabItem}" BasedOn="{StaticResource {x:Type TabItem}}">
                 <Style.Triggers>
                     <MultiDataTrigger>
                         <MultiDataTrigger.Conditions>
@@ -33,7 +33,7 @@
 
         <TabControl Margin="0,14,0,14" SelectedIndex="{Binding SelectedOption}">
 
-            <TabItem Style="{StaticResource UpscaleInputTab}">
+            <TabItem Style="{StaticResource InterpolateInputTab}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Margin="3">
                         <CommonControls:FontAwesome Icon="f1de" IconStyle="Solid" Color="{StaticResource AccentColour2}" Size="13"/>
@@ -41,25 +41,13 @@
                     </StackPanel>
                 </TabItem.Header>
                 <DockPanel>
-
-                    <UniformGrid Columns="3" VerticalAlignment="Top" Margin="0,10,0,0">
-                        <StackPanel>
-                            <CheckBox Content="Enable Tiling" IsChecked="{Binding Options.IsTileEnabled}" Margin="0,19,0,0"/>
-                        </StackPanel>
-                        <StackPanel IsEnabled="{Binding Options.IsTileEnabled}" Margin="0,0,2,0">
-                            <TextBlock Text="Tile Size" Style="{StaticResource FieldTextBlockStyle}" />
-                            <TextBox Text="{Binding Options.TileSize}" />
-                        </StackPanel>
-                        <StackPanel IsEnabled="{Binding Options.IsTileEnabled}" Margin="2,0,0,0">
-                            <TextBlock Text="Tile Overlap" Style="{StaticResource FieldTextBlockStyle}" />
-                            <TextBox Text="{Binding Options.TileOverlap}" />
-                        </StackPanel>
-                    </UniformGrid>
-
+                    <StackPanel VerticalAlignment="Top" Margin="0,4,0,0">
+                        <CommonControls:SliderControl Text="Frame Multiplier" Value="{Binding Options.Multiplier, UpdateSourceTrigger=PropertyChanged}" Minimum="2" Maximum="8" TickFrequency="1" ValuePostFix="x" />
+                    </StackPanel>
                 </DockPanel>
             </TabItem>
 
-            <TabItem Style="{StaticResource UpscaleInputTab}" Visibility="Collapsed">
+            <TabItem Style="{StaticResource InterpolateInputTab}" Visibility="Collapsed">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Margin="3">
                         <CommonControls:FontAwesome Icon="f085" IconStyle="Solid" Color="{StaticResource AccentColour2}" Size="12"/>
@@ -70,7 +58,7 @@
                 </DockPanel>
             </TabItem>
 
-            <TabItem Style="{StaticResource UpscaleInputTab}">
+            <TabItem Style="{StaticResource InterpolateInputTab}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" Margin="3">
                         <CommonControls:FontAwesome Icon="e0b6" IconStyle="Solid" Color="{StaticResource AccentColour2}" Size="12"/>
@@ -91,15 +79,7 @@
 
                         <!--InputFiles-->
                         <Grid Visibility="{Binding AutomationOptions.Type, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=InputFiles}">
-                            <StackPanel Visibility="{Binding ViewType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=ImageUpscale}">
-                                <UniformGrid Margin="0,0,0,0" >
-                                    <StackPanel>
-                                        <TextBlock Text="Image Folder" Style="{StaticResource FieldTextBlockStyle}"/>
-                                        <CommonControls:FilePickerTextBox FileName="{Binding AutomationOptions.InputDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsFolderPicker="True" IsRequired="True" />
-                                    </StackPanel>
-                                </UniformGrid>
-                            </StackPanel>
-                            <StackPanel  Visibility="{Binding ViewType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=VideoUpscale}">
+                            <StackPanel  Visibility="{Binding ViewType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=VideoInterpolate}">
                                 <UniformGrid Margin="0,0,0,0" >
                                     <StackPanel>
                                         <TextBlock Text="Video Folder" Style="{StaticResource FieldTextBlockStyle}"/>

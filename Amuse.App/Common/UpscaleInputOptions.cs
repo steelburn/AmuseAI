@@ -3,7 +3,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public class UpscaleInputOptions : BaseModel
+    public record UpscaleInputOptions : BaseRecord
     {
         private bool _isTileEnabled;
         private int _tileSize;

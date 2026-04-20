@@ -1,4 +1,5 @@
 ﻿using Amuse.App.Common;
+using Amuse.App.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace Amuse.App.Controls
         private SchedulerInputOptions[] _schedulers;
         private bool _isImageControlNetSupported;
         private bool _isImageToImageControlNetSupported;
+        private DiffusionInputOption _selectedOption;
 
         public DiffusionInputControl()
         {
@@ -38,7 +40,12 @@ namespace Amuse.App.Controls
         public static readonly DependencyProperty OptionsProperty = DependencyProperty.Register(nameof(Options), typeof(DiffusionInputOptions), typeof(DiffusionInputControl));
         public static readonly DependencyProperty UpscaleOptionsProperty = DependencyProperty.Register(nameof(UpscaleOptions), typeof(UpscaleInputOptions), typeof(DiffusionInputControl));
         public static readonly DependencyProperty ExtractOptionsProperty = DependencyProperty.Register(nameof(ExtractOptions), typeof(ExtractInputOptions), typeof(DiffusionInputControl));
+        public static readonly DependencyProperty AutomationOptionsProperty = DependencyProperty.Register(nameof(AutomationOptions), typeof(AutomationOptions), typeof(DiffusionInputControl));
+        public static readonly DependencyProperty IsExecutingProperty = DependencyProperty.Register(nameof(IsExecuting), typeof(bool), typeof(DiffusionInputControl));
+        public static readonly DependencyProperty IsAutomatingProperty = DependencyProperty.Register(nameof(IsAutomating), typeof(bool), typeof(DiffusionInputControl));
+        public static readonly DependencyProperty AutomationProgressProperty = DependencyProperty.Register(nameof(AutomationProgress), typeof(ProgressInfo), typeof(DiffusionInputControl));
 
+        public View ViewType { get; set; }
         public ProcessType ProcessType { get; set; }
         public RelayCommand<bool> SeedCommand { get; }
         public AsyncRelayCommand<string> AddTriggerWordCommand { get; }
@@ -66,6 +73,30 @@ namespace Amuse.App.Controls
         {
             get { return (ExtractInputOptions)GetValue(ExtractOptionsProperty); }
             set { SetValue(ExtractOptionsProperty, value); }
+        }
+
+        public AutomationOptions AutomationOptions
+        {
+            get { return (AutomationOptions)GetValue(AutomationOptionsProperty); }
+            set { SetValue(AutomationOptionsProperty, value); }
+        }
+
+        public ProgressInfo AutomationProgress
+        {
+            get { return (ProgressInfo)GetValue(AutomationProgressProperty); }
+            set { SetValue(AutomationProgressProperty, value); }
+        }
+
+        public bool IsExecuting
+        {
+            get { return (bool)GetValue(IsExecutingProperty); }
+            set { SetValue(IsExecutingProperty, value); }
+        }
+
+        public bool IsAutomating
+        {
+            get { return (bool)GetValue(IsAutomatingProperty); }
+            set { SetValue(IsAutomatingProperty, value); }
         }
 
         public bool IsImageInputEnabled
@@ -134,6 +165,12 @@ namespace Amuse.App.Controls
             get { return _isImageToImageControlNetSupported; }
             set { SetProperty(ref _isImageToImageControlNetSupported, value); }
         }
+  
+        public DiffusionInputOption SelectedOption
+        {
+            get { return _selectedOption; }
+            set { SetProperty(ref _selectedOption, value); }
+        }
 
 
         private Task OnPipelineChanged(PipelineModel oldPipeline, PipelineModel newPipeline)
@@ -149,12 +186,12 @@ namespace Amuse.App.Controls
             var newModel = newPipeline?.DiffusionModel;
             var newOptions = newModel?.DefaultOptions;
 
-            if (oldModel == newModel)
-            {
-                // TODO if has lora changed
-                Options.LoraOptions = newPipeline.LoraAdapterModel?.Select(x => new LoraOptionModel { Name = x.Name, Key = x.Key, Strength = 1f }).ToList();
-                return Task.CompletedTask;
-            }
+            //if (oldModel == newModel)
+            //{
+            //    // TODO if has lora changed
+            //    Options.LoraOptions = newPipeline.LoraAdapterModel?.Select(x => new LoraOptionModel { Name = x.Name, Key = x.Key, Strength = 1f }).ToList();
+            //    return Task.CompletedTask;
+            //}
 
             // UI Flags
             IsSteps2Enabled = newPipeline.DiffusionModel.DefaultOptions.Steps2 > 0;
@@ -200,6 +237,12 @@ namespace Amuse.App.Controls
             Schedulers = newOptions.Schedulers.GetSchedulers().Select(SchedulerInputOptions.Create).ToArray();
             Options.SchedulerOptions = Schedulers.FirstOrDefault(x => x.Scheduler == newOptions.Scheduler);
 
+            // Automation
+            AutomationOptions = new AutomationOptions
+            {
+                ViewType = ViewType
+            };
+
             return Task.CompletedTask;
         }
 
@@ -232,5 +275,14 @@ namespace Amuse.App.Controls
             Options.Width = _selectedResolution.Width;
             Options.Height = _selectedResolution.Height;
         }
+
+    }
+
+
+    public enum DiffusionInputOption
+    {
+        Options = 0,
+        Advanced = 1,
+        Automation = 2,
     }
 }

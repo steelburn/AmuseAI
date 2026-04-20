@@ -4,7 +4,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public class ExtractInputOptions : BaseModel
+    public record ExtractInputOptions : BaseRecord
     {
         private bool _isTileEnabled;
         private int tileSize;

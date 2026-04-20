@@ -158,7 +158,13 @@
                         <ComboBox SelectedItem="{Binding SelectedMemoryMode}" 
                             ItemsSource="{Binding MemoryModes}"
                             HorizontalContentAlignment="Stretch"
-                            SelectionChanged="Memory_SelectionChanged">
+                            SelectionChanged="Memory_SelectionChanged"
+                            ToolTip="{Binding SelectedMemoryMode.MemoryMode, Converter={StaticResource EnumDescriptionConverter}}"
+                            ToolTipService.Placement="Right"
+                            ToolTipService.InitialShowDelay="600"
+                            ToolTipService.VerticalOffset="-2"
+                            ToolTipService.HorizontalOffset="2"
+                            ToolTipService.HasDropShadow="True">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <DockPanel
@@ -186,8 +192,13 @@
                         <ComboBox SelectedItem="{Binding SelectedQualityMode}" 
                             ItemsSource="{Binding SelectedDevice.QualityModes}" 
                             SelectionChanged="Memory_SelectionChanged" 
-   
-                            HorizontalContentAlignment="Stretch">
+                            HorizontalContentAlignment="Stretch"
+                            ToolTip="{Binding SelectedQualityMode, Converter={StaticResource EnumDescriptionConverter}}"
+                            ToolTipService.Placement="Right"
+                            ToolTipService.InitialShowDelay="600"
+                            ToolTipService.VerticalOffset="-2"
+                            ToolTipService.HorizontalOffset="2"
+                            ToolTipService.HasDropShadow="True">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <DockPanel

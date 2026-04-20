@@ -2203,7 +2203,6 @@
       "ProcessTypes": [ "ImageEdit" ],
       "Vendor": [ "Nvidia" ,"AMD"],
       "Link": "https://huggingface.co/Qwen/Qwen-Image-Edit-2511",
-      "IsDefault": true,
       "DefaultOptions": {
         "Steps": 30,
         "Width": 1024,

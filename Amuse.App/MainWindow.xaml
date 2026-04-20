@@ -328,7 +328,7 @@
                             </CommonControls:IconButton>
                             <CommonControls:IconButton 
                                 Text="Paint To Image" 
-                                Icon="f044"
+                                Icon="f1fc"
                                 Style="{StaticResource SubmenuIconButton}"
                                 Command="{Binding NavigateCommand}" 
                                 CommandParameter="{x:Static Views:View.PaintToImage}" 

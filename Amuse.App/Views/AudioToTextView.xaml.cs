@@ -257,6 +257,12 @@ namespace Amuse.App.Views
         }
 
 
+        protected override Task ExecuteAutomationAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+
         /// <summary>
         /// Determines whether this instance can execute.
         /// </summary>

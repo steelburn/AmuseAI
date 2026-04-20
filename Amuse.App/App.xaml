@@ -84,6 +84,12 @@
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
+            <ObjectDataProvider x:Key="AutomationType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:Type TypeName="Common:AutomationType"/>
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+
             <ObjectDataProvider x:Key="QuantizationType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
                     <x:Type TypeName="PythonOptions:QuantizationType"/>
@@ -410,7 +416,7 @@
                                     <Setter Property="Color" Value="#10FFFFFF"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsGated}" Value="True">
-                                            <Setter Property="Color" Value="{StaticResource AccentColour2}"/>
+                                            <Setter Property="Color" Value="{StaticResource WarningColour}"/>
                                             <Setter Property="ToolTip" Value="Gated Model - HuggingFace Authentication Required."/>
                                         </DataTrigger>
                                     </Style.Triggers>

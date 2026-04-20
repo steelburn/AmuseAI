@@ -210,11 +210,100 @@ namespace Amuse.App.Views
 
 
         /// <summary>
+        /// Executes the pipeline automation.
+        /// </summary>
+        protected override async Task ExecuteAutomationAsync()
+        {
+            IsAutomating = true;
+            var timestamp = Stopwatch.GetTimestamp();
+            Logger.LogInformation("[ImageUpscale] [ExecuteAutomation] Executing pipeline...");
+
+            try
+            {
+                Progress.Clear();
+                AutomationProgress.Clear();
+                Statistics.Clear();
+                ResultImage = default;
+                CompareImage = default;
+                Statistics.Start();
+
+                AutomationProgress.Indeterminate($"Loading Automations...");
+                var automationJobs = await AutomationManager.CreateJobsAsync(AutomationOptions, Options, MediaType.Image, MediaType.Image);
+                AutomationProgress.Update(0, automationJobs.Count, $"Automation: {0}/{automationJobs.Count}");
+                foreach (var automationJob in automationJobs)
+                {
+                    // Source
+                    SourceImage = automationJob.InputImages[0];
+
+                    // Upscale
+                    var resultTensor = await UpscaleService.ExecuteAsync(new UpscaleImageRequest
+                    {
+                        Image = _sourceImage,
+                        Options = automationJob.UpscaleOptions
+                    }, ProgressCallback);
+
+                    // Result
+                    ResultImage = await resultTensor.ToImageInputAsync();
+                    CompareImage = _sourceImage;
+
+                    // History
+                    if (AutomationOptions.IsHistoryEnabled)
+                    {
+                        await HistoryService.AddAsync(_resultImage, new UpscaleHistory
+                        {
+                            Options = automationJob.UpscaleOptions,
+                            Model = CurrentPipeline.UpscaleModel.Name,
+                            Source = View.ImageUpscale,
+                            OriginalWidth = _sourceImage.Width,
+                            OriginalHeight = _sourceImage.Height,
+                            ScaleFactor = CurrentPipeline.UpscaleModel.ScaleFactor
+                        });
+                    }
+
+                    // Output
+                    await automationJob.SaveAsync(ResultImage);
+                    AutomationProgress.Update(automationJob.Id, automationJobs.Count, $"Automation: {automationJob.Id}/{automationJobs.Count}");
+                }
+
+                Statistics.Stop();
+                Logger.LogInformation("[ImageUpscale] [ExecuteAutomation] Executing pipeline complete, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+            }
+            catch (OperationCanceledException)
+            {
+                Statistics.Clear();
+                Logger.LogInformation("[ImageUpscale] [ExecuteAutomation] Executing pipeline cancelled, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+            }
+            catch (Exception ex)
+            {
+                Statistics.Clear();
+                IsPipelineLoaded = UpscaleService.IsLoaded;
+                Logger.LogError(ex, "[ImageUpscale] [ExecuteAutomation] An exception occurred executing pipeline, Elapsed: {Elapsed:c}", Stopwatch.GetElapsedTime(timestamp));
+                await DialogService.ShowErrorAsync("Execute Automation", ex.Message);
+            }
+            finally
+            {
+                Progress.Clear();
+                AutomationProgress.Clear();
+                IsAutomating = false;
+            }
+        }
+
+
+        /// <summary>
         /// Determines whether this instance can execute.
         /// </summary>
         protected override bool CanExecute()
         {
             return _sourceImage is not null && UpscaleService.IsLoaded && !UpscaleService.IsExecuting;
+        }
+
+
+        /// <summary>
+        /// Determines whether this process can execute automations.
+        /// </summary>
+        protected override bool CanExecuteAutomation()
+        {
+            return UpscaleService.IsLoaded && !UpscaleService.IsExecuting && AutomationOptions?.IsValid() == true;
         }
 
 
@@ -275,4 +364,5 @@ namespace Amuse.App.Views
             }
         }
     }
+
 }
