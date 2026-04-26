@@ -231,6 +231,9 @@ namespace Amuse.App.Services
             };
 
             environmentConfig.Variables.Add("HF_HUB_CACHE", _settings.DirectoryModel);
+            if (!string.IsNullOrEmpty(_settings.SecureToken))
+                environmentConfig.Variables.Add("HF_TOKEN", _settings.SecureToken);
+
             return environmentConfig;
         }
     }

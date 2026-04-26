@@ -509,7 +509,6 @@ namespace Amuse.App.Controls
         private void Device_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             SetDeviceDataTypes();
-            IsLoraSupported = _selectedDevice.IsLoraSupported;
             if (IsLoraEnabled && !IsLoraSupported)
                 IsLoraEnabled = false;
 
