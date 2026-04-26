@@ -4,8 +4,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
-using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -39,6 +37,7 @@ namespace Amuse.App
         private static Mutex _appMutex;
         private static string _directoryBase;
         private static string _directoryData;
+        private static string _directoryLogs;
         private static string _directoryPython;
         private readonly Settings _settings;
 
@@ -58,6 +57,7 @@ namespace Amuse.App
             // Paths
             _directoryBase = AppDomain.CurrentDomain.BaseDirectory;
             _directoryData = GetApplicationDataDirectory();
+            _directoryLogs = Path.Combine(_directoryData, "Logs");
             _directoryPython = Path.Combine(_directoryData, "PythonRuntime");
 
             // Host
@@ -96,6 +96,7 @@ namespace Amuse.App
 
         public static string DirectoryBase => _directoryBase;
         public static string DirectoryData => _directoryData;
+        public static string DirectoryLogs => _directoryLogs;
         public static string DirectoryPython => _directoryPython;
         public static string DirectoryServer => _directoryBase;
         public AsyncRelayCommand UpdateCommand { get; set; }
@@ -351,7 +352,7 @@ namespace Amuse.App
         private static string GetLogName()
         {
             var now = DateTime.Now;
-            return Path.Combine(_directoryData, @$"Logs\Amuse-{DateTime.Now:dd-MM-yyyy}-{now.Hour * 3600 + now.Minute * 60 + now.Second}.txt");
+            return Path.Combine(_directoryLogs, @$"Amuse-{DateTime.Now:dd-MM-yyyy}-{now.Hour * 3600 + now.Minute * 60 + now.Second}.txt");
         }
 
 

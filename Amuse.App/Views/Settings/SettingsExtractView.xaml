@@ -24,14 +24,14 @@
                 </DockPanel>
 
                 <StackPanel DockPanel.Dock="Bottom">
-                    <!--<CommonControls:IconButton Text="Add Model Wizard" FontSize="13" Icon="e2ca" IconStyle="Light" IconColor="{StaticResource SuccessColour}" Command="{Binding AddExtractModelWizardCommand}" Height="40"  />-->
+                    <!--<CommonControls:IconButton Text="Add Model Wizard" FontSize="13" Icon="e2ca" IconStyle="Light" IconColor="{StaticResource SuccessColour}" Command="{Binding AddModelWizardCommand}" Height="40"  />-->
                     <UniformGrid  Columns="3" Height="50">
-                        <CommonControls:IconButton Text="Add" FontSize="13" Icon="2b" IconStyle="Light" IconColor="{StaticResource SuccessColour}" Command="{Binding AddExtractModelCommand}" />
-                        <CommonControls:IconButton Text="Copy" FontSize="13" Icon="f24d" IconStyle="Light" IconColor="{StaticResource InfoColour}" Command="{Binding CopyExtractModelCommand}" />
-                        <CommonControls:IconButton Text="Edit" FontSize="13" Icon="f0ad" IconStyle="Light" IconColor="{StaticResource InfoColour}" Command="{Binding UpdateExtractModelCommand}" />
-                        <CommonControls:IconButton Text="Import" FontSize="13" Icon="f56f" IconStyle="Light" IconColor="{StaticResource InfoColour}" Command="{Binding ImportExtractModelCommand}" />
-                        <CommonControls:IconButton Text="Export" FontSize="13" Icon="f56e" IconStyle="Light" IconColor="{StaticResource InfoColour}" Command="{Binding ExportExtractModelCommand}" />
-                        <CommonControls:IconButton Text="Remove" FontSize="13" Icon="f00d" IconStyle="Light" IconColor="{StaticResource DangerColour}" Command="{Binding RemoveExtractModelCommand}" />
+                        <CommonControls:IconButton Text="Add" FontSize="13" Icon="2b" IconStyle="Light" IconColor="{StaticResource SuccessColour}" Command="{Binding AddModelCommand}" />
+                        <CommonControls:IconButton Text="Copy" FontSize="13" Icon="f24d" IconStyle="Light" IconColor="{StaticResource InfoColour}" Command="{Binding CopyModelCommand}" />
+                        <CommonControls:IconButton Text="Edit" FontSize="13" Icon="f0ad" IconStyle="Light" IconColor="{StaticResource InfoColour}" Command="{Binding UpdateModelCommand}" />
+                        <CommonControls:IconButton Text="Import" FontSize="13" Icon="f56f" IconStyle="Light" IconColor="{StaticResource InfoColour}" Command="{Binding ImportModelCommand}" />
+                        <CommonControls:IconButton Text="Export" FontSize="13" Icon="f56e" IconStyle="Light" IconColor="{StaticResource InfoColour}" Command="{Binding ExportModelCommand}" />
+                        <CommonControls:IconButton Text="Remove" FontSize="13" Icon="f00d" IconStyle="Light" IconColor="{StaticResource DangerColour}" Command="{Binding RemoveModelCommand}" />
                     </UniformGrid>
                 </StackPanel>
 

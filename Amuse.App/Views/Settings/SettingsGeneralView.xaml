@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:app="clr-namespace:Amuse.App"
     xmlns:local="clr-namespace:Amuse.App.Views"
     xmlns:CommonControls="clr-namespace:TensorStack.WPF.Controls;assembly=TensorStack.WPF"
     xmlns:Controls="clr-namespace:Amuse.App.Controls"
@@ -81,8 +82,10 @@
                                     <TextBlock Text="UI Scale" Style="{StaticResource FieldTextBlockStyle}"/>
                                     <ComboBox ItemsSource="{Binding ScaleOptions}" SelectedValue="{Binding Settings.UIScale, Mode=TwoWay}" SelectedValuePath="Value" DisplayMemberPath="Label" />
                                 </StackPanel>
-
                                 <!--<CheckBox Content="Check For Updates" IsChecked="{Binding Settings.IsUpdateEnabled}" Margin="22,20,0,0"/>-->
+                                <TextBlock />
+                                <CommonControls:HyperlinkControl Label="Python Directory" Link="{x:Static app:App.DirectoryPython}" IsButtonType="True" VerticalAlignment="Stretch" Margin="0,8,0,0" />
+                                <CommonControls:HyperlinkControl Label="Log Directory" Link="{x:Static app:App.DirectoryLogs}" IsButtonType="True" VerticalAlignment="Stretch" Margin="0,8,0,0" />
                             </UniformGrid>
 
                             <DockPanel>
@@ -95,8 +98,6 @@
                                     <TextBox Text="{Binding Settings.DirectoryTemp}" />
                                 </StackPanel>
                             </DockPanel>
-                         
-
                         </StackPanel>
                     </GroupBox>
 
@@ -105,7 +106,7 @@
                     <GroupBox Header="Experimental" Margin="0,20,0,0">
                         <StackPanel Margin="6">
                             <UniformGrid Columns="1" >
-                                <StackPanel>
+                                <StackPanel Margin="0,4,0,0">
                                     <CheckBox Content="Pipeline Debug" IsChecked="{Binding Settings.IsServerDebugEnabled}" />
                                     <TextBlock Text="Show the pipeline status in a seperate console window" FontSize="11" FontStyle="Italic" Opacity=".6" Margin="22,0,0,0"/>
                                 </StackPanel>

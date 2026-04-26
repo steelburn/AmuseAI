@@ -31,7 +31,7 @@
             </Style>
         </Grid.Resources>
 
-        <TabControl Margin="0,14,0,14" SelectedIndex="{Binding SelectedOption}">
+        <TabControl Margin="0,14,0,14" SelectedIndex="{Binding SelectedOption, Converter={StaticResource EnumToIntConverter}}">
 
             <TabItem Style="{StaticResource ExtractInputTab}">
                 <TabItem.Header>
