@@ -1,5 +1,5 @@
 {
-  "Version": 0,
+  "Version": 1,
   "DefaultDeviceId": -1,
   "Vendors": [ "AMD", "Nvidia" ],
   "Environments": [
