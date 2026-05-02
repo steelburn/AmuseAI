@@ -134,7 +134,8 @@
                                         CropWidth="{Binding Options.Width, Mode=OneWay}"
                                         CropHeight="{Binding Options.Height, Mode=OneWay}"
                                         Source="{Binding SourceImage1, Mode=TwoWay}" 
-                                        IsInputEnabled="{Binding IsPipelineLoaded, Mode=OneWay}"/>
+                                        IsInputEnabled="{Binding IsPipelineLoaded, Mode=OneWay}"
+                                        Title="First Frame"/>
                                     <Grid.Style>
                                         <Style TargetType="{x:Type Grid}">
                                             <Style.Triggers>
@@ -153,7 +154,7 @@
                                 </Grid>
 
                                 <!--SourceImage2-->
-                                <Grid Margin="10,10,10,2" Visibility="{Binding Options.IsFirstFrameLastFrame, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}">
+                                <Grid Margin="10,10,10,2" Visibility="{Binding Options.IsSource2Enabled, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}">
                                     <CommonControls:ImageElement 
                                         SplitterVisibility="Auto"
                                         SplitterPosition="Source"
@@ -164,7 +165,8 @@
                                         CropWidth="{Binding Options.Width, Mode=OneWay}"
                                         CropHeight="{Binding Options.Height, Mode=OneWay}"
                                         Source="{Binding SourceImage2, Mode=TwoWay}" 
-                                        IsInputEnabled="{Binding IsPipelineLoaded, Mode=OneWay}"/>
+                                        IsInputEnabled="{Binding IsPipelineLoaded, Mode=OneWay}"
+                                        Title="Last Frame"/>
                                 </Grid>
 
                                 <UniformGrid.Style>
@@ -172,7 +174,7 @@
                                         <Setter Property="Rows" Value="1"></Setter>
                                         <Setter Property="Columns" Value="1"></Setter>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Options.IsFirstFrameLastFrame, Mode=OneWay}" Value="True">
+                                            <DataTrigger Binding="{Binding Options.IsSource2Enabled, Mode=OneWay}" Value="True">
                                                 <Setter Property="Rows" Value="2"></Setter>
                                                 <Setter Property="Columns" Value="1"></Setter>
                                             </DataTrigger>

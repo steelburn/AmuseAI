@@ -122,7 +122,16 @@
                         <UniformGrid Columns="2">
 
                             <!--Inputs-->
-                            <UniformGrid Margin="10,10,10,2">
+                            <Grid Margin="10,10,10,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+
 
                                 <!--SourceVideo/SourceImage1-->
                                 <Grid>
@@ -141,15 +150,33 @@
                                         IsEnabled="{Binding IsAutomating, Converter={StaticResource InverseBoolConverter}}"/>
                                     <Grid.Style>
                                         <Style TargetType="{x:Type Grid}">
+                                            <Setter Property="Grid.Row" Value="0"/>
+                                            <Setter Property="Grid.Column" Value="0"/>
+                                            <Setter Property="Grid.RowSpan" Value="2"/>
+                                            <Setter Property="Grid.ColumnSpan" Value="2"/>
                                             <Setter Property="Margin" Value="0,0,0,0"/>
+                                            <Setter Property="Visibility" Value="Visible"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Options.InputImageCount, ElementName=InputControl, Converter={StaticResource GreaterOrEqualThanToBooleanConverter}, ConverterParameter=2}" Value="True">
-                                                    <Setter Property="Margin" Value="0,0,0,4"/>
+                                                <DataTrigger Binding="{Binding Options.IsSource1Enabled}" Value="True">
                                                     <Setter Property="Visibility" Value="Visible"/>
+                                                    <Setter Property="Margin" Value="0,0,0,0"/>
+                                                    <Setter Property="Grid.RowSpan" Value="2"/>
+                                                    <Setter Property="Grid.ColumnSpan" Value="2"/>
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding Options.InputImageCount, ElementName=InputControl, Converter={StaticResource GreaterOrEqualThanToBooleanConverter}, ConverterParameter=3}" Value="True">
+                                                <DataTrigger Binding="{Binding Options.IsSource2Enabled}" Value="True">
+                                                    <Setter Property="Margin" Value="0,0,0,4"/>
+                                                    <Setter Property="Grid.RowSpan" Value="1"/>
+                                                    <Setter Property="Grid.ColumnSpan" Value="2"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Options.IsSource3Enabled}" Value="True">
+                                                    <Setter Property="Margin" Value="0,0,0,4"/>
+                                                    <Setter Property="Grid.RowSpan" Value="1"/>
+                                                    <Setter Property="Grid.ColumnSpan" Value="2"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Options.IsSource4Enabled}" Value="True">
                                                     <Setter Property="Margin" Value="0,0,4,4"/>
-                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Setter Property="Grid.RowSpan" Value="1"/>
+                                                    <Setter Property="Grid.ColumnSpan" Value="1"/>
                                                 </DataTrigger>
                                                 <MultiDataTrigger>
                                                     <MultiDataTrigger.Conditions>
@@ -177,19 +204,34 @@
                                         CropWidth="{Binding Options.Width, Mode=OneWay}"
                                         CropHeight="{Binding Options.Height, Mode=OneWay}"
                                         Source="{Binding SourceImage2, Mode=TwoWay}" 
-                                        IsInputEnabled="{Binding IsPipelineLoaded}"/>
+                                        IsInputEnabled="{Binding IsPipelineLoaded}"
+                                        Title="Image 1"/>
                                     <Grid.Style>
                                         <Style TargetType="{x:Type Grid}">
+                                            <Setter Property="Grid.Row" Value="0"/>
+                                            <Setter Property="Grid.Column" Value="1"/>
+                                            <Setter Property="Grid.ColumnSpan" Value="1"/>
                                             <Setter Property="Margin" Value="0,0,0,0"/>
-                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                            <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Options.InputImageCount, ElementName=InputControl, Converter={StaticResource GreaterOrEqualThanToBooleanConverter}, ConverterParameter=2}" Value="True">
+                                                <DataTrigger Binding="{Binding Options.IsSource2Enabled}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
                                                     <Setter Property="Margin" Value="0,4,0,0"/>
-                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Setter Property="Grid.Row" Value="1"/>
+                                                    <Setter Property="Grid.Column" Value="0"/>
+                                                    <Setter Property="Grid.ColumnSpan" Value="2"/>
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding Options.InputImageCount, ElementName=InputControl, Converter={StaticResource GreaterOrEqualThanToBooleanConverter}, ConverterParameter=3}" Value="True">
+                                                <DataTrigger Binding="{Binding Options.IsSource3Enabled}" Value="True">
+                                                    <Setter Property="Margin" Value="0,4,4,0"/>
+                                                    <Setter Property="Grid.Row" Value="1"/>
+                                                    <Setter Property="Grid.Column" Value="0"/>
+                                                    <Setter Property="Grid.ColumnSpan" Value="1"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Options.IsSource4Enabled}" Value="True">
                                                     <Setter Property="Margin" Value="4,0,0,4"/>
-                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Setter Property="Grid.Row" Value="0"/>
+                                                    <Setter Property="Grid.Column" Value="1"/>
+                                                    <Setter Property="Grid.ColumnSpan" Value="1"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -208,14 +250,24 @@
                                         CropWidth="{Binding Options.Width}"
                                         CropHeight="{Binding Options.Height}"
                                         Source="{Binding SourceImage3, Mode=TwoWay}" 
-                                        IsInputEnabled="{Binding IsPipelineLoaded}"/>
+                                        IsInputEnabled="{Binding IsPipelineLoaded}"
+                                        Title="Image 2"/>
                                     <Grid.Style>
                                         <Style TargetType="{x:Type Grid}">
-                                            <Setter Property="Margin" Value="0,4,4,0"/>
+                                            <Setter Property="Margin" Value="0,0,0,0"/>
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Options.InputImageCount, ElementName=InputControl, Converter={StaticResource GreaterOrEqualThanToBooleanConverter}, ConverterParameter=3}" Value="True">
+                                                <DataTrigger Binding="{Binding Options.IsSource3Enabled}" Value="True">
                                                     <Setter Property="Visibility" Value="Visible"/>
+                                                    <Setter Property="Margin" Value="4,4,0,0"/>
+                                                    <Setter Property="Grid.Row" Value="1"/>
+                                                    <Setter Property="Grid.Column" Value="1"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Options.IsSource4Enabled}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Setter Property="Margin" Value="0,4,4,0"/>
+                                                    <Setter Property="Grid.Row" Value="1"/>
+                                                    <Setter Property="Grid.Column" Value="0"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -234,45 +286,23 @@
                                         CropWidth="{Binding Options.Width}"
                                         CropHeight="{Binding Options.Height}"
                                         Source="{Binding SourceImage4, Mode=TwoWay}" 
-                                        IsInputEnabled="{Binding IsPipelineLoaded}"/>
+                                        IsInputEnabled="{Binding IsPipelineLoaded}"
+                                        Title="Image 3"/>
                                     <Grid.Style>
                                         <Style TargetType="{x:Type Grid}">
+                                            <Setter Property="Grid.Row" Value="1"/>
+                                            <Setter Property="Grid.Column" Value="1"/>
                                             <Setter Property="Margin" Value="4,4,0,0"/>
                                             <Setter Property="Visibility" Value="Collapsed"></Setter>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Options.InputImageCount, ElementName=InputControl, Converter={StaticResource GreaterOrEqualThanToBooleanConverter}, ConverterParameter=4}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible"></Setter>
+                                                <DataTrigger Binding="{Binding Options.IsSource4Enabled}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Grid.Style>
                                 </Grid>
-
-                                <UniformGrid.Style>
-                                    <Style TargetType="{x:Type UniformGrid}">
-                                        <Setter Property="Rows" Value="1"></Setter>
-                                        <Setter Property="Columns" Value="1"></Setter>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Options.InputImageCount, ElementName=InputControl}" Value="1">
-                                                <Setter Property="Rows" Value="1"></Setter>
-                                                <Setter Property="Columns" Value="1"></Setter>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding Options.InputImageCount, ElementName=InputControl}" Value="2">
-                                                <Setter Property="Rows" Value="2"></Setter>
-                                                <Setter Property="Columns" Value="1"></Setter>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding Options.InputImageCount, ElementName=InputControl}" Value="3">
-                                                <Setter Property="Rows" Value="2"></Setter>
-                                                <Setter Property="Columns" Value="2"></Setter>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding Options.InputImageCount, ElementName=InputControl}" Value="4">
-                                                <Setter Property="Rows" Value="2"></Setter>
-                                                <Setter Property="Columns" Value="2"></Setter>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </UniformGrid.Style>
-                            </UniformGrid>
+                            </Grid>
 
                             <!--Output-->
                             <Grid Margin="10,10,10,2" >

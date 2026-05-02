@@ -207,11 +207,10 @@ namespace Amuse.App.Controls
                 Prompt = previousOptions?.Prompt,
                 NegativePrompt = previousOptions?.NegativePrompt,
                 Seed = previousOptions?.Seed ?? 0,
-                IsFirstFrameLastFrame = newOptions.IsFirstFrameLastFrameEnabled && (previousOptions?.IsFirstFrameLastFrame ?? false),
                 LoraOptions = newPipeline.LoraAdapterModel?.Select(x => new LoraOptionModel { Name = x.Name, Key = x.Key, Strength = 1f }).ToList(),
-                InputImageCount = ProcessType == ProcessType.ImageEdit ? (previousOptions?.InputImageCount ?? 1) : 0,
                 Strength = ProcessType == ProcessType.ImageToImage && !IsImageControlNetSupported ? (previousOptions?.Strength ?? 0.7f) : 1f,
                 ControlNetStrength = IsImageControlNetSupported ? (previousOptions?.ControlNetStrength ?? 0.7f) : 1f,
+                IsSource2Enabled = ProcessType == ProcessType.ImageToVideo ? (previousOptions?.IsSource2Enabled ?? false) && newOptions.IsFirstFrameLastFrameEnabled : (previousOptions?.IsSource2Enabled ?? false),
 
                 // Update
                 Steps = newOptions.Steps,

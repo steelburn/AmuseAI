@@ -598,10 +598,6 @@
                                 <TextBlock Text="Guidance" Style="{StaticResource FieldTextBlockStyle}" />
                                 <TextBlock Text="{Binding Options.GuidanceScale}" />
                             </StackPanel>
-                            <StackPanel>
-                                <TextBlock Text="Input Image Count" Style="{StaticResource FieldTextBlockStyle}" />
-                                <TextBlock Text="{Binding Options.InputImageCount}" />
-                            </StackPanel>
                             <StackPanel Margin="0,3,0,0">
                                 <TextBlock Text="Strength" Style="{StaticResource FieldTextBlockStyle}" />
                                 <TextBlock Text="{Binding Options.Strength}" />

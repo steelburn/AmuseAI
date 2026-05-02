@@ -117,7 +117,7 @@ namespace Amuse.App.Views
                 Statistics.Start();
 
                 var tempVideoStreamFile = MediaService.GetTempFile(MediaType.Video);
-                var resultVideoStream = await MediaService.SaveWithAudioAsync(ExecuteVideoFramesAsync(), _sourceVideo.SourceFile, tempVideoStreamFile);
+                var resultVideoStream = await MediaService.SaveWithAudioAsync(ExecuteVideoFramesAsync(Options), _sourceVideo.SourceFile, tempVideoStreamFile);
 
                 Statistics.Stop();
                 ResultVideo = await SaveHistoryAsync(Options, resultVideoStream);
@@ -178,7 +178,7 @@ namespace Amuse.App.Views
 
 
                     var tempVideoStreamFile = MediaService.GetTempFile(MediaType.Video);
-                    var resultVideoStream = await MediaService.SaveWithAudioAsync(ExecuteVideoFramesAsync(), _sourceVideo.SourceFile, tempVideoStreamFile);
+                    var resultVideoStream = await MediaService.SaveWithAudioAsync(ExecuteVideoFramesAsync(automationJob.DiffusionOptions), _sourceVideo.SourceFile, tempVideoStreamFile);
 
                     Statistics.Stop();
                     ResultVideo = !AutomationOptions.IsHistoryEnabled
@@ -220,27 +220,14 @@ namespace Amuse.App.Views
         /// <summary>
         /// Execute diffusion for each video frame
         /// </summary>
-        private async IAsyncEnumerable<VideoFrame> ExecuteVideoFramesAsync()
+        private async IAsyncEnumerable<VideoFrame> ExecuteVideoFramesAsync(DiffusionInputOptions inputOptions)
         {
             await foreach (var videoFrame in _sourceVideo.GetAsync())
             {
                 SourceImage1 = new ImageInput(videoFrame.Frame);
 
-                // Images
-                var inputImages = new List<ImageTensor>
-                {
-                    { _sourceImage1, Options.InputImageCount },
-                    { _sourceImage2, Options.InputImageCount },
-                    { _sourceImage3, Options.InputImageCount },
-                    { _sourceImage4, Options.InputImageCount }
-                };
-
                 // Options
-                var options = Options with
-                {
-                    InputImages = inputImages,
-                    Prompt = Options.Prompt,
-                };
+                var options = inputOptions with { InputImages = GetInputTensors() };
 
                 // Execute
                 var resultTensor = await ExecuteImageDiffusionAsync(options);
@@ -253,6 +240,25 @@ namespace Amuse.App.Views
                 yield return new VideoFrame(videoFrame.Index, ResultImage, videoFrame.SourceFrameRate);
                 VideoFrameProgress.Update(videoFrame.Index + 1, _sourceVideo.FrameCount, $"Video Frame: {videoFrame.Index}/{_sourceVideo.FrameCount}");
             }
+        }
+
+
+        /// <summary>
+        /// Gets the input tensors.
+        /// </summary>
+        private List<ImageTensor> GetInputTensors()
+        {
+            var inputImages = new List<ImageTensor>();
+            if (Options.IsSource1Enabled)
+                inputImages.AddIfNotNull(_sourceImage1);
+            if (Options.IsSource2Enabled)
+                inputImages.AddIfNotNull(_sourceImage2);
+            if (Options.IsSource3Enabled)
+                inputImages.AddIfNotNull(_sourceImage3);
+            if (Options.IsSource4Enabled)
+                inputImages.AddIfNotNull(_sourceImage4);
+
+            return inputImages;
         }
 
 
@@ -275,14 +281,6 @@ namespace Amuse.App.Views
             Logger.LogInformation($"[FrameToFrame] [SaveHistory] History saved.");
             return result;
         }
-
-
-
-
-
-
-
-
 
     }
 }

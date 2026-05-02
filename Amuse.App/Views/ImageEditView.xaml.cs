@@ -97,19 +97,8 @@ namespace Amuse.App.Views
                 CompareImage = default;
                 Statistics.Start();
 
-                // Images
-                var inputImage = ImageEditControl.GetImageCanvas();
-                var inputImages = new List<ImageTensor>
-                {
-                    { inputImage, Options.InputImageCount },
-                    { _sourceImage2, Options.InputImageCount },
-                    { _sourceImage3, Options.InputImageCount },
-                    { _sourceImage4, Options.InputImageCount }
-                };
-
                 // Options
-                var options = Options with { };
-                options.InputImages = inputImages;
+                var options = Options with { InputImages = GetInputTensors() };
 
                 // Execute
                 var resultTensor = await ExecuteImageDiffusionAsync(options);
@@ -171,21 +160,11 @@ namespace Amuse.App.Views
                     if (!automationJob.InputImages.IsNullOrEmpty())
                         SourceImage1 = automationJob.InputImages[0];
 
-                    // Images
-                    var inputImage = ImageEditControl.GetImageCanvas();
-                    var inputImages = new List<ImageTensor>
-                    {
-                        { inputImage, Options.InputImageCount },
-                        { _sourceImage2, Options.InputImageCount },
-                        { _sourceImage3, Options.InputImageCount },
-                        { _sourceImage4, Options.InputImageCount }
-                    };
+                    // Options
+                    var options = automationJob.DiffusionOptions with { InputImages = GetInputTensors() };
 
-                    // Diffusion
-                    var resultTensor = await ExecuteImageDiffusionAsync(automationJob.DiffusionOptions with
-                    {
-                        InputImages = inputImages
-                    });
+                    // Execute
+                    var resultTensor = await ExecuteImageDiffusionAsync(options);
 
                     // Upscale
                     resultTensor = await ExecuteImageUpscaleAsync(resultTensor);
@@ -225,6 +204,26 @@ namespace Amuse.App.Views
                 AutomationProgress.Clear();
                 IsAutomating = false;
             }
+        }
+
+
+        /// <summary>
+        /// Gets the input tensors.
+        /// </summary>
+        private List<ImageTensor> GetInputTensors()
+        {
+            var inputImages = new List<ImageTensor>();
+            var inputImage = ImageEditControl.GetImageCanvas();
+            if (Options.IsSource1Enabled)
+                inputImages.AddIfNotNull(inputImage);
+            if (Options.IsSource2Enabled)
+                inputImages.AddIfNotNull(_sourceImage2);
+            if (Options.IsSource3Enabled)
+                inputImages.AddIfNotNull(_sourceImage3);
+            if (Options.IsSource4Enabled)
+                inputImages.AddIfNotNull(_sourceImage4);
+
+            return inputImages;
         }
 
 

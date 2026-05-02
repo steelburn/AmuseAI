@@ -131,12 +131,9 @@ namespace Amuse.App
 
 
 
-        public static bool Add<TSource>(this IList<TSource> source, TSource item, int maxItems)
+        public static bool AddIfNotNull<TSource>(this IList<TSource> source, TSource item)
         {
             if (item is null)
-                return false;
-
-            if (source.Count >= maxItems)
                 return false;
 
             source.Add(item);

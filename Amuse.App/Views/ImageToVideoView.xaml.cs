@@ -85,16 +85,8 @@ namespace Amuse.App.Views
                 CompareVideo = default;
                 Statistics.Start();
 
-                // Images
-                var imageCount = Options.IsFirstFrameLastFrame ? 2 : 1;
-                var inputImages = new List<ImageTensor>
-                {
-                    { _sourceImage1, imageCount },
-                    { _sourceImage2, imageCount }
-                };
-
                 // Options
-                var options = Options with { InputImages = inputImages };
+                var options = Options with { InputImages = GetInputTensors() };
 
                 // Execute
                 var resultTensor = await ExecuteVideoDiffusionAsync(options);
@@ -153,16 +145,8 @@ namespace Amuse.App.Views
                     if (!automationJob.InputImages.IsNullOrEmpty())
                         SourceImage1 = automationJob.InputImages[0];
 
-                    // Images
-                    var imageCount = Options.IsFirstFrameLastFrame ? 2 : 1;
-                    var inputImages = new List<ImageTensor>
-                    {
-                        { _sourceImage1, imageCount },
-                        { _sourceImage2, imageCount }
-                    };
-
                     // Options
-                    var options = automationJob.DiffusionOptions with { InputImages = inputImages };
+                    var options = automationJob.DiffusionOptions with { InputImages = GetInputTensors() };
 
                     // Diffusion
                     var resultTensor = await ExecuteVideoDiffusionAsync(options);
@@ -238,6 +222,21 @@ namespace Amuse.App.Views
                 Progress.Clear();
                 IsViewBusy = false;
             }
+        }
+
+
+        /// <summary>
+        /// Gets the input tensors.
+        /// </summary>
+        private List<ImageTensor> GetInputTensors()
+        {
+            var inputImages = new List<ImageTensor>();
+            if (Options.IsSource1Enabled)
+                inputImages.AddIfNotNull(_sourceImage1);
+            if (Options.IsSource2Enabled)
+                inputImages.AddIfNotNull(_sourceImage2);
+
+            return inputImages;
         }
 
 

@@ -138,6 +138,46 @@
                         </UniformGrid>
 
 
+                        <!--ImageEdit-->
+                        <StackPanel Visibility="{Binding ViewType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=ImageEdit}" Margin="0,0,0,0">
+                            <TextBlock Text="Inputs" Style="{StaticResource FieldTextBlockStyle}" />
+                            <Controls:SourceSelectControl 
+                                Height="22"
+                                FontSize="12"
+                                SourceCount="4"
+                                IsMultiSelect="True" 
+                                TextHorizontalAlignment="Center"
+                                SourceText1="Image 1"
+                                SourceText2="Image 2"
+                                SourceText3="Image 3"
+                                SourceText4="Image 4"
+                                IsSource1Selected="{Binding Options.IsSource1Enabled, Mode=TwoWay}"
+                                IsSource2Selected="{Binding Options.IsSource2Enabled, Mode=TwoWay}"
+                                IsSource3Selected="{Binding Options.IsSource3Enabled, Mode=TwoWay}"
+                                IsSource4Selected="{Binding Options.IsSource4Enabled, Mode=TwoWay}"/>
+                        </StackPanel>
+
+
+                        <!--FrameToFrame-->
+                        <StackPanel Visibility="{Binding ViewType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=FrameToFrame}" Margin="0,0,0,0">
+                            <TextBlock Text="Inputs" Style="{StaticResource FieldTextBlockStyle}" />
+                            <Controls:SourceSelectControl 
+                                Height="22"
+                                FontSize="12"
+                                SourceCount="4"
+                                IsMultiSelect="True" 
+                                TextHorizontalAlignment="Center"
+                                SourceText1="Frame"
+                                SourceText2="Image 1"
+                                SourceText3="Image 2"
+                                SourceText4="Image 3"
+                                IsSource1Selected="{Binding Options.IsSource1Enabled, Mode=TwoWay}"
+                                IsSource2Selected="{Binding Options.IsSource2Enabled, Mode=TwoWay}"
+                                IsSource3Selected="{Binding Options.IsSource3Enabled, Mode=TwoWay}"
+                                IsSource4Selected="{Binding Options.IsSource4Enabled, Mode=TwoWay}"/>
+                        </StackPanel>
+
+
                         <!--Frames / FrameRate-->
                         <StackPanel Visibility="{Binding Pipeline.DiffusionModel.DefaultOptions.FrameOptions, Converter={StaticResource NullVisibilityConverter}, FallbackValue=Collapsed}">
                             <UniformGrid Columns="3">
@@ -181,10 +221,23 @@
                         </StackPanel>
 
 
-                        <!--ImageEdit-->
-                        <StackPanel Visibility="{Binding ProcessType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=ImageEdit}">
-                            <CommonControls:SliderControl Text="Input Images" Value="{Binding Options.InputImageCount}" Minimum="1" Maximum="4" TickFrequency="1" ValueFormat="N0" />
-                        </StackPanel>
+                        <!--ImageToVideo-->
+                        <Grid Visibility="{Binding ProcessType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=ImageToVideo}">
+                            <StackPanel Visibility="{Binding Pipeline.DiffusionModel.DefaultOptions.IsFirstFrameLastFrameEnabled, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}">
+                                <TextBlock Text="Inputs" Style="{StaticResource FieldTextBlockStyle}" />
+                                <Controls:SourceSelectControl 
+                                    Height="22"
+                                    FontSize="12"
+                                    SourceCount="2"
+                                    IsMultiSelect="True" 
+                                    IsSourceRequired="True" 
+                                    TextHorizontalAlignment="Center"
+                                    SourceText1="First Frame"
+                                    SourceText2="Last Frame"
+                                    IsSource1Selected="{Binding Options.IsSource1Enabled, Mode=TwoWay}"
+                                    IsSource2Selected="{Binding Options.IsSource2Enabled, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </Grid>
 
                         <!--Steps-->
                         <StackPanel Visibility="{Binding IsSteps2Enabled, Converter={StaticResource InverseBooleanToVisibilityConverter}, ConverterParameter=0}">
@@ -241,12 +294,7 @@
                             <CommonControls:SliderControl Text="Strength" Value="{Binding Options.Strength}"  IsPercent="True"  Minimum="0.01" Maximum="1" TickFrequency="0.01"/>
                         </StackPanel>
 
-                        <!--IsFirstFrameLastFrame-->
-                        <StackPanel Visibility="{Binding ProcessType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=ImageToVideo}">
-                            <StackPanel Visibility="{Binding Pipeline.DiffusionModel.DefaultOptions.IsFirstFrameLastFrameEnabled, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}" Margin="-1,8,0,0">
-                                <CheckBox Content="First-Frame Last-Frame" IsChecked="{Binding Options.IsFirstFrameLastFrame}" />
-                            </StackPanel>
-                        </StackPanel>
+
 
                         <!--Lora Strength-->
                         <ItemsControl ItemsSource="{Binding Options.LoraOptions}">

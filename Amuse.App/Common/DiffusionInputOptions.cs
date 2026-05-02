@@ -18,7 +18,6 @@ namespace Amuse.App.Common
         private int _steps2;
         private float _strength = 0;
         private float _controlNetStrength = 0;
-        private int _inputImageCount = 0;
         private SchedulerInputOptions _schedulerOptions;
         private List<LoraOptionModel> _loraOptions;
         private int _frames;
@@ -26,9 +25,12 @@ namespace Amuse.App.Common
         private int _noiseCondition;
         private int _frameChunkOverlap;
         private int _frameChunk;
-        private bool _isFirstFrameLastFrame;
         private bool _isVaeTilingEnabled;
         private bool _isVaeSlicingEnabled;
+        private bool _isSource1Enabled = true;
+        private bool _isSource2Enabled;
+        private bool _isSource3Enabled;
+        private bool _isSource4Enabled;
 
         public int Width
         {
@@ -104,13 +106,6 @@ namespace Amuse.App.Common
         }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int InputImageCount
-        {
-            get { return _inputImageCount; }
-            set { SetProperty(ref _inputImageCount, value); }
-        }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Frames
         {
             get { return _frames; }
@@ -136,13 +131,6 @@ namespace Amuse.App.Common
         {
             get { return _frameChunkOverlap; }
             set { SetProperty(ref _frameChunkOverlap, value); }
-        }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool IsFirstFrameLastFrame
-        {
-            get { return _isFirstFrameLastFrame; }
-            set { SetProperty(ref _isFirstFrameLastFrame, value); }
         }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -180,6 +168,33 @@ namespace Amuse.App.Common
             set { SetProperty(ref _loraOptions, value); }
         }
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool IsSource1Enabled
+        {
+            get { return _isSource1Enabled; }
+            set { SetProperty(ref _isSource1Enabled, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool IsSource2Enabled
+        {
+            get { return _isSource2Enabled; }
+            set { SetProperty(ref _isSource2Enabled, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool IsSource3Enabled
+        {
+            get { return _isSource3Enabled; }
+            set { SetProperty(ref _isSource3Enabled, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool IsSource4Enabled
+        {
+            get { return _isSource4Enabled; }
+            set { SetProperty(ref _isSource4Enabled, value); }
+        }
 
         [JsonIgnore]
         public List<ImageTensor> InputImages { get; set; } = [];
