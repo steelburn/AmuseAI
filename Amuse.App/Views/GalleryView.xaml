@@ -300,7 +300,7 @@
                                 Visibility="{Binding SelectedItem.MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Image}"/>
                             <CommonControls:VideoStreamElement
                                 IsReplayEnabled="True"
-                                IsAutoPlayEnabled="True"
+                                IsAutoPlayEnabled="False"
                                 IsLoadEnabled="False"
                                 IsLoadOverlayEnabled="False" 
                                 IsSaveEnabled="False" 
@@ -313,7 +313,7 @@
                                 Visibility="{Binding SelectedItem.MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Video}"/>
                             <CommonControls:AudioElement
                                 IsReplayEnabled="True"
-                                IsAutoPlayEnabled="True"
+                                IsAutoPlayEnabled="False"
                                 IsLoadEnabled="False"
                                 IsSaveEnabled="True" 
                                 Orientation="Vertical"

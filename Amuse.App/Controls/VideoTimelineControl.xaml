@@ -108,10 +108,11 @@
                         <Button Content="Cancel" Command="{Binding CancelCommand}"/>
                         <Button Content="Save" Command="{Binding SaveVideoCommand}"/>
                     </UniformGrid>
-                    <StackPanel Margin="0,10,0,0">
+                    <StackPanel>
                         <CommonControls:SliderControl Text="Frame Width" Minimum="3" Maximum="{Binding PreviewFrameSize}" Value="{Binding TimelineFrameWidth}" TickFrequency="1" ValueFormat="N0"/>
                         <CommonControls:SliderControl Text="Frame Size" Minimum="20" Maximum="260" TickFrequency="10" ValueFormat="N0" Value="{Binding PreviewFrameSize}"/>
                         <CommonControls:SliderControl Text="Preview Quality" Minimum="20" Maximum="260" TickFrequency="10" ValueFormat="N0" Value="{Binding TimelineThumbHeight}"/>
+                        <CheckBox Content="Enable Audio Processing" IsChecked="{Binding IsAudioEnabled}"  Margin="0,5,0,0"/>
                     </StackPanel>
                 </DockPanel>
             </DockPanel>

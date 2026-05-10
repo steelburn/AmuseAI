@@ -1,8 +1,8 @@
-﻿using Amuse.App.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using TensorStack.Audio;
 using TensorStack.Audio.Windows;
 using TensorStack.Common;
 using TensorStack.Common.Common;
@@ -86,6 +86,28 @@ namespace Amuse.App.Services
             await AudioManager.AddAudioAsync(videoOutputFile, videoInput.SourceFile, cancellationToken);
             return await VideoInputStream.CreateAsync(videoOutputFile);
         }
+
+
+        /// <summary>
+        /// Saves the stream with audio from the specified AudioTimeline.
+        /// </summary>
+        /// <param name="videoStream">The video stream.</param>
+        /// <param name="audioTimeline">The audio timeline.</param>
+        /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        public async Task<VideoInputStream> SaveWithAudioAsync(VideoInputStream videoStream, AudioTimeline audioTimeline, CancellationToken cancellationToken = default)
+        {
+            var audioOutput = string.Empty;
+            try
+            {
+                audioOutput = await AudioManager.CreateAudioTimelineAsync(audioTimeline, cancellationToken);
+                await AudioManager.AddAudioAsync(videoStream.SourceFile, audioOutput, cancellationToken);
+                return await VideoInputStream.CreateAsync(videoStream.SourceFile);
+            }
+            finally
+            {
+                FileHelper.DeleteFile(audioOutput);
+            }
+        }
     }
 
 
@@ -95,5 +117,6 @@ namespace Amuse.App.Services
         Task<VideoInputStream> GetStreamAsync(string filename);
         Task<VideoInputStream> SaveWithAudioAsync(IAsyncEnumerable<VideoFrame> processedVideo, string sourceFile, string resultVideoFile, CancellationToken cancellationToken = default);
         Task<VideoInputStream> SaveWithAudioAsync(VideoInputStream videoInput, string videoOutputFile, Func<VideoFrame, Task<VideoFrame>> frameProcessor, CancellationToken cancellationToken = default);
+        Task<VideoInputStream> SaveWithAudioAsync(VideoInputStream videoStream, AudioTimeline audioTimeline, CancellationToken cancellationToken = default);
     }
 }

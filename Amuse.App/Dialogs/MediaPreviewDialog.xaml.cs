@@ -150,5 +150,25 @@ namespace Amuse.App.Dialogs
                 Progress.Clear();
             }
         }
+
+
+        protected override Task CloseAsync()
+        {
+            CurrentText = default;
+            CurrentImage = default;
+            CurrentAudio = default;
+            CurrentVideoStream = default;
+            return base.CloseAsync();
+        }
+
+
+        protected override Task CancelAsync()
+        {
+            CurrentText = default;
+            CurrentImage = default;
+            CurrentAudio = default;
+            CurrentVideoStream = default;
+            return base.CancelAsync();
+        }
     }
 }

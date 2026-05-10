@@ -10,6 +10,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using TensorStack.Audio;
+using TensorStack.Audio.Windows;
 using TensorStack.Common;
 using TensorStack.Common.Tensor;
 using TensorStack.Common.Video;
@@ -46,6 +48,7 @@ namespace Amuse.App.Controls
         private int? _selectionRangeStart;
         private TimelineSegment _selectedSegement;
         private VideoFrameModel _selectedVideoFrame;
+        private bool _isAudioEnabled = true;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VideoTimelineControl"/> class.
@@ -246,6 +249,12 @@ namespace Amuse.App.Controls
             set { SetProperty(ref _selectedVideoFrame, value); }
         }
 
+        public bool IsAudioEnabled
+        {
+            get { return _isAudioEnabled; }
+            set { SetProperty(ref _isAudioEnabled, value); }
+        }
+
         private bool CanCancel() => _cancellationTokenSource != null;
         private bool CanLoadVideo() => !IsControlBusy;
         private bool CanLoadImage() => !IsControlBusy && TimelineFrameRate.HasValue;
@@ -274,9 +283,15 @@ namespace Amuse.App.Controls
                 {
                     var tempFilename = MediaService.GetTempFile(MediaType.Video);
                     await VideoManager.WriteVideoStreamAsync(tempFilename, GetOutputVideoFrames(_cancellationTokenSource.Token), cancellationToken: _cancellationTokenSource.Token);
-                    var videoStream = await VideoInputStream.CreateAsync(tempFilename);
 
-                    OnVideoCreated?.Invoke(this, videoStream);
+                    var resultStream = await VideoInputStream.CreateAsync(tempFilename);
+                    if (_isAudioEnabled)
+                    {
+                        var audioTimeline = await CreateAudioTimeline();
+                        resultStream = await MediaService.SaveWithAudioAsync(resultStream, audioTimeline);
+                    }
+
+                    OnVideoCreated?.Invoke(this, resultStream);
                 }
             }
             catch (OperationCanceledException) { }
@@ -641,7 +656,8 @@ namespace Amuse.App.Controls
         private async Task CreateVideoTimelineAsync(VideoInputStream videoStream)
         {
             IsControlBusy = true;
-            var timelineSegment = new TimelineSegment(videoStream);
+            var isAudioPresent = await AudioManager.HasAudioAsync(videoStream.SourceFile);
+            var timelineSegment = new TimelineSegment(videoStream, isAudioPresent);
             try
             {
                 using (CancellationTokenSource = new CancellationTokenSource())
@@ -772,7 +788,27 @@ namespace Amuse.App.Controls
         }
 
 
+        private Task<AudioTimeline> CreateAudioTimeline()
+        {
+            var audioTimeline = new AudioTimeline(_timelineLengthTime);
+            var segments = TimelineSegements.Where(x => x.IsAudioPresent).ToArray();
+            foreach (var segement in segments)
+            {
+                var lastFrame = segement.VideoFrames.LastOrDefault(x => !x.IsPadding);
+                var startFrame = segement.VideoFrames.FirstOrDefault(x => !x.IsPadding);
+                var startPosition = segement.VideoFrames.IndexOf(startFrame);
 
+                var audioStart = TimeSpan.FromMilliseconds(_timelineInterval * startFrame.Frame.Index);
+                var audioEnd = TimeSpan.FromMilliseconds(_timelineInterval * (lastFrame.Frame.Index - startFrame.Frame.Index));
+                var audioPosition = TimeSpan.FromMilliseconds(_timelineInterval * startPosition);
+
+                var audioSegment = new AudioSegment(segement.SourceFile, audioStart, audioEnd, audioPosition);
+                audioSegment.IsFirst = audioTimeline.Segments.Count == 0;
+                audioSegment.IsLast = audioTimeline.Segments.Count == segments.Length - 1;
+                audioTimeline.Segments.Add(audioSegment);
+            }
+            return Task.FromResult(audioTimeline);
+        }
 
 
         private void ScrollTimeline()
@@ -990,21 +1026,27 @@ namespace Amuse.App.Controls
         private readonly ImageTensor _imageSource;
         private readonly VideoInputStream _videoStream;
 
-        public TimelineSegment(VideoInputStream videoStream)
+        public TimelineSegment(VideoInputStream videoStream, bool isAudioPresent)
         {
             _videoStream = videoStream;
+            IsAudioEnabled = isAudioPresent;
+            IsAudioPresent = isAudioPresent;
         }
 
         public TimelineSegment(ImageTensor imageTensor, VideoFrame videoFrame)
             : this(imageTensor, videoFrame, 1)
         {
             _isImage = true;
+            IsAudioEnabled = false;
+            IsAudioPresent = false;
         }
 
         public TimelineSegment(int count, ImageTensor imageTensor, VideoFrame videoFrame)
             : this(imageTensor, videoFrame, count)
         {
             _isOverlay = true;
+            IsAudioEnabled = false;
+            IsAudioPresent = false;
         }
 
         public TimelineSegment(TimelineSegment timelineSegment)
@@ -1013,6 +1055,8 @@ namespace Amuse.App.Controls
             _isOverlay = timelineSegment._isOverlay;
             _imageSource = timelineSegment._imageSource;
             _videoStream = timelineSegment._videoStream;
+            IsAudioEnabled = timelineSegment.IsAudioEnabled;
+            IsAudioPresent = timelineSegment.IsAudioPresent;
         }
 
         protected TimelineSegment(ImageTensor imageTensor, VideoFrame videoFrame, int count)
@@ -1026,8 +1070,11 @@ namespace Amuse.App.Controls
 
         public bool IsImage => _isImage;
         public bool IsOverlay => _isOverlay;
-        public int VideoLength { get; set; }
         public int Length => VideoFrames.Count;
+        public string SourceFile => _videoStream?.SourceFile;
+        public int VideoLength { get; set; }
+        public bool IsAudioEnabled { get; set; }
+        public bool IsAudioPresent { get; }
         public ObservableCollection<VideoFrameModel> VideoFrames { get; } = [];
 
 
