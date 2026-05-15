@@ -1,6 +1,7 @@
 ﻿// Copyright (c) TensorStack. All rights reserved.
 // Licensed under the Apache 2.0 License.
 using Amuse.App.Common;
+using Amuse.App.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -121,6 +122,7 @@ namespace Amuse.App.Dialogs
 
             DiffusionModel.Resolutions = [.. Sizes];
             DiffusionModel.ProcessTypes = GetProcessTypes();
+            DiffusionModel.ViewFilter = GetViewFilter();
 
             var defaultSize = Sizes.FirstOrDefault(x => x.IsDefault);
             DiffusionModel.DefaultOptions.Width = defaultSize.Width;
@@ -229,6 +231,7 @@ namespace Amuse.App.Dialogs
 
             Schedulers = DiffusionModel.DefaultOptions.Schedulers.GetSchedulers().Select(SchedulerInputOptions.Create).ToArray();
 
+            SetViewFilters();
             SetProcessTypes();
             FrameOptions = GetFrameOptions(DiffusionModel.DefaultOptions.FrameOptions);
             SelectedSize = Sizes.FirstOrDefault(x => x.IsDefault) ?? Sizes.FirstOrDefault();
@@ -377,6 +380,8 @@ namespace Amuse.App.Dialogs
                     CheckBoxImageToVideo.IsChecked = true;
                 if (processType == ProcessType.VideoToVideo)
                     CheckBoxVideoToVideo.IsChecked = true;
+                if (processType == ProcessType.TextToAudio)
+                    CheckBoxTextToAudio.IsChecked = true;
             }
         }
 
@@ -403,9 +408,84 @@ namespace Amuse.App.Dialogs
                     yield return ProcessType.ImageToVideo;
                 if (CheckBoxVideoToVideo.IsChecked == true)
                     yield return ProcessType.VideoToVideo;
+                if (CheckBoxTextToAudio.IsChecked == true)
+                    yield return ProcessType.TextToAudio;
             }
             return [.. ProcessTypes()];
         }
 
+
+
+        private View[] GetViewFilter()
+        {
+            IEnumerable<View> ViewFilters()
+            {
+                if (CheckBoxViewTextToImage.IsChecked == true)
+                    yield return View.TextToImage;
+                if (CheckBoxViewImageToImage.IsChecked == true)
+                    yield return View.ImageToImage;
+                if (CheckBoxViewImageEdit.IsChecked == true)
+                    yield return View.ImageEdit;
+                if (CheckBoxViewImageInpaint.IsChecked == true)
+                    yield return View.ImageInpaint;
+                if (CheckBoxViewPaintToImage.IsChecked == true)
+                    yield return View.PaintToImage;
+                if (CheckBoxViewFrameToFrame.IsChecked == true)
+                    yield return View.FrameToFrame;
+
+                if (CheckBoxViewTextToVideo.IsChecked == true)
+                    yield return View.TextToVideo;
+                if (CheckBoxViewImageToVideo.IsChecked == true)
+                    yield return View.ImageToVideo;
+                if (CheckBoxViewVideoToVideo.IsChecked == true)
+                    yield return View.VideoToVideo;
+
+                if (CheckBoxViewTextToMusic.IsChecked == true)
+                    yield return View.TextToMusic;
+                if (CheckBoxViewTextToAudio.IsChecked == true)
+                    yield return View.TextToAudio;
+            }
+
+            var viewFilters = ViewFilters().ToArray();
+            if (viewFilters.IsNullOrEmpty())
+                return null;
+
+            return viewFilters;
+        }
+
+
+        private void SetViewFilters()
+        {
+            if (DiffusionModel.ViewFilter.IsNullOrEmpty())
+                return;
+
+            foreach (var viewType in DiffusionModel.ViewFilter)
+            {
+                if (viewType == View.TextToImage)
+                    CheckBoxViewTextToImage.IsChecked = true;
+                if (viewType == View.ImageToImage)
+                    CheckBoxViewImageToImage.IsChecked = true;
+                if (viewType == View.ImageEdit)
+                    CheckBoxViewImageEdit.IsChecked = true;
+                if (viewType == View.ImageInpaint)
+                    CheckBoxViewImageInpaint.IsChecked = true;
+                if (viewType == View.PaintToImage)
+                    CheckBoxViewPaintToImage.IsChecked = true;
+                if (viewType == View.FrameToFrame)
+                    CheckBoxViewFrameToFrame.IsChecked = true;
+
+                if (viewType == View.TextToVideo)
+                    CheckBoxViewTextToVideo.IsChecked = true;
+                if (viewType == View.ImageToVideo)
+                    CheckBoxViewImageToVideo.IsChecked = true;
+                if (viewType == View.VideoToVideo)
+                    CheckBoxViewVideoToVideo.IsChecked = true;
+
+                if (viewType == View.TextToMusic)
+                    CheckBoxViewTextToMusic.IsChecked = true;
+                if (viewType == View.TextToAudio)
+                    CheckBoxViewTextToAudio.IsChecked = true;
+            }
+        }
     }
 }

@@ -78,9 +78,9 @@ namespace Amuse.App.Views
 
                 // Options
                 var options = Options with { };
-                if (SourceAudio != null)
+                if (_sourceAudio != null)
                 {
-                    options.InputAudios = [await SourceAudio.GetAsync(channels:2)];
+                    options.InputAudios = [_sourceAudio];
                 }
 
                 // Execute

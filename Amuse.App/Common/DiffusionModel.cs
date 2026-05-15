@@ -34,6 +34,7 @@ namespace Amuse.App.Common
         public string Link { get; set; }
         public MemoryProfile[] MemoryProfile { get; set; }
         public DataType BaseType { get; set; }
+        public MediaType MediaType { get; set; }
         public ProcessType[] ProcessTypes { get; set; }
         public List<SizeOption> Resolutions { get; set; } = [];
         public DiffusionDefaultOptions DefaultOptions { get; set; }
@@ -80,6 +81,7 @@ namespace Amuse.App.Common
                 IsDefault = IsDefault,
                 ViewFilter = ViewFilter?.ToArray(),
                 BaseType = BaseType,
+                MediaType = MediaType,
                 IsGated = IsGated,
                 Link = Link,
                 MemoryProfile = MemoryProfile.Select(x => new MemoryProfile
@@ -116,6 +118,10 @@ namespace Amuse.App.Common
                     Strength = DefaultOptions.Strength,
                     IsVaeSlicingEnabled = DefaultOptions.IsVaeSlicingEnabled,
                     IsVaeTilingEnabled = DefaultOptions.IsVaeTilingEnabled,
+                    IsFirstFrameLastFrameEnabled = DefaultOptions.IsFirstFrameLastFrameEnabled,
+                    MaxLength = DefaultOptions.MaxLength,
+                    MaxLength2 = DefaultOptions.MaxLength2,
+                    Channels = DefaultOptions.Channels,
                 },
                 Checkpoint = Checkpoint is null ? null : new DiffusionCheckpointModel
                 {

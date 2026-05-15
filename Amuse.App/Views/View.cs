@@ -60,7 +60,7 @@ namespace Amuse.App.Views
           //  {ViewCategory.Text, View.TextSummary },
             {ViewCategory.Image, View.TextToImage },
             {ViewCategory.Video, View.TextToVideo },
-            {ViewCategory.Audio, View.TextToAudio }
+            {ViewCategory.Audio, View.TextToMusic }
         };
 
 
@@ -100,9 +100,9 @@ namespace Amuse.App.Views
             { View.VideoCompose, ViewCategory.Video  },
 
              // Audio
-            { View.TextToAudio, ViewCategory.Audio  },
-            { View.AudioToText, ViewCategory.Audio  },
             { View.TextToMusic, ViewCategory.Audio  },
+            { View.TextToAudio, ViewCategory.Audio  },
+            { View.AudioToText, ViewCategory.Audio  }
         };
 
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using TensorStack.Audio;
 using TensorStack.Common.Tensor;
 using TensorStack.WPF;
 
@@ -276,6 +277,6 @@ namespace Amuse.App.Common
         public List<ImageTensor> InputControlImages { get; set; } = [];
 
         [JsonIgnore]
-        public List<AudioTensor> InputAudios { get; set; } = [];
+        public List<AudioInputStream> InputAudios { get; set; } = [];
     }
 }

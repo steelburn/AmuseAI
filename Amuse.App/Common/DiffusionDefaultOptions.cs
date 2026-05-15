@@ -19,6 +19,7 @@ namespace Amuse.App.Common
         public float Strength { get; set; } = 0;
         public SchedulerType Scheduler { get; set; }
         public SchedulerSettings Schedulers { get; set; }
+        public int Channels { get; set; } = 1;
         public int SampleRate { get; set; } = 24000;
         public int[] FrameOptions { get; set; }
         public bool IsVaeTilingEnabled { get; set; }

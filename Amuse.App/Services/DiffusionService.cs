@@ -359,12 +359,16 @@ namespace Amuse.App.Services
                     TimeSignature = options.TimeSignature,
                     TrackName = options.TrackName,
                     VocalLanguage = options.VocalLanguage,
-
                     TempFileName = audioFileName,
                     SchedulerOptions = options.SchedulerOptions.ToOptions(),
-                    LoraOptions = options.GetLoraOptions(),
-                    InputAudios = options.InputAudios
+                    LoraOptions = options.GetLoraOptions()
                 };
+
+                foreach (var inputAudios in options.InputAudios)
+                {
+                    // TODO: Cancellation of audio fetch
+                    generateOptions.InputAudios.Add(await inputAudios.GetAsync(_defaultOptions.SampleRate, _defaultOptions.Channels));
+                }
 
                 var tensorResult = await _pipelineClient.RunAsync(generateOptions);
                 if (!File.Exists(audioFileName))

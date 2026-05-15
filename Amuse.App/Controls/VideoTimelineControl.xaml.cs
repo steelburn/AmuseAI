@@ -30,8 +30,8 @@ namespace Amuse.App.Controls
     {
         private readonly DispatcherTimer _progressTimer;
         private CancellationTokenSource _cancellationTokenSource;
-        private VideoFrameModel _previewFrame;
-        private VideoFrameModel _previewOverlay;
+        private TimelineFrameModel _previewFrame;
+        private TimelineFrameModel _previewOverlay;
         private int _timelineLength;
         private TimeSpan _timelineLengthTime;
         private int? _timelineWidth;
@@ -47,7 +47,7 @@ namespace Amuse.App.Controls
         private int _previewFrameSize = 80;
         private int? _selectionRangeStart;
         private TimelineSegment _selectedSegement;
-        private VideoFrameModel _selectedVideoFrame;
+        private TimelineFrameModel _selectedFrame;
         private bool _isAudioEnabled = true;
 
         /// <summary>
@@ -65,6 +65,7 @@ namespace Amuse.App.Controls
             LoadVideoCommand = new AsyncRelayCommand(LoadVideoAsync, CanLoadVideo);
             LoadImageCommand = new AsyncRelayCommand(LoadImageAsync, CanLoadImage);
             LoadOverlayCommand = new AsyncRelayCommand(LoadOverlayAsync, CanLoadImage);
+            LoadAudioCommand = new AsyncRelayCommand(LoadAudioAsync, CanLoadImage);
             TimelinePlayCommand = new AsyncRelayCommand(TimelinePlayAsync, CanTimelineEditVideo);
             TimelineStopCommand = new AsyncRelayCommand(TimelineStopAsync, CanTimelineEditVideo);
             TimelinePauseCommand = new AsyncRelayCommand(TimelinePauseAsync, CanTimelineEditVideo);
@@ -95,6 +96,7 @@ namespace Amuse.App.Controls
         public AsyncRelayCommand LoadVideoCommand { get; }
         public AsyncRelayCommand LoadImageCommand { get; }
         public AsyncRelayCommand LoadOverlayCommand { get; }
+        public AsyncRelayCommand LoadAudioCommand { get; }
         public AsyncRelayCommand SaveVideoCommand { get; }
         public AsyncRelayCommand TimelinePlayCommand { get; }
         public AsyncRelayCommand TimelineStopCommand { get; }
@@ -155,13 +157,13 @@ namespace Amuse.App.Controls
             }
         }
 
-        public VideoFrameModel PreviewFrame
+        public TimelineFrameModel PreviewFrame
         {
             get { return _previewFrame; }
             set { SetProperty(ref _previewFrame, value); }
         }
 
-        public VideoFrameModel PreviewOverlay
+        public TimelineFrameModel PreviewOverlay
         {
             get { return _previewOverlay; }
             set { SetProperty(ref _previewOverlay, value); }
@@ -243,10 +245,10 @@ namespace Amuse.App.Controls
             set { SetProperty(ref _selectedSegement, value); }
         }
 
-        public VideoFrameModel SelectedVideoFrame
+        public TimelineFrameModel SelectedFrame
         {
-            get { return _selectedVideoFrame; }
-            set { SetProperty(ref _selectedVideoFrame, value); }
+            get { return _selectedFrame; }
+            set { SetProperty(ref _selectedFrame, value); }
         }
 
         public bool IsAudioEnabled
@@ -261,8 +263,8 @@ namespace Amuse.App.Controls
         private bool CanSaveVideo() => !IsControlBusy && TimelineFrameRate.HasValue;
         private bool CanTimelineEditVideo() => !IsControlBusy && TimelineFrameRate.HasValue;
         private bool CanTimelineExtendVideo(int frames) => frames > 0 && CanTimelineEditVideo();
-        private bool CanSegmentSplit() => _selectedVideoFrame != null && _selectedVideoFrame.IsSelected && !_selectedVideoFrame.IsPadding;
-        private bool CanSegmentRemoveSelected() => _selectedVideoFrame != null && !_selectedVideoFrame.IsPadding;
+        private bool CanSegmentSplit() => _selectedFrame != null && _selectedFrame.IsSelected && !_selectedFrame.IsPadding;
+        private bool CanSegmentRemoveSelected() => _selectedFrame != null && !_selectedFrame.IsPadding;
         private bool CanSegmentMove() => TimelineSegements.Count > 1 && _selectedSegement != null;
         private bool CanSegmentCopy() => TimelineSegements.Count > 0 && _selectedSegement != null;
         private bool CanSegmentRemove() => TimelineSegements.Count > 1 && _selectedSegement != null;
@@ -323,7 +325,7 @@ namespace Amuse.App.Controls
             TimelinePositionTime = TimeSpan.Zero;
             TimelineThumbWidth = null;
             SelectedSegement = null;
-            SelectedVideoFrame = null;
+            SelectedFrame = null;
         }
 
 
@@ -389,8 +391,8 @@ namespace Amuse.App.Controls
             var count = _timelineLength;
             for (int i = 0; i < count; i++)
             {
-                var isEndPadding = TimelineSegements.All(x => x.VideoFrames.Last().IsPadding);
-                var isStartPadding = TimelineSegements.All(x => x.VideoFrames.First().IsPadding);
+                var isEndPadding = TimelineSegements.All(x => x.Frames.Last().IsPadding);
+                var isStartPadding = TimelineSegements.All(x => x.Frames.First().IsPadding);
                 if (!isEndPadding && !isStartPadding)
                     break;
 
@@ -398,9 +400,9 @@ namespace Amuse.App.Controls
                 foreach (var timeline in TimelineSegements)
                 {
                     if (isStartPadding)
-                        timeline.VideoFrames.RemoveAt(0);
+                        timeline.Frames.RemoveAt(0);
                     if (isEndPadding)
-                        timeline.VideoFrames.RemoveAt(timeline.VideoFrames.Count - 1);
+                        timeline.Frames.RemoveAt(timeline.Frames.Count - 1);
                 }
 
                 TimelinePositions -= increment;
@@ -415,17 +417,14 @@ namespace Amuse.App.Controls
         {
             TimelinePositions += frames;
             TimelineLength += frames;
-            foreach (var timeline in TimelineSegements)
-            {
-                timeline.SetEndPadding(_timelineLength);
-            }
+            SetTimlineEndPadding();
             return Task.CompletedTask;
         }
 
 
         private Task TimelineZoomOutAsync()
         {
-            TimelineFrameWidth = Math.Max(3.0, (TimelineViewer.ViewportWidth - 2.0) / _timelineLength);
+            TimelineFrameWidth = Math.Max(1.0, (TimelineViewer.ViewportWidth - 2.0) / _timelineLength);
             return Task.CompletedTask;
         }
 
@@ -442,24 +441,31 @@ namespace Amuse.App.Controls
             if (_selectedSegement == null)
                 return Task.CompletedTask;
 
-            var selection = _selectedSegement.VideoFrames.FirstOrDefault(x => x.IsSelected && !x.IsPadding && !x.IsHidden);
+            var selection = _selectedSegement.Frames.FirstOrDefault(x => x.IsSelected && !x.IsPadding);
             if (selection == null)
                 return Task.CompletedTask;
 
             var splitTimeline = new TimelineSegment(_selectedSegement);
             TimelineSegements.Add(splitTimeline);
-            var startIndex = _selectedSegement.VideoFrames.IndexOf(selection);
+            var startIndex = _selectedSegement.Frames.IndexOf(selection);
             splitTimeline.SetStartPadding(startIndex);
             for (int i = startIndex; i < _timelineLength; i++)
             {
                 if (i > _selectedSegement.Length)
                     break;
 
-                var frame = _selectedSegement.VideoFrames[i];
+                var frame = _selectedSegement.Frames[i];
                 if (frame.IsPadding)
                     continue;
 
                 frame.IsSelected = true;
+
+                if (splitTimeline.SegmentType == TimelineSegmentType.Audio)
+                {
+                    splitTimeline.AddFrame(frame.FrameIndex);
+                    continue;
+                }
+
                 splitTimeline.AddFrame(frame.Frame);
             }
 
@@ -504,26 +510,18 @@ namespace Amuse.App.Controls
             var segment = new TimelineSegment(_selectedSegement);
             TimelineSegements.Add(segment);
             segment.SetStartPadding(_timelineLength);
-            segment.VideoLength = _selectedSegement.VideoLength;
-            foreach (var frame in _selectedSegement.VideoFrames)
+            segment.FrameLength = _selectedSegement.FrameLength;
+            foreach (var frame in _selectedSegement.Frames)
             {
                 if (frame.IsPadding)
                     continue;
 
-                segment.VideoFrames.Add(new VideoFrameModel
-                {
-                    Frame = frame.Frame,
-                    IsHidden = frame.IsHidden,
-                    IsPadding = frame.IsPadding,
-                });
+                segment.Frames.Add(new TimelineFrameModel(frame));
             }
 
-            TimelineLength += segment.VideoLength;
-            foreach (var timeline in TimelineSegements)
-            {
-                timeline.SetEndPadding(_timelineLength);
-            }
-            TimelinePosition = _timelineLength - segment.VideoLength;
+            TimelineLength += segment.FrameLength;
+            SetTimlineEndPadding();
+            TimelinePosition = _timelineLength - segment.FrameLength;
             ClearHighlight(true);
             return Task.CompletedTask;
         }
@@ -536,7 +534,7 @@ namespace Amuse.App.Controls
 
             TimelineSegements.Remove(_selectedSegement);
             SelectedSegement = null;
-            SelectedVideoFrame = null;
+            SelectedFrame = null;
             return Task.CompletedTask;
         }
 
@@ -555,10 +553,10 @@ namespace Amuse.App.Controls
         {
             if (_selectedSegement == null)
                 return;
-            if (_selectedVideoFrame?.Frame == null)
+            if (_selectedFrame?.Frame == null)
                 return;
 
-            var originalFrame = await _selectedSegement.GetOutputFrameAsync(_selectedVideoFrame.Frame.Index, _timelineWidth.Value, _timelineHeight.Value, _timelineFrameRate.Value);
+            var originalFrame = await _selectedSegement.GetOutputFrameAsync(_selectedFrame.FrameIndex, _timelineWidth.Value, _timelineHeight.Value, _timelineFrameRate.Value);
             if (originalFrame == null)
                 return;
 
@@ -600,36 +598,47 @@ namespace Amuse.App.Controls
         }
 
 
+        private async Task LoadAudioAsync()
+        {
+            var sourceFilename = await DialogService.OpenFileAsync("Load Audio", "Audio", filter: "Audio/Video files (*.mp3;*.wav;*.flac;*.m4a;*.aac;*.ogg;*.mp4;*.mov;*.mkv;*.webm)|*.mp3;*.wav;*.flac;*.m4a;*.aac;*.ogg;*.mp4;*.mov;*.mkv;*.webm", defualtExt: "wav");
+            if (string.IsNullOrEmpty(sourceFilename))
+                return;
+
+            var imageInput = await AudioInputStream.CreateAsync(sourceFilename);
+            await CreateAudioTimelineAsync(imageInput);
+        }
+
+
         private async IAsyncEnumerable<VideoFrame> GetOutputVideoFrames([EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var progress = 0;
-            var progressMax = TimelineSegements.Sum(x => x.VideoLength);
+            var progressMax = TimelineSegements.Sum(x => x.FrameLength);
             void progressAction(int val) => Progress.Update(progress++, progressMax);
-            var segementVideoFrames = new VideoFrameModel[TimelineSegements.Count][];
+            var segementFrames = new TimelineFrameModel[TimelineSegements.Count][];
             foreach (var (s, segment) in TimelineSegements.Index())
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var results = new VideoFrameModel[segment.VideoFrames.Count];
+                var results = new TimelineFrameModel[segment.Frames.Count];
                 var videoFrames = await segment.GetOutputFramesAsync(_timelineWidth.Value, _timelineHeight.Value, _timelineFrameRate.Value, progressAction, cancellationToken);
-                foreach (var (f, videoFrame) in segment.VideoFrames.Index())
+                foreach (var (f, videoFrame) in segment.Frames.Index())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    if (videoFrame.IsPadding || videoFrame.IsHidden)
+                    if (videoFrame.IsPadding || videoFrame.Frame == null)
                         continue;
 
-                    results[f] = new VideoFrameModel { Frame = videoFrames[videoFrame.Frame.Index] };
-                    if (segment.IsOverlay)
+                    results[f] = new TimelineFrameModel(segment.SegmentType, videoFrames[videoFrame.FrameIndex]);
+                    if (segment.SegmentType == TimelineSegmentType.Overlay)
                         results[f].IsSelected = true;
                 }
-                segementVideoFrames[s] = results;
+                segementFrames[s] = results;
             }
 
             var currentFrame = default(VideoFrame);
             for (int i = 0; i < _timelineLength; i++)
             {
-                foreach (var segementFrame in segementVideoFrames)
+                foreach (var segementFrame in segementFrames)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -680,16 +689,14 @@ namespace Amuse.App.Controls
 
                         timelineSegment.AddFrame(videoFrame);
                         Progress.Update(frameIndex++, videoStream.FrameCount);
-                        await Dispatcher.Yield();
+                        if (frameIndex % 2 == 0)
+                            await Dispatcher.Yield();
                     }
                 }
 
-                TimelineLength += timelineSegment.VideoLength;
-                foreach (var timeline in TimelineSegements)
-                {
-                    timeline.SetEndPadding(_timelineLength);
-                }
-                TimelinePosition = _timelineLength - timelineSegment.VideoLength;
+                TimelineLength += timelineSegment.FrameLength;
+                SetTimlineEndPadding();
+                TimelinePosition = _timelineLength - timelineSegment.FrameLength;
                 if (TimelineSegements.Count == 1)
                     SetCurrentFrame(0);
             }
@@ -715,15 +722,13 @@ namespace Amuse.App.Controls
                 IsControlBusy = true;
                 var previewImage = imageFrame.ResizeImage(_timelineThumbWidth.Value, _timelineThumbHeight, TensorStack.Common.ResizeMode.Crop);
                 var previewFrame = new VideoFrame(0, previewImage, _timelineFrameRate.Value);
-                var timelineSegment = new TimelineSegment(imageFrame, previewFrame);
+                var timelineSegment = new TimelineSegment(TimelineSegmentType.Image, imageFrame);
+                timelineSegment.AddFrame(previewFrame);
                 TimelineSegements.Add(timelineSegment);
                 timelineSegment.SetStartPadding(_timelineLength);
 
                 TimelineLength++;
-                foreach (var timeline in TimelineSegements)
-                {
-                    timeline.SetEndPadding(_timelineLength);
-                }
+                SetTimlineEndPadding();
                 TimelinePosition = _timelineLength - 1;
                 return Task.CompletedTask;
             }
@@ -735,16 +740,33 @@ namespace Amuse.App.Controls
         }
 
 
-        private Task CreateOverlayTimelineAsync(ImageInput imageFrame)
+        private async Task CreateOverlayTimelineAsync(ImageInput imageFrame)
         {
+            IsControlBusy = true;
+            var timelineSegment = new TimelineSegment(TimelineSegmentType.Overlay, imageFrame);
+
             try
             {
-                IsControlBusy = true;
-                var previewImage = imageFrame.ResizeImage(_timelineThumbWidth.Value, _timelineThumbHeight, TensorStack.Common.ResizeMode.Crop);
-                var previewFrame = new VideoFrame(0, previewImage, _timelineFrameRate.Value);
-                var timelineSegment = new TimelineSegment(_timelineLength, imageFrame, previewFrame);
-                TimelineSegements.Add(timelineSegment);
-                return Task.CompletedTask;
+                using (CancellationTokenSource = new CancellationTokenSource())
+                {
+                    var frameIndex = 0;
+                    var previewImage = imageFrame.ResizeImage(_timelineThumbWidth.Value, _timelineThumbHeight, TensorStack.Common.ResizeMode.Crop);
+                    var previewFrame = new VideoFrame(0, previewImage, _timelineFrameRate.Value);
+                    TimelineSegements.Add(timelineSegment);
+                    for (int i = 0; i < _timelineLength; i++)
+                    {
+                        CancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                        timelineSegment.AddFrame(previewFrame);
+                        Progress.Update(frameIndex++, _timelineLength);
+                        if (frameIndex % 2 == 0)
+                            await Dispatcher.Yield();
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                TimelineSegements.Remove(timelineSegment);
             }
             finally
             {
@@ -754,10 +776,57 @@ namespace Amuse.App.Controls
         }
 
 
+        private async Task CreateAudioTimelineAsync(AudioInputStream audioInput)
+        {
+            IsControlBusy = true;
+            var timelineSegment = new TimelineSegment(audioInput);
+            try
+            {
+                using (CancellationTokenSource = new CancellationTokenSource())
+                {
+                    TimelineSegements.Add(timelineSegment);
+
+                    var frameIndex = 0;
+                    var durationSeconds = (double)audioInput.Samples / audioInput.SampleRate;
+                    var frameCount = (int)Math.Round(durationSeconds * _timelineFrameRate.Value);
+                    for (int i = 0; i < frameCount; i++)
+                    {
+                        timelineSegment.AddFrame(i);
+                        Progress.Update(frameIndex++, frameCount);
+                        if (frameIndex % 10 == 0)
+                            await Dispatcher.Yield();
+                    }
+                }
+
+                TimelineLength = Math.Max(_timelineLength, timelineSegment.FrameLength);
+                SetTimlineEndPadding();
+                TimelinePosition = 0;
+            }
+            catch (OperationCanceledException)
+            {
+                TimelineSegements.Remove(timelineSegment);
+            }
+            finally
+            {
+                IsControlBusy = false;
+                Progress.Clear();
+                CancellationTokenSource = null;
+            }
+        }
+
+
+        private void SetTimlineEndPadding()
+        {
+            foreach (var timeline in TimelineSegements)
+            {
+                timeline.SetEndPadding(_timelineLength);
+            }
+        }
+
 
         private async Task SetSegmentPositionAsync(TimelineSegment timelineSegment, int index)
         {
-            var length = index + timelineSegment.VideoLength;
+            var length = index + timelineSegment.FrameLength;
             if (length > _timelineLength)
                 await TimelineExtendAsync(length - _timelineLength);
 
@@ -772,14 +841,14 @@ namespace Amuse.App.Controls
             ClearHighlight(false);
             foreach (var timeline in TimelineSegements)
             {
-                var safeIndex = Math.Min(index, timeline.VideoFrames.Count - 1);
-                var timelineFrame = timeline.VideoFrames[safeIndex];
+                var safeIndex = Math.Min(index, timeline.Frames.Count - 1);
+                var timelineFrame = timeline.Frames[safeIndex];
                 timelineFrame.IsHighlight = true;
 
-                if (timelineFrame.IsPadding || timelineFrame.IsHidden)
+                if (timelineFrame.IsPadding)
                     continue;
 
-                if (timeline.IsOverlay)
+                if (timeline.SegmentType == TimelineSegmentType.Overlay)
                 {
                     PreviewOverlay = timelineFrame;
                     continue;
@@ -794,19 +863,19 @@ namespace Amuse.App.Controls
         private Task<AudioTimeline> CreateAudioTimeline()
         {
             var audioTimeline = new AudioTimeline(_timelineLengthTime) { Overlap = TimeSpan.FromMilliseconds(_timelineInterval) };
-            var segments = TimelineSegements.Where(x => x.IsAudioPresent).ToArray();
+            var segments = TimelineSegements.Where(x => x.IsAudioPresent && x.IsAudioEnabled).ToArray();
             foreach (var segement in segments)
             {
-                var lastFrame = segement.VideoFrames.LastOrDefault(x => !x.IsPadding);
-                var startFrame = segement.VideoFrames.FirstOrDefault(x => !x.IsPadding);
-                var startPosition = segement.VideoFrames.IndexOf(startFrame);
+                var lastFrame = segement.Frames.LastOrDefault(x => !x.IsPadding);
+                var startFrame = segement.Frames.FirstOrDefault(x => !x.IsPadding);
+                var startPosition = segement.Frames.IndexOf(startFrame);
 
-                var audioStart = TimeSpan.FromMilliseconds(_timelineInterval * startFrame.Frame.Index);
-                var audioEnd = TimeSpan.FromMilliseconds(_timelineInterval * (lastFrame.Frame.Index - startFrame.Frame.Index));
+                var audioStart = TimeSpan.FromMilliseconds(_timelineInterval * startFrame.FrameIndex);
+                var audioEnd = TimeSpan.FromMilliseconds(_timelineInterval * (lastFrame.FrameIndex - startFrame.FrameIndex));
                 var audioPosition = TimeSpan.FromMilliseconds(_timelineInterval * startPosition);
 
                 var audioSegment = new AudioSegment(segement.SourceFile, audioStart, audioEnd, audioPosition);
-                audioSegment.IsFirst = audioTimeline.Segments.Count == 0;
+                audioSegment.IsFirst = startPosition == 0 || audioTimeline.Segments.Count == 0;
                 audioSegment.IsLast = audioTimeline.Segments.Count == segments.Length - 1;
                 audioTimeline.Segments.Add(audioSegment);
             }
@@ -840,7 +909,7 @@ namespace Amuse.App.Controls
         {
             foreach (var timeline in TimelineSegements)
             {
-                foreach (var item in timeline.VideoFrames)
+                foreach (var item in timeline.Frames)
                 {
                     item.IsHighlight = false;
                     if (clearSelection)
@@ -902,31 +971,31 @@ namespace Amuse.App.Controls
                 if (_selectedSegement == null)
                     return;
 
-                SelectedVideoFrame = listBox.SelectedItem as VideoFrameModel;
-                if (_selectedVideoFrame == null)
+                SelectedFrame = listBox.SelectedItem as TimelineFrameModel;
+                if (_selectedFrame == null)
                     return;
 
-                var currentState = _selectedVideoFrame.IsSelected;
+                var currentState = _selectedFrame.IsSelected;
                 ClearHighlight(true);
 
                 if (Keyboard.IsKeyDown(Key.LeftShift))
                 {
                     if (_selectionRangeStart.HasValue)
                     {
-                        var selectionEnd = _selectedSegement.VideoFrames.IndexOf(_selectedVideoFrame);
+                        var selectionEnd = _selectedSegement.Frames.IndexOf(_selectedFrame);
                         var rangeEnd = Math.Max(_selectionRangeStart.Value, selectionEnd);
                         var rangeStart = Math.Min(_selectionRangeStart.Value, selectionEnd);
                         for (var i = rangeStart; i <= rangeEnd; i++)
                         {
-                            _selectedSegement.VideoFrames[i].IsSelected = true;
+                            _selectedSegement.Frames[i].IsSelected = true;
                         }
-                        _selectedVideoFrame.IsSelected = true;
+                        _selectedFrame.IsSelected = true;
                         return;
                     }
                 }
-                _selectedVideoFrame.IsSelected = !currentState;
-                _selectionRangeStart = _selectedVideoFrame.IsSelected ? _selectedSegement.VideoFrames.IndexOf(_selectedVideoFrame) : null;
-                PreviewFrame = _selectedVideoFrame;
+                _selectedFrame.IsSelected = !currentState;
+                _selectionRangeStart = _selectedFrame.IsSelected ? _selectedSegement.Frames.IndexOf(_selectedFrame) : null;
+                PreviewFrame = _selectedFrame;
             }
         }
 
@@ -948,7 +1017,7 @@ namespace Amuse.App.Controls
             }
             else
             {
-                var minWidth = Math.Max(3.0, (TimelineViewer.ViewportWidth - 2.0) / _timelineLength);
+                var minWidth = Math.Max(1.0, (TimelineViewer.ViewportWidth - 2.0) / _timelineLength);
                 TimelineFrameWidth = Math.Max(minWidth, _timelineFrameWidth - increment);
             }
             ScrollTimeline();
@@ -970,11 +1039,11 @@ namespace Amuse.App.Controls
                 if (timelineSegment == null)
                     return;
 
-                var videoFrameModel = listBox.SelectedItem as VideoFrameModel;
-                if (videoFrameModel == null)
+                var timelineFrame = listBox.SelectedItem as TimelineFrameModel;
+                if (timelineFrame == null)
                     return;
 
-                var index = timelineSegment.VideoFrames.IndexOf(videoFrameModel);
+                var index = timelineSegment.Frames.IndexOf(timelineFrame);
                 await SetSegmentPositionAsync(timelineSegment, index);
             }
         }
@@ -1020,103 +1089,112 @@ namespace Amuse.App.Controls
                 CommandManager.InvalidateRequerySuggested();
             }
         }
+
+
+        private async void OnAudioDrop(object sender, DragEventArgs e)
+        {
+            var fileNames = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (!fileNames.IsNullOrEmpty())
+            {
+                var audioInput = await AudioInputStream.CreateAsync(fileNames[0]);
+                await CreateAudioTimelineAsync(audioInput);
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
+
+
     }
 
 
     public class TimelineSegment
     {
-        private readonly bool _isImage;
-        private readonly bool _isOverlay;
         private readonly ImageTensor _imageSource;
         private readonly VideoInputStream _videoStream;
+        private readonly AudioInputStream _audioStream;
+        private readonly TimelineSegmentType _segmentType;
 
         public TimelineSegment(VideoInputStream videoStream, bool isAudioPresent)
         {
             _videoStream = videoStream;
+            _segmentType = TimelineSegmentType.Video;
             IsAudioEnabled = isAudioPresent;
             IsAudioPresent = isAudioPresent;
         }
 
-        public TimelineSegment(ImageTensor imageTensor, VideoFrame videoFrame)
-            : this(imageTensor, videoFrame, 1)
+        public TimelineSegment(AudioInputStream audioStream)
         {
-            _isImage = true;
-            IsAudioEnabled = false;
-            IsAudioPresent = false;
+            _audioStream = audioStream;
+            _segmentType = TimelineSegmentType.Audio;
+            IsAudioEnabled = true;
+            IsAudioPresent = true;
         }
 
-        public TimelineSegment(int count, ImageTensor imageTensor, VideoFrame videoFrame)
-            : this(imageTensor, videoFrame, count)
+        public TimelineSegment(TimelineSegmentType segmentType, ImageTensor imageTensor)
         {
-            _isOverlay = true;
-            IsAudioEnabled = false;
-            IsAudioPresent = false;
+            _segmentType = segmentType;
+            _imageSource = imageTensor;
         }
 
         public TimelineSegment(TimelineSegment timelineSegment)
         {
-            _isImage = timelineSegment._isImage;
-            _isOverlay = timelineSegment._isOverlay;
             _imageSource = timelineSegment._imageSource;
             _videoStream = timelineSegment._videoStream;
+            _audioStream = timelineSegment._audioStream;
+            _segmentType = timelineSegment._segmentType;
             IsAudioEnabled = timelineSegment.IsAudioEnabled;
             IsAudioPresent = timelineSegment.IsAudioPresent;
         }
 
-        protected TimelineSegment(ImageTensor imageTensor, VideoFrame videoFrame, int count)
-        {
-            _imageSource = imageTensor;
-            for (int i = 0; i < count; i++)
-            {
-                AddFrame(videoFrame);
-            }
-        }
-
-        public bool IsImage => _isImage;
-        public bool IsOverlay => _isOverlay;
-        public int Length => VideoFrames.Count;
-        public string SourceFile => _videoStream?.SourceFile;
-        public int VideoLength { get; set; }
+        public TimelineSegmentType SegmentType => _segmentType;
+        public int Length => Frames.Count;
+        public string SourceFile => _videoStream?.SourceFile ?? _audioStream?.SourceFile;
+        public int FrameLength { get; set; }
         public bool IsAudioEnabled { get; set; }
         public bool IsAudioPresent { get; }
-        public ObservableCollection<VideoFrameModel> VideoFrames { get; } = [];
+        public ObservableCollection<TimelineFrameModel> Frames { get; } = [];
+
+
+        public void AddFrame(int frameIndex)
+        {
+            Frames.Add(new TimelineFrameModel(_segmentType, frameIndex));
+            FrameLength++;
+        }
 
 
         public void AddFrame(VideoFrame videoFrame)
         {
-            VideoFrames.Add(new VideoFrameModel { Frame = videoFrame });
-            VideoLength++;
+            Frames.Add(new TimelineFrameModel(_segmentType, videoFrame));
+            FrameLength++;
         }
 
 
         public void RemoveSelected()
         {
-            if (_isImage)
+            if (_segmentType == TimelineSegmentType.Image)
                 return;
 
             var canRemove = false;
-            foreach (var (i, selectedFrame) in VideoFrames.Index())
+            foreach (var (i, selectedFrame) in Frames.Index())
             {
                 if (selectedFrame.IsPadding || !selectedFrame.IsSelected)
                     continue;
 
-                var next = VideoFrames.ElementAtOrDefault(i + 1);
-                var previous = VideoFrames.ElementAtOrDefault(i - 1);
+                var next = Frames.ElementAtOrDefault(i + 1);
+                var previous = Frames.ElementAtOrDefault(i - 1);
                 if (previous == null || next == null || previous?.IsPadding == true || next?.IsPadding == true)
                 {
                     canRemove = true;
                 }
             }
 
-            foreach (var selectedFrame in VideoFrames.Where(x => x.IsSelected))
+            foreach (var selectedFrame in Frames.Where(x => x.IsSelected))
             {
                 if (canRemove)
                 {
                     selectedFrame.IsPadding = true;
-                    selectedFrame.IsHidden = false;
                     selectedFrame.Frame = null;
                     selectedFrame.IsSelected = false;
-                    VideoLength--;
+                    FrameLength--;
                 }
             }
         }
@@ -1124,7 +1202,7 @@ namespace Amuse.App.Controls
 
         public void RemovePadding()
         {
-            VideoFrames.RemoveAll(x => x.IsPadding);
+            Frames.RemoveAll(x => x.IsPadding);
         }
 
 
@@ -1132,16 +1210,16 @@ namespace Amuse.App.Controls
         {
             for (int i = 0; i < count; i++)
             {
-                VideoFrames.Insert(0, new VideoFrameModel { IsPadding = true });
+                Frames.Insert(0, new TimelineFrameModel(_segmentType, true));
             }
         }
 
 
         public void SetEndPadding(int count)
         {
-            for (int i = VideoFrames.Count; i < count; i++)
+            for (int i = Frames.Count; i < count; i++)
             {
-                VideoFrames.Add(new VideoFrameModel { IsPadding = true });
+                Frames.Add(new TimelineFrameModel(_segmentType, true));
             }
         }
 
@@ -1150,22 +1228,22 @@ namespace Amuse.App.Controls
         {
             var index = 0;
             var output = new List<VideoFrame>();
-            if (_isImage)
+            if (_segmentType == TimelineSegmentType.Image)
             {
                 progress.Invoke(0);
                 var image = _imageSource.ResizeImage(width, height, TensorStack.Common.ResizeMode.Crop);
                 output = new List<VideoFrame> { new VideoFrame(0, image, frameRate) };
             }
-            else if (_isOverlay)
+            else if (_segmentType == TimelineSegmentType.Overlay)
             {
                 var image = _imageSource.ResizeImage(width, height, TensorStack.Common.ResizeMode.Crop);
-                foreach (var frame in VideoFrames)
+                foreach (var frame in Frames)
                 {
                     output.Add(new VideoFrame(index++, image, frameRate));
                     progress.Invoke(index);
                 }
             }
-            else
+            else if (_segmentType == TimelineSegmentType.Video)
             {
                 await foreach (var item in _videoStream.GetAsync(width, height, frameRate, TensorStack.Common.ResizeMode.Crop, cancellationToken: cancellationToken))
                 {
@@ -1179,35 +1257,76 @@ namespace Amuse.App.Controls
 
         public async Task<VideoFrame> GetOutputFrameAsync(int frameIndex, int width, int height, float frameRate)
         {
-            if (_isImage)
+            if (_segmentType == TimelineSegmentType.Image)
             {
                 var image = _imageSource.ResizeImage(width, height, TensorStack.Common.ResizeMode.Crop);
                 return new VideoFrame(frameIndex, image, frameRate);
             }
-            else if (_isOverlay)
+            else if (_segmentType == TimelineSegmentType.Overlay)
             {
-                if (VideoFrames.Any(x => x.Frame?.Index == frameIndex))
+                if (Frames.Any(x => x.Frame?.Index == frameIndex))
                 {
                     var image = _imageSource.ResizeImage(width, height, TensorStack.Common.ResizeMode.Crop);
                     return new VideoFrame(frameIndex, image, frameRate);
                 }
                 return default;
             }
-            else
+            else if (_segmentType == TimelineSegmentType.Video)
             {
                 return await _videoStream.GetFrameAsync(frameIndex, width, height, frameRate, TensorStack.Common.ResizeMode.Crop);
             }
+            return default;
         }
     }
 
-
-    public class VideoFrameModel : BaseModel
+    public enum TimelineSegmentType
     {
+        Video = 0,
+        Image = 1,
+        Audio = 2,
+        Overlay = 3
+    }
+
+    public class TimelineFrameModel : BaseModel
+    {
+        private readonly int _frameIndex;
+        private readonly TimelineSegmentType _type;
         private VideoFrame _frame;
         private bool _isPadding;
-        private bool _isHidden;
         private bool _isSelected;
         private bool _isHighlight;
+
+
+        public TimelineFrameModel(TimelineSegmentType type, bool isPadding)
+        {
+            _type = type;
+            IsPadding = isPadding;
+        }
+
+        public TimelineFrameModel(TimelineSegmentType type, VideoFrame frame)
+        {
+            _type = type;
+            Frame = frame;
+            _frameIndex = frame.Index;
+        }
+
+        public TimelineFrameModel(TimelineSegmentType type, int frameIndex)
+        {
+            _type = type;
+            _frameIndex = frameIndex;
+        }
+
+        public TimelineFrameModel(TimelineFrameModel frame)
+        {
+            _type = frame._type;
+            _frameIndex = frame._frameIndex;
+            Frame = frame.Frame;
+            IsPadding = frame.IsPadding;
+        }
+
+
+        public int FrameIndex => _frameIndex;
+        public TimelineSegmentType Type => _type;
 
         public VideoFrame Frame
         {
@@ -1219,12 +1338,6 @@ namespace Amuse.App.Controls
         {
             get { return _isPadding; }
             set { SetProperty(ref _isPadding, value); }
-        }
-
-        public bool IsHidden
-        {
-            get { return _isHidden; }
-            set { SetProperty(ref _isHidden, value); }
         }
 
         public bool IsSelected

@@ -17,7 +17,7 @@
             <DockPanel HorizontalAlignment="Left" >
                 <Border DockPanel.Dock="Left" BorderBrush="{StaticResource ContainerBorder}" BorderThickness="1">
                     <Viewbox>
-                        <Grid>
+                        <Grid >
                             <Image Stretch="Uniform" 
                                 MinWidth="384"
                                 MinHeight="256" 
@@ -61,64 +61,104 @@
                 </DockPanel>
             </DockPanel>
 
-            <!--Import Buttons-->
-            <Grid>
-                <Grid.Resources>
-                    <Style x:Key="AllowDropButton" TargetType="{x:Type CommonControls:IconButton}">
-                        <Setter Property="IconSize" Value="18"/>
-                        <Setter Property="IconOpacity" Value=".8"/>
-                        <Setter Property="IconMargin" Value="0,6,0,0"/>
-                        <Setter Property="TextMargin" Value="0,-3,0,4"/>
-                        <Setter Property="Orientation" Value="Vertical"/>
-                        <Setter Property="IconColor" Value="{StaticResource DefaultForeground}"/>
-                        <Setter Property="Foreground" Value="{StaticResource DefaultForeground}"/>
-                        <Style.Triggers>
-                            <Trigger Property="AllowDrop" Value="True">
-                                <Setter Property="IconColor" Value="{StaticResource AccentColour2}"/>
-                                <Setter Property="Foreground" Value="{StaticResource AccentColour2}"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Resources>
 
-                <UniformGrid DockPanel.Dock="Bottom" Columns="3" Margin="40,20,40,0" VerticalAlignment="Top">
-                    <Border Style="{StaticResource VideoDropZoneStyle}" >
-                        <CommonControls:IconButton Text="Import Video" Icon="f008" Command="{Binding LoadVideoCommand}" Drop="OnTimelineDrop" Style="{StaticResource AllowDropButton}"/>
-                    </Border>
-                    <Border>
-                        <CommonControls:IconButton Text="Import Image" Icon="f03e" Command="{Binding LoadImageCommand}" Drop="OnImageDrop" Style="{StaticResource AllowDropButton}"/>
-                        <Border.Style>
-                            <Style TargetType="{x:Type Border}" BasedOn="{StaticResource ImageDropZoneStyle}">
-                                <Setter Property="IsEnabled" Value="True"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding TimelineFrameRate, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}}" Value="{x:Null}">
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsControlBusy, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}}" Value="True">
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                    </Border>
-                    <Border>
-                        <CommonControls:IconButton Text="Import Overlay" Icon="f302" Command="{Binding LoadOverlayCommand}" Drop="OnOverlayDrop" Style="{StaticResource AllowDropButton}"/>
-                        <Border.Style>
-                            <Style TargetType="{x:Type Border}" BasedOn="{StaticResource ImageDropZoneStyle}">
-                                <Setter Property="IsEnabled" Value="True"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding TimelineFrameRate, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}}" Value="{x:Null}">
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsControlBusy, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}}" Value="True">
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                    </Border>
-                </UniformGrid>
-            </Grid>
+            <DockPanel>
+
+                <!--SelectedSegement-->
+                <DockPanel DockPanel.Dock="Top" Margin="40,0,40,0">
+                    <StackPanel>
+                        <UniformGrid Columns="3">
+                            <StackPanel Orientation="Horizontal" >
+                                <TextBlock Text="Type: " FontStyle="Italic" Opacity=".7"/>
+                                <TextBlock Text="{Binding SelectedSegement.SegmentType, FallbackValue=Unknown}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock Text="Frame: " FontStyle="Italic" Opacity=".7"/>
+                                <TextBlock Text="{Binding SelectedFrame.FrameIndex, FallbackValue=0, Converter={StaticResource AddIntConverter}, ConverterParameter=1}"/>
+                                <TextBlock Text="/" FontStyle="Italic" Opacity=".7"/>
+                                <TextBlock Text="{Binding SelectedSegement.FrameLength, FallbackValue=0}"/>
+                            </StackPanel>
+                            <CheckBox Content="Audio Enabled" IsChecked="{Binding SelectedSegement.IsAudioEnabled}" IsEnabled="{Binding SelectedSegement.IsAudioPresent}" HorizontalAlignment="Right"/>
+                        </UniformGrid>
+                    </StackPanel>
+                </DockPanel>
+
+                <!--Import Buttons-->
+                <Grid VerticalAlignment="Bottom">
+                    <Grid.Resources>
+                        <Style x:Key="AllowDropButton" TargetType="{x:Type CommonControls:IconButton}">
+                            <Setter Property="IconSize" Value="18"/>
+                            <Setter Property="IconOpacity" Value=".8"/>
+                            <Setter Property="IconMargin" Value="0,6,0,0"/>
+                            <Setter Property="TextMargin" Value="0,-3,0,4"/>
+                            <Setter Property="Orientation" Value="Vertical"/>
+                            <Setter Property="IconColor" Value="{StaticResource DefaultForeground}"/>
+                            <Setter Property="Foreground" Value="{StaticResource DefaultForeground}"/>
+                            <Style.Triggers>
+                                <Trigger Property="AllowDrop" Value="True">
+                                    <Setter Property="IconColor" Value="{StaticResource AccentColour2}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource AccentColour2}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Resources>
+
+                    <UniformGrid DockPanel.Dock="Bottom" Columns="2" Margin="40,0,40,0" VerticalAlignment="Top">
+                        <Border Style="{StaticResource VideoDropZoneStyle}" >
+                            <CommonControls:IconButton Text="Import Video" Icon="f008" Command="{Binding LoadVideoCommand}" Drop="OnTimelineDrop" Style="{StaticResource AllowDropButton}"/>
+                        </Border>
+                        <Border>
+                            <CommonControls:IconButton Text="Import Audio" Icon="f001" Command="{Binding LoadAudioCommand}" Drop="OnAudioDrop" Style="{StaticResource AllowDropButton}"/>
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}" BasedOn="{StaticResource AudioDropZoneStyle}">
+                                    <Setter Property="IsEnabled" Value="True"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding TimelineFrameRate, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}}" Value="{x:Null}">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsControlBusy, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
+                        <Border>
+                            <CommonControls:IconButton Text="Import Image" Icon="f03e" Command="{Binding LoadImageCommand}" Drop="OnImageDrop" Style="{StaticResource AllowDropButton}"/>
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}" BasedOn="{StaticResource ImageDropZoneStyle}">
+                                    <Setter Property="IsEnabled" Value="True"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding TimelineFrameRate, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}}" Value="{x:Null}">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsControlBusy, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
+                        <Border>
+                            <CommonControls:IconButton Text="Import Overlay" Icon="f302" Command="{Binding LoadOverlayCommand}" Drop="OnOverlayDrop" Style="{StaticResource AllowDropButton}"/>
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}" BasedOn="{StaticResource ImageDropZoneStyle}">
+                                    <Setter Property="IsEnabled" Value="True"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding TimelineFrameRate, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}}" Value="{x:Null}">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsControlBusy, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
+                    </UniformGrid>
+                </Grid>
+
+            </DockPanel>
 
             <!--Preview Controls - Save/Cancel-->
             <DockPanel Width="400" HorizontalAlignment="Right" >
@@ -266,18 +306,97 @@
                             <ItemsControl ItemsSource="{Binding TimelineSegements}" VerticalAlignment="Center">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <ListBox ItemsSource="{Binding VideoFrames}" RequestBringIntoView="OnTimelineSegementRequestBringIntoView" MouseLeftButtonUp="OnTimelineSegementMouseUp" MouseDoubleClick="OnTimelineSegementMouseDoubleClick" Background="{StaticResource TransparentBrush}" BorderThickness="0" Padding="0">
+                                        <ListBox ItemsSource="{Binding Frames}" RequestBringIntoView="OnTimelineSegementRequestBringIntoView" MouseLeftButtonUp="OnTimelineSegementMouseUp" MouseDoubleClick="OnTimelineSegementMouseDoubleClick" Background="{StaticResource TransparentBrush}" BorderThickness="0" Padding="0">
                                             <ListBox.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border BorderThickness="1,2"
+                                                    <Border BorderThickness="1"
                                                             Width="{Binding TimelineFrameWidth, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}}"
                                                             Height="{Binding PreviewFrameSize, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}}">
-                                                        <Grid>
-                                                            <Image Stretch="Uniform" 
-                                                                Source="{Binding Frame, Converter={StaticResource VideoFrameToBitmapConverter}, TargetNullValue={StaticResource PlaceholderVideo}}" 
-                                                                Width="{Binding PreviewFrameSize, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}, Converter={StaticResource SubtractIntConverter}, ConverterParameter=2}"
-                                                                Height="{Binding PreviewFrameSize, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}, Converter={StaticResource SubtractIntConverter}, ConverterParameter=2}">
-                                                            </Image>
+                                                        <Grid Width="{Binding PreviewFrameSize, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}, Converter={StaticResource SubtractIntConverter}, ConverterParameter=2}"  Height="{Binding PreviewFrameSize, RelativeSource={RelativeSource AncestorType={x:Type local:VideoTimelineControl}}, Converter={StaticResource SubtractIntConverter}, ConverterParameter=2}">
+
+                                                            <!--Video/Image/Overlay -->
+                                                            <Border >
+                                                                <Image Stretch="Uniform" Source="{Binding Frame, Converter={StaticResource VideoFrameToBitmapConverter}}" RenderOptions.BitmapScalingMode="LowQuality" />
+                                                                <Border.Style>
+                                                                    <Style TargetType="{x:Type Border}">
+                                                                        <Setter Property="Visibility" Value="Hidden" />
+                                                                        <Style.Triggers>
+                                                                            <MultiDataTrigger>
+                                                                                <MultiDataTrigger.Conditions>
+                                                                                    <Condition  Binding="{Binding IsPadding}" Value="False"/>
+                                                                                    <Condition  Binding="{Binding Type}" Value="Video"/>
+                                                                                </MultiDataTrigger.Conditions>
+                                                                                <MultiDataTrigger.Setters>
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </MultiDataTrigger.Setters>
+                                                                            </MultiDataTrigger>
+                                                                            <MultiDataTrigger>
+                                                                                <MultiDataTrigger.Conditions>
+                                                                                    <Condition  Binding="{Binding IsPadding}" Value="False"/>
+                                                                                    <Condition  Binding="{Binding Type}" Value="Image"/>
+                                                                                </MultiDataTrigger.Conditions>
+                                                                                <MultiDataTrigger.Setters>
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </MultiDataTrigger.Setters>
+                                                                            </MultiDataTrigger>
+                                                                            <MultiDataTrigger>
+                                                                                <MultiDataTrigger.Conditions>
+                                                                                    <Condition  Binding="{Binding IsPadding}" Value="False"/>
+                                                                                    <Condition  Binding="{Binding Type}" Value="Overlay"/>
+                                                                                </MultiDataTrigger.Conditions>
+                                                                                <MultiDataTrigger.Setters>
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </MultiDataTrigger.Setters>
+                                                                            </MultiDataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Border.Style>
+                                                            </Border>
+
+                                                            <!--Audio-->
+                                                            <Border>
+                                                                <Viewbox>
+                                                                    <CommonControls:FontAwesome Size="40" Icon="f8f2" IconStyle="SharpSolid" Margin="8" Opacity=".8"/>
+                                                                </Viewbox>
+                                                                <Border.Style>
+                                                                    <Style TargetType="{x:Type Border}">
+                                                                        <Setter Property="Visibility" Value="Hidden" />
+                                                                        <Style.Triggers>
+                                                                            <MultiDataTrigger>
+                                                                                <MultiDataTrigger.Conditions>
+                                                                                    <Condition  Binding="{Binding IsPadding}" Value="False"/>
+                                                                                    <Condition  Binding="{Binding Type}" Value="Audio"/>
+                                                                                </MultiDataTrigger.Conditions>
+                                                                                <MultiDataTrigger.Setters>
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </MultiDataTrigger.Setters>
+                                                                            </MultiDataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Border.Style>
+                                                            </Border>
+
+                                                            <!--Padding-->
+                                                            <Grid>
+                                                                <Viewbox>
+                                                                    <CommonControls:FontAwesome Size="40" Icon="f008" Margin="8" Opacity=".1"/>
+                                                                </Viewbox>
+                                                                <Grid.Style>
+                                                                    <Style TargetType="{x:Type Grid}">
+                                                                        <Setter Property="Visibility" Value="Hidden" />
+                                                                        <Style.Triggers>
+                                                                            <MultiDataTrigger>
+                                                                                <MultiDataTrigger.Conditions>
+                                                                                    <Condition  Binding="{Binding IsPadding}" Value="True"/>
+                                                                                </MultiDataTrigger.Conditions>
+                                                                                <MultiDataTrigger.Setters>
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </MultiDataTrigger.Setters>
+                                                                            </MultiDataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Grid.Style>
+                                                            </Grid>
                                                         </Grid>
                                                         <Border.Style>
                                                             <Style TargetType="{x:Type Border}">
@@ -304,8 +423,8 @@
                                                 <Style TargetType="{x:Type ListBoxItem}">
                                                     <Setter Property="Padding" Value="0"/>
                                                     <Setter Property="Margin" Value="0"/>
-                                                    <Setter Property="BorderThickness" Value="0"/>
-                                                    <Setter Property="BorderBrush" Value="{StaticResource ContainerBorder}"/>
+                                                    <Setter Property="BorderThickness" Value="0,0,0,0"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource TransparentBrush}"/>
                                                     <Setter Property="Background" Value="{StaticResource TransparentBrush}"/>
                                                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                                     <Setter Property="Template">
@@ -317,6 +436,48 @@
                                                             </ControlTemplate>
                                                         </Setter.Value>
                                                     </Setter>
+                                                    <Style.Triggers>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition  Binding="{Binding IsPadding}" Value="False"/>
+                                                                <Condition  Binding="{Binding Type}" Value="Video"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <MultiDataTrigger.Setters>
+                                                                <Setter Property="BorderThickness" Value="0,0,0,2" />
+                                                                <Setter Property="BorderBrush" Value="LightBlue"/>
+                                                            </MultiDataTrigger.Setters>
+                                                        </MultiDataTrigger>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition  Binding="{Binding IsPadding}" Value="False"/>
+                                                                <Condition  Binding="{Binding Type}" Value="Image"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <MultiDataTrigger.Setters>
+                                                                <Setter Property="BorderThickness" Value="0,0,0,2" />
+                                                                <Setter Property="BorderBrush" Value="Yellow"/>
+                                                            </MultiDataTrigger.Setters>
+                                                        </MultiDataTrigger>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition  Binding="{Binding IsPadding}" Value="False"/>
+                                                                <Condition  Binding="{Binding Type}" Value="Overlay"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <MultiDataTrigger.Setters>
+                                                                <Setter Property="BorderThickness" Value="0,0,0,2" />
+                                                                <Setter Property="BorderBrush" Value="Orange"/>
+                                                            </MultiDataTrigger.Setters>
+                                                        </MultiDataTrigger>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition  Binding="{Binding IsPadding}" Value="False"/>
+                                                                <Condition  Binding="{Binding Type}" Value="Audio"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <MultiDataTrigger.Setters>
+                                                                <Setter Property="BorderThickness" Value="0,0,0,2" />
+                                                                <Setter Property="BorderBrush" Value="Purple"/>
+                                                            </MultiDataTrigger.Setters>
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
                                                 </Style>
                                             </ListBox.ItemContainerStyle>
                                         </ListBox>

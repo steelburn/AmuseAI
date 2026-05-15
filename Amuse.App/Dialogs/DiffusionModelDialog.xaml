@@ -26,13 +26,10 @@
                         <TextBox Text="{Binding DiffusionModel.Pipeline}" IsReadOnly="True" IsHitTestVisible="False" />
                     </StackPanel>
 
-
                     <StackPanel>
                         <TextBlock Text="Name" Style="{StaticResource FieldTextBlockStyle}"/>
                         <TextBox Text="{Binding DiffusionModel.Name, UpdateSourceTrigger=PropertyChanged}" />
                     </StackPanel>
-
-                  
 
                     <StackPanel>
                         <TextBlock Text="Model Source" Style="{StaticResource FieldTextBlockStyle}"/>
@@ -124,31 +121,68 @@
                         </StackPanel>
                     </Grid>
 
-
                 </StackPanel>
             </GroupBox>
 
 
             <DockPanel Margin="4,0,0,0">
 
-
                 <!--Process Settings-->
                 <GroupBox DockPanel.Dock="Top" Header="Supported Functions">
-                    <StackPanel VerticalAlignment="Top" Margin="4">
-                        <UniformGrid Columns="2">
-                            <CheckBox x:Name="CheckBoxTextToImage" Content="TextToImage" />
-                            <CheckBox x:Name="CheckBoxTextToVideo" Content="TextToVideo" />
-                            <CheckBox x:Name="CheckBoxImageToImage" Content="ImageToImage" />
-                            <CheckBox x:Name="CheckBoxImageToVideo" Content="ImageToVideo" />
-                            <CheckBox x:Name="CheckBoxImageEdit" Content="ImageEdit" />
-                            <CheckBox x:Name="CheckBoxImageInpaint" Content="ImageInpaint" />
-                            <CheckBox x:Name="CheckBoxVideoToVideo" Content="VideoToVideo" />
-                            <CheckBox x:Name="CheckBoxImageControlNet" Content="Image (ControlNet)" />
-                        </UniformGrid>
-                        <CheckBox x:Name="CheckBoxImageToImageControlNet" Content="ImageToImage (ControlNet)" />
-                    </StackPanel>
+                    <Grid Margin="4">
+                        <StackPanel VerticalAlignment="Top"  Visibility="{Binding DiffusionModel.MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Image}">
+                            <UniformGrid Columns="3" >
+                                <CheckBox x:Name="CheckBoxTextToImage" Content="TextToImage" />
+                                <CheckBox x:Name="CheckBoxImageToImage" Content="ImageToImage" />
+                                <CheckBox x:Name="CheckBoxImageEdit" Content="ImageEdit" />
+                                <CheckBox x:Name="CheckBoxImageInpaint" Content="ImageInpaint" />
+                                <CheckBox x:Name="CheckBoxImageControlNet" Content="Image (ControlNet)" />
+                                <CheckBox x:Name="CheckBoxImageToImageControlNet" Content="ImageToImage (ControlNet)" />
+                            </UniformGrid>
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Top"  Visibility="{Binding DiffusionModel.MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Video}">
+                            <UniformGrid Columns="3" >
+                                <CheckBox x:Name="CheckBoxTextToVideo" Content="TextToVideo" />
+                                <CheckBox x:Name="CheckBoxImageToVideo" Content="ImageToVideo" />
+                                <CheckBox x:Name="CheckBoxVideoToVideo" Content="VideoToVideo" />
+                            </UniformGrid>
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Top"  Visibility="{Binding DiffusionModel.MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Audio}">
+                            <UniformGrid Columns="3" >
+                                <CheckBox x:Name="CheckBoxTextToAudio" Content="TextToAudio" />
+                            </UniformGrid>
+                        </StackPanel>
+                    </Grid>
                 </GroupBox>
 
+                <!--View Filters-->
+                <GroupBox DockPanel.Dock="Top" Header="View Filter">
+                    <Grid Margin="4">
+                        <StackPanel VerticalAlignment="Top"  Visibility="{Binding DiffusionModel.MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Image}">
+                            <UniformGrid Columns="3" >
+                                <CheckBox x:Name="CheckBoxViewTextToImage" Content="TextToImage" />
+                                <CheckBox x:Name="CheckBoxViewImageToImage" Content="ImageToImage" />
+                                <CheckBox x:Name="CheckBoxViewImageEdit" Content="ImageEdit" />
+                                <CheckBox x:Name="CheckBoxViewImageInpaint" Content="ImageInpaint" />
+                                <CheckBox x:Name="CheckBoxViewPaintToImage" Content="PaintToImage" />
+                                <CheckBox x:Name="CheckBoxViewFrameToFrame" Content="FrameToFrame" />
+                            </UniformGrid>
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Top"  Visibility="{Binding DiffusionModel.MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Video}">
+                            <UniformGrid Columns="3" >
+                                <CheckBox x:Name="CheckBoxViewTextToVideo" Content="TextToVideo" />
+                                <CheckBox x:Name="CheckBoxViewImageToVideo" Content="ImageToVideo" />
+                                <CheckBox x:Name="CheckBoxViewVideoToVideo" Content="VideoToVideo" />
+                            </UniformGrid>
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Top"  Visibility="{Binding DiffusionModel.MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Audio}">
+                            <UniformGrid Columns="3" >
+                                <CheckBox x:Name="CheckBoxViewTextToMusic" Content="TextToMusic" />
+                                <CheckBox x:Name="CheckBoxViewTextToAudio" Content="TextToAudio" />
+                            </UniformGrid>
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>
 
                 <!--Memory Settings-->
                 <GroupBox Header="Memory Profile" Margin="0,8,0,0">
@@ -209,7 +243,7 @@
             <UniformGrid Columns="1" Margin="0,0,4,0">
 
                 <!--Resolution Settings-->
-                <GroupBox Header="Resolutions">
+                <GroupBox Header="Resolutions" Visibility="{Binding DiffusionModel.MediaType, Converter={StaticResource InverseEnumToVisibilityConverter}, ConverterParameter=Audio}">
                     <DockPanel>
                         <DockPanel DockPanel.Dock="Top">
                             <Button DockPanel.Dock="Right" Command="{Binding AddSizeCommand}" Height="23" Width="40" VerticalAlignment="Bottom" HorizontalAlignment="Right">
@@ -261,60 +295,46 @@
 
             <!--Default Settings-->
             <GroupBox Header="Default Options" Margin="4,0,0,0">
-                <StackPanel>
-                    <UniformGrid Columns="4">
-                        <StackPanel>
-                            <TextBlock Text="Scheduler" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <ComboBox ItemsSource="{Binding Schedulers}" SelectedValue="{Binding DiffusionModel.DefaultOptions.Scheduler}" SelectedValuePath="Scheduler" DisplayMemberPath="Scheduler"/>
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="Steps" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <TextBox Text="{Binding DiffusionModel.DefaultOptions.Steps, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="Steps2" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <TextBox Text="{Binding DiffusionModel.DefaultOptions.Steps2, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
+                <DockPanel>
 
-
-                        <StackPanel>
-                            <TextBlock Text="Guidance (CFG)" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <CommonControls:FloatBox FloatValue="{Binding DiffusionModel.DefaultOptions.GuidanceScale, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="Guidance (Model)" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <CommonControls:FloatBox FloatValue="{Binding DiffusionModel.DefaultOptions.GuidanceScale2, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="Frames" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <TextBox Text="{Binding DiffusionModel.DefaultOptions.Frames, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="FrameRate" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <TextBox Text="{Binding DiffusionModel.DefaultOptions.FrameRate, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-  
-                        <StackPanel>
-                            <TextBlock Text="FrameChunk" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <TextBox Text="{Binding DiffusionModel.DefaultOptions.FrameChunk, UpdateSourceTrigger=PropertyChanged}"  />
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="FrameChunkOverlap" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <TextBox Text="{Binding DiffusionModel.DefaultOptions.FrameChunkOverlap, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Text="NoiseCondition" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <TextBox Text="{Binding DiffusionModel.DefaultOptions.NoiseCondition, UpdateSourceTrigger=PropertyChanged}"  />
-                        </StackPanel>
-            
-                    </UniformGrid>
-
-                    <StackPanel>
-                        <TextBlock Text="Frame Options" Style="{StaticResource FieldTextBlockStyle}"/>
-                        <TextBox Text="{Binding FrameOptions, UpdateSourceTrigger=PropertyChanged}" />
+                    <!--General Top-->
+                    <StackPanel DockPanel.Dock="Top">
+                        <UniformGrid Columns="2">
+                            <StackPanel>
+                                <TextBlock Text="Scheduler" Style="{StaticResource FieldTextBlockStyle}"/>
+                                <ComboBox ItemsSource="{Binding Schedulers}" SelectedValue="{Binding DiffusionModel.DefaultOptions.Scheduler}" SelectedValuePath="Scheduler" DisplayMemberPath="Scheduler"/>
+                            </StackPanel>
+                        </UniformGrid>
+                        <UniformGrid Columns="3">
+                            <StackPanel>
+                                <TextBlock Text="Steps" Style="{StaticResource FieldTextBlockStyle}"/>
+                                <TextBox Text="{Binding DiffusionModel.DefaultOptions.Steps, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="Steps2" Style="{StaticResource FieldTextBlockStyle}"/>
+                                <TextBox Text="{Binding DiffusionModel.DefaultOptions.Steps2, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="Guidance (CFG)" Style="{StaticResource FieldTextBlockStyle}"/>
+                                <CommonControls:FloatBox FloatValue="{Binding DiffusionModel.DefaultOptions.GuidanceScale, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="Guidance (Model)" Style="{StaticResource FieldTextBlockStyle}"/>
+                                <CommonControls:FloatBox FloatValue="{Binding DiffusionModel.DefaultOptions.GuidanceScale2, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="Strength" Style="{StaticResource FieldTextBlockStyle}"/>
+                                <TextBox Text="{Binding DiffusionModel.DefaultOptions.Strength, UpdateSourceTrigger=PropertyChanged}"  />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="NoiseCondition" Style="{StaticResource FieldTextBlockStyle}"/>
+                                <TextBox Text="{Binding DiffusionModel.DefaultOptions.NoiseCondition, UpdateSourceTrigger=PropertyChanged}"  />
+                            </StackPanel>
+                        </UniformGrid>
                     </StackPanel>
 
-                    <DockPanel>
+                    <!--General Bottom-->
+                    <DockPanel DockPanel.Dock="Bottom" Margin="0,4,0,0">
                         <StackPanel DockPanel.Dock="Right">
                             <CheckBox IsChecked="{Binding DiffusionModel.IsGated}" Content="Is Access Gated" Margin="4, 20,22,0"/>
                         </StackPanel>
@@ -324,12 +344,85 @@
                         </StackPanel>
                     </DockPanel>
 
-                </StackPanel>
-              
+                    <Grid>
+
+                        <!--Image-->
+                        <Grid Visibility="{Binding DiffusionModel.MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Image}">
+                            <StackPanel Margin="0,6,0,0">
+                                <UniformGrid Columns="2">
+                                    <CheckBox Content="IsVaeSlicingEnabled" IsChecked="{Binding DiffusionModel.DefaultOptions.IsVaeSlicingEnabled}"/>
+                                    <CheckBox Content="IsVaeTilingEnabled" IsChecked="{Binding DiffusionModel.DefaultOptions.IsVaeTilingEnabled}"/>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Grid>
+
+                        <!--Video-->
+                        <Grid Visibility="{Binding DiffusionModel.MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Video}">
+                            <StackPanel>
+                                <UniformGrid Columns="3">
+                                    <StackPanel>
+                                        <TextBlock Text="FrameRate" Style="{StaticResource FieldTextBlockStyle}"/>
+                                        <TextBox Text="{Binding DiffusionModel.DefaultOptions.FrameRate, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="Channels" Style="{StaticResource FieldTextBlockStyle}"/>
+                                        <TextBox Text="{Binding DiffusionModel.DefaultOptions.Channels, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="SampleRate" Style="{StaticResource FieldTextBlockStyle}"/>
+                                        <TextBox Text="{Binding DiffusionModel.DefaultOptions.SampleRate, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="Frames" Style="{StaticResource FieldTextBlockStyle}"/>
+                                        <TextBox Text="{Binding DiffusionModel.DefaultOptions.Frames, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="FrameChunk" Style="{StaticResource FieldTextBlockStyle}"/>
+                                        <TextBox Text="{Binding DiffusionModel.DefaultOptions.FrameChunk, UpdateSourceTrigger=PropertyChanged}"  />
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="FrameChunkOverlap" Style="{StaticResource FieldTextBlockStyle}"/>
+                                        <TextBox Text="{Binding DiffusionModel.DefaultOptions.FrameChunkOverlap, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </UniformGrid>
+                                <StackPanel>
+                                    <TextBlock Text="Frame Options" Style="{StaticResource FieldTextBlockStyle}"/>
+                                    <TextBox Text="{Binding FrameOptions, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                                <UniformGrid Columns="2" Margin="0,6,0,0">
+                                    <CheckBox Content="IsVaeSlicingEnabled" IsChecked="{Binding DiffusionModel.DefaultOptions.IsVaeSlicingEnabled}"/>
+                                    <CheckBox Content="IsVaeTilingEnabled" IsChecked="{Binding DiffusionModel.DefaultOptions.IsVaeTilingEnabled}"/>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Grid>
+
+                        <!--Audio-->
+                        <Grid Visibility="{Binding DiffusionModel.MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Audio}">
+                            <StackPanel>
+                                <UniformGrid Columns="3">
+                                    <StackPanel>
+                                        <TextBlock Text="SampleRate" Style="{StaticResource FieldTextBlockStyle}"/>
+                                        <TextBox Text="{Binding DiffusionModel.DefaultOptions.SampleRate, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="Channels" Style="{StaticResource FieldTextBlockStyle}"/>
+                                        <TextBox Text="{Binding DiffusionModel.DefaultOptions.Channels, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="MaxLength" Style="{StaticResource FieldTextBlockStyle}"/>
+                                        <TextBox Text="{Binding DiffusionModel.DefaultOptions.MaxLength, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="MaxLength2" Style="{StaticResource FieldTextBlockStyle}"/>
+                                        <TextBox Text="{Binding DiffusionModel.DefaultOptions.MaxLength2, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Grid>
+
+                    </Grid>
+                </DockPanel>
             </GroupBox>
-
         </UniformGrid>
-
-
     </DockPanel>
 </CommonControls:DialogControl>

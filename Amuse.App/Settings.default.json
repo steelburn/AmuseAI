@@ -776,6 +776,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageInpaint", "ImageControlNet", "ImageToImageControlNet" ],
       "Link": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0",
       "DefaultOptions": {
@@ -1160,6 +1161,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageInpaint", "ImageControlNet", "ImageToImageControlNet" ],
       "IsGated": true,
       "Link": "https://huggingface.co/stabilityai/stable-diffusion-3-medium-diffusers",
@@ -1314,6 +1316,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageInpaint", "ImageControlNet", "ImageToImageControlNet" ],
       "IsGated": true,
       "Link": "https://huggingface.co/stabilityai/stable-diffusion-3.5-medium",
@@ -1468,6 +1471,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageInpaint", "ImageControlNet", "ImageToImageControlNet" ],
       "IsGated": true,
       "Link": "https://huggingface.co/stabilityai/stable-diffusion-3.5-large",
@@ -1622,6 +1626,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageInpaint", "ImageControlNet", "ImageToImageControlNet" ],
       "IsGated": true,
       "Link": "https://huggingface.co/stabilityai/stable-diffusion-3.5-large-turbo",
@@ -1776,6 +1781,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageInpaint", "ImageControlNet" ],
       "Link": "https://huggingface.co/Tongyi-MAI/Z-Image",
       "DefaultOptions": {
@@ -1929,6 +1935,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageInpaint", "ImageControlNet" ],
       "Link": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
       "DefaultOptions": {
@@ -2082,6 +2089,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageInpaint", "ImageControlNet" ],
       "Link": "https://huggingface.co/Qwen/Qwen-Image-2512",
       "DefaultOptions": {
@@ -2207,6 +2215,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "ImageEdit" ],
       "Link": "https://huggingface.co/Qwen/Qwen-Image-Edit-2511",
       "DefaultOptions": {
@@ -2332,6 +2341,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageToImage" ],
       "Link": "https://huggingface.co/lodestones/Chroma1-HD",
       "DefaultOptions": {
@@ -2485,6 +2495,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageInpaint" ],
       "Link": "https://huggingface.co/TensorStack/FLUX.1-schnell-ts",
       "DefaultOptions": {
@@ -2638,6 +2649,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageToImage", "ImageControlNet", "ImageInpaint" ],
       "Link": "https://huggingface.co/TensorStack/FLUX.1-dev-ts",
       "DefaultOptions": {
@@ -2792,6 +2804,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "ImageEdit" ],
       "Link": "https://huggingface.co/TensorStack/FLUX.1-Kontext-dev-ts",
       "DefaultOptions": {
@@ -2947,6 +2960,7 @@
       ],
       "BaseType": "bfloat16",
       "IsDefault": true,
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageEdit", "ImageInpaint" ],
       "Link": "https://huggingface.co/black-forest-labs/FLUX.2-klein-4B",
       "DefaultOptions": {
@@ -3100,6 +3114,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageEdit", "ImageInpaint" ],
       "Link": "https://huggingface.co/black-forest-labs/FLUX.2-klein-base-4B",
       "DefaultOptions": {
@@ -3253,6 +3268,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageEdit", "ImageInpaint" ],
       "IsGated": true,
       "Link": "https://huggingface.co/black-forest-labs/FLUX.2-klein-9B",
@@ -3407,6 +3423,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage", "ImageEdit", "ImageInpaint" ],
       "IsGated": true,
       "Link": "https://huggingface.co/black-forest-labs/FLUX.2-klein-base-9B",
@@ -3561,6 +3578,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo", "VideoToVideo" ],
       "Link": "https://huggingface.co/Wan-AI/Wan2.1-T2V-1.3B-Diffusers",
       "DefaultOptions": {
@@ -3689,6 +3707,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo" ],
       "Link": "https://huggingface.co/Wan-AI/Wan2.1-T2V-14B-Diffusers",
       "DefaultOptions": {
@@ -3792,6 +3811,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "ImageToVideo" ],
       "Link": "https://huggingface.co/Wan-AI/Wan2.1-I2V-14B-480P-Diffusers",
       "IsDefault": true,
@@ -3892,6 +3912,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo", "VideoToVideo" ],
       "Link": "https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B-Diffusers",
       "DefaultOptions": {
@@ -3993,6 +4014,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo" ],
       "Link": "https://huggingface.co/Wan-AI/Wan2.2-T2V-A14B-Diffusers",
       "DefaultOptions": {
@@ -4089,6 +4111,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "TextToImage" ],
       "Link": "https://huggingface.co/kandinskylab/Kandinsky-5.0-T2I-Lite-sft-Diffusers",
       "DefaultOptions": {
@@ -4171,6 +4194,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Image",
       "ProcessTypes": [ "ImageEdit" ],
       "Link": "https://huggingface.co/kandinskylab/Kandinsky-5.0-I2I-Lite-sft-Diffusers",
       "DefaultOptions": {
@@ -4253,6 +4277,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo" ],
       "Link": "https://huggingface.co/kandinskylab/Kandinsky-5.0-T2V-Lite-sft-5s-Diffusers",
       "DefaultOptions": {
@@ -4323,6 +4348,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "ImageToVideo" ],
       "Link": "https://huggingface.co/kandinskylab/Kandinsky-5.0-I2V-Pro-sft-5s-Diffusers",
       "DefaultOptions": {
@@ -4391,6 +4417,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo" ],
       "Link": "https://huggingface.co/zai-org/CogVideoX-2b",
       "DefaultOptions": {
@@ -4477,6 +4504,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo" ],
       "Link": "https://huggingface.co/zai-org/CogVideoX-5b",
       "DefaultOptions": {
@@ -4563,6 +4591,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "ImageToVideo" ],
       "Link": "https://huggingface.co/zai-org/CogVideoX-5b-I2V",
       "DefaultOptions": {
@@ -4647,6 +4676,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo" ],
       "Link": "https://huggingface.co/zai-org/CogVideoX1.5-5B",
       "DefaultOptions": {
@@ -4733,6 +4763,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "ImageToVideo" ],
       "Link": "https://huggingface.co/zai-org/CogVideoX1.5-5B-I2V",
       "DefaultOptions": {
@@ -4817,6 +4848,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo" ],
       "Link": "https://huggingface.co/Lightricks/LTX-Video",
       "DefaultOptions": {
@@ -4930,6 +4962,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo" ],
       "Link": "https://huggingface.co/Lightricks/LTX-2",
       "DefaultOptions": {
@@ -5098,6 +5131,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo" ],
       "Link": "https://huggingface.co/Lightricks/LTX-2",
       "DefaultOptions": {
@@ -5263,6 +5297,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo" ],
       "Link": "https://huggingface.co/Lightricks/LTX-2",
       "DefaultOptions": {
@@ -5428,6 +5463,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo" ],
       "Link": "https://huggingface.co/Lightricks/LTX-2",
       "DefaultOptions": {
@@ -5593,6 +5629,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo", "VideoToVideo" ],
       "Link": "https://huggingface.co/Skywork/SkyReels-V2-DF-1.3B-540P-Diffusers",
       "DefaultOptions": {
@@ -5701,6 +5738,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo", "VideoToVideo" ],
       "Link": "https://huggingface.co/Skywork/SkyReels-V2-DF-14B-540P-Diffusers",
       "DefaultOptions": {
@@ -5809,6 +5847,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo", "VideoToVideo" ],
       "Link": "https://huggingface.co/BestWishYsh/Helios-Base",
       "DefaultOptions": {
@@ -5938,6 +5977,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo", "VideoToVideo" ],
       "Link": "https://huggingface.co/BestWishYsh/Helios-Mid",
       "DefaultOptions": {
@@ -6067,6 +6107,7 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Video",
       "ProcessTypes": [ "TextToVideo", "ImageToVideo", "VideoToVideo" ],
       "Link": "https://huggingface.co/BestWishYsh/Helios-Distilled",
       "DefaultOptions": {
@@ -6190,12 +6231,15 @@
         }
       ],
       "BaseType": "bfloat16",
+      "MediaType": "Audio",
       "ProcessTypes": [ "TextToAudio" ],
+      "ViewFilter": [ "TextToMusic" ],
       "Link": "https://huggingface.co/ACE-Step/acestep-v15-xl-turbo-diffusers",
       "DefaultOptions": {
         "Steps": 8,
         "GuidanceScale": 0,
         "SampleRate": 48000,
+        "Channels": 2,
         "MaxLength": 512,
         "MaxLength2": 4096,
         "Strength": 1,

@@ -54,7 +54,7 @@ namespace Amuse.App.Common
         [JsonIgnore]
         public string ThumbPath { get; set; }
 
-        public virtual bool Equals(UpscaleHistory other) => ReferenceEquals(this, other);
+        public virtual bool Equals(TextHistory other) => ReferenceEquals(this, other);
         public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
     }
 }

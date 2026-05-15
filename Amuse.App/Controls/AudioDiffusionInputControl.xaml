@@ -93,10 +93,21 @@
 
                         <UniformGrid Columns="2">
 
-                            <StackPanel Margin="0,0,2,0">
-                                <TextBlock Text="Duration" Style="{StaticResource FieldTextBlockStyle}" />
-                                <ComboBox ItemsSource="{Binding Durations}" SelectedValue="{Binding Options.Duration}" SelectedValuePath="FloatValue" DisplayMemberPath="Label"/>
-                            </StackPanel>
+                            <DockPanel Margin="0,0,2,0">
+                                <ToggleButton x:Name="ToggleButtonDurations" DockPanel.Dock="Right" IsChecked="{Binding IsResolutionEnabled}" Style="{StaticResource ToggleButtonBasic}" Width="25" Height="22" VerticalAlignment="Bottom">
+                                    <CommonControls:FontAwesome Icon="f1ec" IconStyle="Light" Size="12"/>
+                                </ToggleButton>
+                                <Grid>
+                                    <StackPanel Visibility="{Binding IsChecked, ElementName=ToggleButtonDurations, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                                        <TextBlock Text="Duration" Style="{StaticResource FieldTextBlockStyle}" />
+                                        <ComboBox ItemsSource="{Binding Durations}" SelectedValue="{Binding Options.Duration}" SelectedValuePath="FloatValue" DisplayMemberPath="Label" />
+                                    </StackPanel>
+                                    <StackPanel Visibility="{Binding IsChecked, ElementName=ToggleButtonDurations, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <TextBlock Text="Duration Seconds" Style="{StaticResource FieldTextBlockStyle}" />
+                                        <TextBox Text="{Binding Options.Duration}" />
+                                    </StackPanel>
+                                </Grid>
+                            </DockPanel>
 
                             <StackPanel Margin="2,0,0,0">
                                 <TextBlock Text="Time Signature" Style="{StaticResource FieldTextBlockStyle}" />

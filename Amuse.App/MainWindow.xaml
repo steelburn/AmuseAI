@@ -436,20 +436,20 @@
                     <Grid Visibility="{Binding ViewCategory, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Audio}">
                         <UniformGrid Columns="1" VerticalAlignment="Top" >
                             <CommonControls:IconButton 
-                                Text="Text To Audio" 
-                                Icon="f894"
-                                Style="{StaticResource SubmenuIconButton}"
-                                Command="{Binding NavigateCommand}" 
-                                CommandParameter="{x:Static Views:View.TextToAudio}" 
-                                IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=TextToAudio}">
-                            </CommonControls:IconButton>
-                            <CommonControls:IconButton 
                                 Text="Text To Music" 
                                 Icon="f8c9"
                                 Style="{StaticResource SubmenuIconButton}"
                                 Command="{Binding NavigateCommand}" 
                                 CommandParameter="{x:Static Views:View.TextToMusic}" 
                                 IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=TextToMusic}">
+                            </CommonControls:IconButton>
+                            <CommonControls:IconButton 
+                                Text="Text To Audio" 
+                                Icon="f894"
+                                Style="{StaticResource SubmenuIconButton}"
+                                Command="{Binding NavigateCommand}" 
+                                CommandParameter="{x:Static Views:View.TextToAudio}" 
+                                IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=TextToAudio}">
                             </CommonControls:IconButton>
                             <CommonControls:IconButton 
                                 Text="Audio To Text" 

@@ -170,7 +170,7 @@
             <!--Help/Information-->
             <Grid Grid.Column="4" Grid.Row="0" >
 
-                <StackPanel Margin="8,4,4,8" MinWidth="318" IsEnabled="{Binding IsPipelineLoaded}">
+                <StackPanel Margin="8,4,4,8" Width="318" IsEnabled="{Binding IsPipelineLoaded}">
 
                     <!--Style-->
                     <DockPanel DockPanel.Dock="Top" >
