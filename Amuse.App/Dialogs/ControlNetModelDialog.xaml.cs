@@ -4,10 +4,9 @@ using Amuse.App.Common;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using TensorStack.Common.Common;
+using TensorStack.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 
@@ -24,8 +23,6 @@ namespace Amuse.App.Dialogs
         public ControlNetModelDialog(Settings settings)
         {
             Settings = settings;
-            ModelSources = [ModelSourceType.HuggingFace, ModelSourceType.SingleFile, ModelSourceType.Folder];
-            Pipelines = new ObservableCollection<string>(Settings.GetPipelines());
             SaveCommand = new AsyncRelayCommand(SaveAsync, CanExecuteSave);
             CancelCommand = new AsyncRelayCommand(CancelAsync);
             Errors = new ObservableCollection<string>();
@@ -36,9 +33,8 @@ namespace Amuse.App.Dialogs
         public AsyncRelayCommand SaveCommand { get; }
         public AsyncRelayCommand CancelCommand { get; }
         public ObservableCollection<string> Errors { get; }
-        public ObservableCollection<string> Pipelines { get; }
+        public CheckpointType[] CheckpointTypes { get; } = [CheckpointType.OnlineFolder, CheckpointType.LocalFolder];
         public bool IsUpdateMode => _originalControlNetModel is not null;
-        public ModelSourceType[] ModelSources { get; }
 
         public ControlNetModel ControlNetModel
         {
@@ -46,14 +42,21 @@ namespace Amuse.App.Dialogs
             set { SetProperty(ref _controlNetModel, value); }
         }
 
+
         public Task<bool> AddAsync()
         {
             var modelId = GetNextModelId();
             ControlNetModel = new ControlNetModel
             {
                 Id = modelId,
-                Backend = BackendType.Pytorch,
-                Source = ModelSourceType.HuggingFace
+                Backend = BackendType.PyTorch,
+                Pipeline = Settings.DiffusionPipelines.First(),
+                Name = "New ControlNet",
+                Checkpoint = new CheckpointComponent
+                {
+                    Name = "ControlNet",
+                    Type = CheckpointType.LocalFolder
+                }
             };
             return base.ShowDialogAsync();
         }
@@ -72,6 +75,7 @@ namespace Amuse.App.Dialogs
         {
             var modelId = GetNextModelId();
             ControlNetModel = controlNetModel.DeepClone(modelId);
+            ControlNetModel.Name += " copy";
             return base.ShowDialogAsync();
         }
 
@@ -132,31 +136,19 @@ namespace Amuse.App.Dialogs
 
         private IEnumerable<string> GetValidationErrors()
         {
+            // Name
             if (string.IsNullOrWhiteSpace(ControlNetModel.Name))
                 yield return "Name cannot be empty";
-            if (string.IsNullOrWhiteSpace(ControlNetModel.Path))
-                yield return "Path cannot be empty";
-            if (string.IsNullOrWhiteSpace(ControlNetModel.Pipeline))
-                yield return "Pipeline cannot be empty";
-            if (!IsUpdateMode && Settings.ControlNetModels.Any(x => x.Pipeline == ControlNetModel.Pipeline && x.Name.Equals(ControlNetModel.Name, StringComparison.OrdinalIgnoreCase)))
-                yield return $"Model with name '{ControlNetModel.Name}' already exists";
-
-            if (!string.IsNullOrWhiteSpace(ControlNetModel.Path))
+            if (!IsUpdateMode)
             {
-                if (ControlNetModel.Source == ModelSourceType.Folder && !Directory.Exists(ControlNetModel.Path))
-                    yield return "Model folder not found";
-                else if (ControlNetModel.Source == ModelSourceType.SingleFile && !File.Exists(ControlNetModel.Path))
-                    yield return "Model file not found";
-                else if (ControlNetModel.Source == ModelSourceType.HuggingFace && !IsLControlNetValid(ControlNetModel.Path))
-                    yield return "HuggingFace repository not found";
+                if (Settings.ControlNetModels.Any(x => x.Name.Equals(ControlNetModel.Name, StringComparison.OrdinalIgnoreCase)))
+                    yield return $"Model with Name '{ControlNetModel.Name}' already exists";
             }
+
+            // Checkpoint
+            if (!ControlNetModel.Checkpoint.IsValid(out var checkpointValidation))
+                yield return checkpointValidation;
+
         }
-
-
-        private bool IsLControlNetValid(string controlNetPath)
-        {
-            return File.Exists(controlNetPath) || HuggingFace.IsCheckpointInstalled(Settings.DirectoryModel, controlNetPath) || HuggingFace.IsValidLink(controlNetPath);
-        }
-
     }
 }

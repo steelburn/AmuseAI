@@ -31,5 +31,16 @@ namespace Amuse.App.Common
             get { return _tileOverlap; }
             set { SetProperty(ref _tileOverlap, value); }
         }
+
+
+        public UpscaleInputOptions DeepClone()
+        {
+            return new UpscaleInputOptions
+            {
+                IsTileEnabled = IsTileEnabled,
+                TileOverlap = TileOverlap,
+                TileSize = TileSize
+            };
+        }
     }
 }

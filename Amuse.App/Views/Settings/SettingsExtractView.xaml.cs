@@ -20,15 +20,18 @@ namespace Amuse.App.Views
     {
         private ExtractModel _selectedModel;
         private string _filterText;
+        private string _filterStatus;
 
-        public SettingsExtractView(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IModelDownloadService downloadService, IHistoryService historyService, ILogger<SettingsExtractView> logger)
-            : base(settings, navigationService, environmentService, downloadService, historyService, logger)
+        public SettingsExtractView(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IHistoryService historyService, ILogger<SettingsExtractView> logger)
+            : base(settings, navigationService, downloadService, historyService, logger)
         {
+            FilterStatuses = ["Show All", .. Enum.GetNames<ModelStatusType>()];
+            FilterStatus = FilterStatuses[0];
             SaveCommand = new AsyncRelayCommand(SaveAsync);
             AddModelCommand = new AsyncRelayCommand(AddModelAsync);
             AddModelWizardCommand = new AsyncRelayCommand(AddModelWizardAsync);
             CopyModelCommand = new AsyncRelayCommand(CopyModelAsync, () => SelectedModel is not null);
-            UpdateModelCommand = new AsyncRelayCommand(UpdateModelAsync, () => SelectedModel?.Id > Utils.FixedIdRange);
+            UpdateModelCommand = new AsyncRelayCommand(UpdateModelAsync);
             RemoveModelCommand = new AsyncRelayCommand(RemoveModelAsync, () => SelectedModel?.Id > Utils.FixedIdRange);
             ImportModelCommand = new AsyncRelayCommand(ImportModelAsync);
             ExportModelCommand = new AsyncRelayCommand(ExportModelAsync, () => SelectedModel is not null);
@@ -59,6 +62,7 @@ namespace Amuse.App.Views
         public AsyncRelayCommand DownloadModelCancelCommand { get; }
         public AsyncRelayCommand FilterClearCommand { get; }
         public ListCollectionView ModelCollection { get; }
+        public string[] FilterStatuses { get; }
 
         public ExtractModel SelectedModel
         {
@@ -71,6 +75,12 @@ namespace Amuse.App.Views
         {
             get { return _filterText; }
             set { SetProperty(ref _filterText, value); ModelCollection?.Refresh(); }
+        }
+
+        public string FilterStatus
+        {
+            get { return _filterStatus; }
+            set { SetProperty(ref _filterStatus, value); ModelCollection?.Refresh(); }
         }
 
 
@@ -87,11 +97,19 @@ namespace Amuse.App.Views
                 if (obj is not ExtractModel model)
                     return false;
 
+                var isvalid = true;
+                if (!string.IsNullOrEmpty(_filterStatus))
+                {
+                    if (Enum.TryParse<ModelStatusType>(_filterStatus, out var statusType))
+                    {
+                        isvalid = isvalid && model.Status == statusType;
+                    }
+                }
                 if (!string.IsNullOrEmpty(_filterText))
                 {
-                    return model.Name.Contains(_filterText, StringComparison.OrdinalIgnoreCase);
+                    isvalid = isvalid && model.Name.Contains(_filterText, StringComparison.OrdinalIgnoreCase);
                 }
-                return true;
+                return isvalid;
             };
         }
 
@@ -99,13 +117,15 @@ namespace Amuse.App.Views
         private Task FilterClearAsync()
         {
             FilterText = null;
+            FilterStatus = FilterStatuses[0];
             return Task.CompletedTask;
         }
 
 
         private bool CanClearFilter()
         {
-            return !string.IsNullOrWhiteSpace(_filterText);
+            return !string.IsNullOrWhiteSpace(_filterText)
+                || _filterStatus != FilterStatuses[0];
         }
 
 
@@ -131,6 +151,7 @@ namespace Amuse.App.Views
             if (await dialog.CopyAsync(SelectedModel))
             {
                 await SaveAsync();
+                SelectedModel = dialog.ExtractModel;
             }
         }
 
@@ -141,6 +162,7 @@ namespace Amuse.App.Views
             if (await dialog.UpdateAsync(SelectedModel))
             {
                 await SaveAsync();
+                SelectedModel = dialog.ExtractModel;
             }
         }
 
@@ -150,7 +172,7 @@ namespace Amuse.App.Views
             if (await DialogService.ShowMessageAsync("Remove Model", $"Are you sure you want to remove this model?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Warning, TensorStack.WPF.Dialogs.MessageBoxStyleType.Danger))
             {
                 Settings.ExtractModels.Remove(SelectedModel);
-                SelectedModel = default;
+                SelectedModel = Settings.ExtractModels.FirstOrDefault();
                 await SaveAsync();
             }
         }
@@ -172,6 +194,7 @@ namespace Amuse.App.Views
                 if (await dialog.ImportAsync(modelJson))
                 {
                     await SaveAsync();
+                    SelectedModel = dialog.ExtractModel;
                 }
             }
         }
@@ -198,7 +221,7 @@ namespace Amuse.App.Views
 
         private Task OpenModelAsync()
         {
-            URL.NavigateToUrl(_selectedModel.GetDirectory(Settings.DirectoryModel));
+            URL.NavigateToUrl(_selectedModel.GetDirectory(Settings));
             return Task.CompletedTask;
         }
 
@@ -207,22 +230,16 @@ namespace Amuse.App.Views
         {
             if (await DialogService.ShowMessageAsync("Delete Model", $"Are you sure you want to delete this model?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Warning, TensorStack.WPF.Dialogs.MessageBoxStyleType.Danger))
             {
-                await Task.Run(() => _selectedModel.Delete(Settings.DirectoryModel));
+                await Task.Run(() => _selectedModel.Delete(Settings));
                 _selectedModel.Status = ModelStatusType.Pending;
-                await SaveAsync();
+                await SaveAsync(); 
             }
         }
 
 
         private async Task DownloadModelAsync()
         {
-            var isEnvironmentInstalled = EnvironmentService.IsInstalled();
-            if (!isEnvironmentInstalled)
-            {
-                await DialogService.ShowErrorAsync("Environment Error", "No Environment Found, Please setup an environment and try again.");
-                return;
-            }
-            await DownloadService.QueueAsync(_selectedModel, false);
+            await DownloadService.QueueAsync(_selectedModel);
         }
 
 
@@ -234,8 +251,8 @@ namespace Amuse.App.Views
 
         private async Task SaveAsync()
         {
-            await SettingsManager.SaveAsync(Settings);
             Settings.ScanModels();
+            await SettingsManager.SaveAsync(Settings);
         }
     }
 }

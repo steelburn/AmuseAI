@@ -27,12 +27,12 @@ namespace Amuse.App.Dialogs
         public EnvironmentModelDialog(Settings settings)
         {
             Settings = settings;
+            PythonVersions = ["3.12", "3.13", "3.14"];
             SaveCommand = new AsyncRelayCommand(SaveAsync, CanExecuteSave);
             CancelCommand = new AsyncRelayCommand(CancelAsync);
             AddVariableCommand = new AsyncRelayCommand(AddVariableAsync, CanAddVariable);
             RemoveVariableCommand = new AsyncRelayCommand<VariableModel>(RemoveVariableAsync);
             Variables = new ObservableCollection<VariableModel>();
-            Pipelines = new ObservableCollection<string>();
             Errors = new ObservableCollection<string>();
             CurrentVariable = new VariableModel();
             InitializeComponent();
@@ -45,7 +45,7 @@ namespace Amuse.App.Dialogs
         public AsyncRelayCommand AddVariableCommand { get; }
         public AsyncRelayCommand<VariableModel> RemoveVariableCommand { get; }
         public ObservableCollection<VariableModel> Variables { get; }
-        public ObservableCollection<string> Pipelines { get; }
+        public List<string> PythonVersions { get; }
         public bool IsUpdateMode => _originalEnvironmentModel is not null;
 
         public EnvironmentModel EnvironmentModel
@@ -94,7 +94,10 @@ namespace Amuse.App.Dialogs
             {
                 Id = modelId,
                 Name = "My Environment",
-                Environment = "environment-new"
+                Environment = "environment-new",
+                PythonVersion = PythonVersions.Last(),
+                Vendor = Settings.Vendors.FirstOrDefault(),
+                Type = EnvironmentType.Vendor
             };
             Populate();
             return base.ShowDialogAsync();
@@ -235,7 +238,6 @@ namespace Amuse.App.Dialogs
         private void Populate()
         {
             Variables.Clear();
-            Pipelines.Clear();
             Requirements = EnvironmentModel.Requirements != null ? string.Join(Environment.NewLine, EnvironmentModel.Requirements) : string.Empty;
             if (!EnvironmentModel.Variables.IsNullOrEmpty())
             {
@@ -243,11 +245,6 @@ namespace Amuse.App.Dialogs
                 {
                     Variables.Add(new VariableModel { Name = variable.Key, Value = variable.Value });
                 }
-            }
-
-            foreach (var pipeline in Settings.GetPipelines())
-            {
-                Pipelines.Add(pipeline);
             }
         }
 
@@ -288,9 +285,14 @@ namespace Amuse.App.Dialogs
                     yield return $"Environment with name '{EnvironmentModel.Environment}' already exists";
             }
 
-            if (EnvironmentModel.Type == EnvironmentType.Pipeline)
+            if (EnvironmentModel.Type == EnvironmentType.Device)
             {
-                if (string.IsNullOrEmpty(EnvironmentModel.Pipeline))
+                if (EnvironmentModel.Device == 0)
+                    yield return "Device cannot be empty";
+            }
+            else if (EnvironmentModel.Type == EnvironmentType.Pipeline)
+            {
+                if (EnvironmentModel.Pipeline == null)
                     yield return "Pipeline cannot be empty";
             }
         }

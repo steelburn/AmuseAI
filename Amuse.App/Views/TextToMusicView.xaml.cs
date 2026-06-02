@@ -24,8 +24,8 @@ namespace Amuse.App.Views
         /// <summary>
         /// Initializes a new instance of the <see cref="TextToMusicView"/> class.
         /// </summary>
-        public TextToMusicView(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IModelDownloadService downloadService, IDiffusionService diffusionService, IExtractService extractService, IUpscaleService upscaleService, IHistoryService historyService, ILogger<TextToMusicView> logger)
-            : base(settings, navigationService, environmentService, downloadService, diffusionService, extractService, upscaleService, historyService, logger)
+        public TextToMusicView(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IDiffusionService diffusionService, IExtractService extractService, IUpscaleService upscaleService, IHistoryService historyService, ILogger<TextToMusicView> logger)
+            : base(settings, navigationService, downloadService, diffusionService, extractService, upscaleService, historyService, logger)
         {
             AppendLyricCommand = new RelayCommand<string>(AppendLyric, CanAppendLyric);
             AppendLyricExampleCommand = new RelayCommand<string>(AppendLyricExample, CanAppendLyric);
@@ -131,9 +131,9 @@ namespace Amuse.App.Views
                 AutomationProgress.Indeterminate($"Automation Started");
                 await foreach (var automationJob in AutomationManager.CreateJobsAsync(AutomationOptions, Options, MediaType.Audio, MediaType.Text))
                 {
-                    // Source
-                    //if (!automationJob.InputAudios.IsNullOrEmpty())
-                    //    SourceAudio = automationJob.InputAudios[0];
+                    //// Source
+                    //if (!automationJob.InputTexts.IsNullOrEmpty())
+                    //    Options.Prompt2 = automationJob.InputTexts[0].Text;
 
                     // Diffusion
                     var resultTensor = await ExecuteAudioDiffusionAsync(automationJob.DiffusionOptions);
@@ -144,7 +144,7 @@ namespace Amuse.App.Views
                     // History
                     if (AutomationOptions.IsHistoryEnabled)
                     {
-                        //await SaveHistoryAsync(automationJob.DiffusionOptions);
+                        await SaveHistoryAsync(resultTensor, automationJob.DiffusionOptions);
                     }
 
                     //await automationJob.SaveAsync(ResultAudio);

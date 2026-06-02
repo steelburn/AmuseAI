@@ -27,7 +27,7 @@
         <DockPanel>
             <CommonControls:FontAwesome DockPanel.Dock="Left" Size="50" Margin="10,10,10,10" Icon="f084" IconStyle="Light" Color="{StaticResource WarningColour}" />
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5,0,50,0">
-                <TextBlock Text="This model requires a HuggingFace Access Token, you can add this on the settings page" FontSize="14" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding Message}" FontSize="14" TextWrapping="Wrap"/>
 
                 <TextBlock Text="The model is publicly accessible, but you have to accept the conditions to access its files and content." FontSize="14" TextWrapping="Wrap"  Margin="0,12,0,0"/>
 

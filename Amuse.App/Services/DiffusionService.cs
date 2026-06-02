@@ -1,36 +1,28 @@
 ﻿using Amuse.App.Common;
+using Amuse.App.Runtime;
 using Amuse.Common;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using TensorStack.Audio;
 using TensorStack.Common;
 using TensorStack.Common.Tensor;
-using TensorStack.Python.Common;
-using TensorStack.Python.Config;
 using TensorStack.Video;
 
 namespace Amuse.App.Services
 {
+
     public class DiffusionService : ServiceBase, IDiffusionService
     {
         private readonly ILogger _logger;
         private readonly Settings _settings;
         private readonly IMediaService _mediaService;
         private readonly IEnvironmentService _environmentService;
-        private PipelineModel _currentPipeline;
-        private PipelineClient _pipelineClient;
-        private CancellationTokenSource _cancellationTokenSource;
         private bool _isLoaded;
         private bool _isLoading;
         private bool _isExecuting;
         private bool _isCanceling;
-        private DiffusionDefaultOptions _defaultOptions;
-        private IProgress<PipelineProgress> _progressCallback;
+        private IDiffusionRuntime _diffusionRuntime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DiffusionService"/> class.
@@ -47,12 +39,12 @@ namespace Amuse.App.Services
         /// <summary>
         /// Gets the pipeline.
         /// </summary>
-        public PipelineModel Pipeline => _currentPipeline;
+        public PipelineModel Pipeline => _diffusionRuntime?.Pipeline;
 
         /// <summary>
         /// Gets the default options.
         /// </summary>
-        public DiffusionDefaultOptions DefaultOptions => _defaultOptions;
+        public DiffusionDefaultOptions DefaultOptions => _diffusionRuntime?.DefaultOptions;
 
         /// <summary>
         /// Gets a value indicating whether this instance is loaded.
@@ -107,60 +99,31 @@ namespace Amuse.App.Services
             IsCanceling = false;
             try
             {
-                using (_cancellationTokenSource = new CancellationTokenSource())
+                if (_diffusionRuntime != null)
                 {
-                    await UnloadPythonPipeline();
-
-                    _currentPipeline = pipeline;
-                    _progressCallback = progressCallback;
-                    var device = _currentPipeline.Device;
-                    var model = _currentPipeline.DiffusionModel;
-                    var controlNet = _currentPipeline.ControlNetModel;
-                    _defaultOptions = model.DefaultOptions;
-
-                    var pipelineConfig = new PipelineConfig
-                    {
-                        Variant = model.Variant,
-                        BaseModelPath = model.Path,
-                        Pipeline = model.Pipeline,
-                        ProcessType = _currentPipeline.ProcessType,
-                        Device = device.Type == DeviceType.GPU ? "cuda" : "cpu",
-                        DeviceId = device.DeviceId,
-                        DeviceBusId = device.PCIBusId,
-                        DataType = model.BaseType,
-                        IsOptimizeDeviceEnabled = _settings.IsOptimizeDeviceEnabled,
-                        IsOptimizeChannelsEnabled = _settings.IsOptimizeChannelsEnabled,
-                        IsDeviceQuantizationEnabled = _settings.IsDeviceQuantizationEnabled,
-                        CacheDirectory = Path.GetFullPath(_settings.DirectoryModel),
-                        SecureToken = _settings.SecureToken,
-                        LoraAdapters = _currentPipeline.LoraAdapterModel.GetLoraAdapters(),
-                        ControlNet = controlNet.GetControlNet(),
-                        MemoryMode = GetMemoryMode(_currentPipeline),
-                        QuantType = GetQuantizationType(_currentPipeline),
-                        CheckpointConfig = model.Checkpoint.ToConfig(),
-                        IsOfflineMode = model.Status == ModelStatusType.Installed
-                    };
-
-                    var relayedProgressCallback = new Progress<PipelineProgress>(progress => _progressCallback?.Report(progress));
-                    _pipelineClient = await _environmentService.CreateClientAsync(_currentPipeline, pipelineConfig, EnvironmentMode.Create, relayedProgressCallback, _cancellationTokenSource.Token);
-                    model.Status = ModelStatusType.Installed;
-                    _settings.ScanModels();
+                    await _diffusionRuntime.UnloadAsync();
+                    DisposeRuntime();
                 }
+
+                _diffusionRuntime = pipeline.DiffusionModel.Backend switch
+                {
+                    BackendType.PyTorch => new PyTorchDiffusion(_settings, _environmentService, _mediaService, _logger),
+                    BackendType.OnnxRuntime => new OnnxDiffusion(_settings, _mediaService, _logger),
+                    _ => throw new NotImplementedException()
+                };
+
+                await _diffusionRuntime.LoadAsync(pipeline, progressCallback);
                 IsLoaded = true;
             }
             catch (OperationCanceledException)
             {
-                _pipelineClient?.Dispose();
-                _pipelineClient = null;
-                _defaultOptions = null;
-                _currentPipeline = null;
+                DisposeRuntime();
                 throw;
             }
             finally
             {
                 IsLoading = false;
                 IsCanceling = false;
-                _cancellationTokenSource = null;
             }
         }
 
@@ -176,43 +139,25 @@ namespace Amuse.App.Services
             IsCanceling = false;
             try
             {
-                using (_cancellationTokenSource = new CancellationTokenSource())
-                {
-                    _currentPipeline = pipeline;
-                    _progressCallback = progressCallback;
-                    var reloadOptions = new PipelineReloadOptions
-                    {
-                        ControlNet = pipeline.ControlNetModel.GetControlNet(),
-                        LoraAdapters = pipeline.LoraAdapterModel.GetLoraAdapters(),
-                        ProcessType = pipeline.ProcessType,
-                    };
-
-                    await _pipelineClient.ReloadAsync(reloadOptions, _cancellationTokenSource.Token);
-                    _settings.ScanModels();
-                }
+                await _diffusionRuntime.ReloadAsync(pipeline, progressCallback);
                 IsLoaded = true;
             }
             catch (OperationCanceledException)
             {
-                _pipelineClient?.Dispose();
-                _pipelineClient = null;
-                _defaultOptions = null;
-                _currentPipeline = null;
+                DisposeRuntime();
                 throw;
             }
             finally
             {
                 IsLoading = false;
                 IsCanceling = false;
-                _cancellationTokenSource = null;
             }
         }
 
 
-        public Task UpdateAsync(PipelineModel pipeline)
+        public async Task UpdateAsync(PipelineModel pipeline)
         {
-            _currentPipeline = pipeline;
-            return Task.CompletedTask;
+            await _diffusionRuntime.UpdateAsync(pipeline);
         }
 
 
@@ -226,39 +171,7 @@ namespace Amuse.App.Services
             IsCanceling = false;
             try
             {
-                var imageFileName = _mediaService.GetTempFile(MediaType.Image);
-                options.Seed = options.Seed > 0 ? options.Seed : Random.Shared.Next();
-                options.NegativePrompt = options.GuidanceScale > 1f && string.IsNullOrEmpty(options.NegativePrompt) ? " " : options.NegativePrompt;
-                var generateOptions = new PipelineOptions
-                {
-                    Width = options.Width,
-                    Height = options.Height,
-                    Steps = options.Steps,
-                    Steps2 = options.Steps2,
-                    GuidanceScale = options.GuidanceScale,
-                    GuidanceScale2 = options.GuidanceScale2,
-                    Seed = options.Seed,
-                    Prompt = options.Prompt,
-                    NegativePrompt = options.GuidanceScale > 1f && string.IsNullOrEmpty(options.NegativePrompt) ? " " : options.NegativePrompt,
-                    Strength = options.Strength,
-                    ControlNetScale = options.ControlNetStrength,
-                    InputImages = options.InputImages,
-                    InputControlImages = options.InputControlImages,
-                    SchedulerOptions = options.SchedulerOptions.ToOptions(),
-                    LoraOptions = options.GetLoraOptions(),
-                    TempFileName = imageFileName,
-                    NoiseCondition = options.NoiseCondition,
-                    EnableVaeSlicing = options.IsVaeSlicingEnabled,
-                    EnableVaeTiling = options.IsVaeTilingEnabled
-                };
-
-                var tensorResult = await _pipelineClient.RunAsync(generateOptions);
-                return tensorResult.AsImageTensor();
-            }
-            catch (IOException ex)
-            {
-                HandleServerError(ex);
-                throw new Exception("Pipeline Closed Unexpectedly");
+                return await _diffusionRuntime.GenerateImageAsync(options);
             }
             finally
             {
@@ -274,53 +187,7 @@ namespace Amuse.App.Services
             IsCanceling = false;
             try
             {
-                var videoFileName = _mediaService.GetTempFile(MediaType.Video);
-                options.Seed = options.Seed > 0 ? options.Seed : Random.Shared.Next();
-                options.NegativePrompt = options.GuidanceScale > 1f && string.IsNullOrEmpty(options.NegativePrompt) ? " " : options.NegativePrompt;
-                var generateOptions = new PipelineOptions
-                {
-                    Width = options.Width,
-                    Height = options.Height,
-                    Steps = options.Steps,
-                    Steps2 = options.Steps2,
-                    GuidanceScale = options.GuidanceScale,
-                    GuidanceScale2 = options.GuidanceScale2,
-                    Frames = options.Frames,
-                    FrameRate = options.FrameRate,
-                    Seed = options.Seed,
-                    Prompt = options.Prompt,
-                    NegativePrompt = options.NegativePrompt,
-                    Strength = options.Strength,
-                    ControlNetScale = options.ControlNetStrength,
-                    InputImages = options.InputImages,
-                    InputControlImages = options.InputControlImages,
-                    SchedulerOptions = options.SchedulerOptions.ToOptions(),
-                    LoraOptions = options.GetLoraOptions(),
-                    TempFileName = videoFileName,
-                    NoiseCondition = options.NoiseCondition,
-                    FrameChunk = options.FrameChunk,
-                    FrameChunkOverlap = options.FrameChunkOverlap,
-                    EnableVaeSlicing = options.IsVaeSlicingEnabled,
-                    EnableVaeTiling = options.IsVaeTilingEnabled
-                };
-
-                var tensorResult = await _pipelineClient.RunAsync(generateOptions);
-                if (tensorResult is null)
-                {
-                    if (!File.Exists(videoFileName))
-                        throw new Exception("Generated video result not found.");
-
-                    return new VideoInputStream(videoFileName);
-                }
-
-                var videoTensor = tensorResult.AsVideoTensor(generateOptions.FrameRate);
-                await videoTensor.SaveAync(videoFileName);
-                return new VideoInputStream(videoFileName);
-            }
-            catch (IOException ex)
-            {
-                HandleServerError(ex);
-                throw new Exception("Pipeline Closed Unexpectedly");
+                return await _diffusionRuntime.GenerateVideoAsync(options);
             }
             finally
             {
@@ -336,51 +203,26 @@ namespace Amuse.App.Services
             IsCanceling = false;
             try
             {
-                var audioFileName = _mediaService.GetTempFile(MediaType.Audio);
-                options.Seed = options.Seed > 0 ? options.Seed : Random.Shared.Next();
-                var generateOptions = new PipelineOptions
-                {
-                    Seed = options.Seed,
-                    Steps = options.Steps,
-                    Steps2 = options.Steps2,
-                    GuidanceScale = options.GuidanceScale,
-                    GuidanceScale2 = options.GuidanceScale2,
-                    Prompt = options.Prompt,
-                    Prompt2 = options.Prompt2,
-                    NegativePrompt = options.NegativePrompt,
-                    Strength = options.Strength,
-                    Duration = options.Duration,
-                    Bpm = options.Bpm,
-                    Instruction = options.Instruction,
-                    Keyscale = options.Keyscale,
-                    MaxLength = _defaultOptions.MaxLength,
-                    MaxLength2 = _defaultOptions.MaxLength2,
-                    Task = options.Task,
-                    TimeSignature = options.TimeSignature,
-                    TrackName = options.TrackName,
-                    VocalLanguage = options.VocalLanguage,
-                    TempFileName = audioFileName,
-                    SchedulerOptions = options.SchedulerOptions.ToOptions(),
-                    LoraOptions = options.GetLoraOptions()
-                };
-
-                foreach (var inputAudios in options.InputAudios)
-                {
-                    // TODO: Cancellation of audio fetch
-                    generateOptions.InputAudios.Add(await inputAudios.GetAsync(_defaultOptions.SampleRate, _defaultOptions.Channels));
-                }
-
-                var tensorResult = await _pipelineClient.RunAsync(generateOptions);
-                if (!File.Exists(audioFileName))
-                    throw new Exception("Generated video result not found.");
-
-                return await AudioInputStream.CreateAsync(audioFileName);
+                return await _diffusionRuntime.GenerateAudioAsync(options);
             }
-            catch (IOException ex)
+
+            finally
             {
-                HandleServerError(ex);
-                throw new Exception("Pipeline Closed Unexpectedly");
+                IsExecuting = false;
+                IsCanceling = false;
             }
+        }
+
+
+        public async Task<TextResult> GenerateTextAsync(DiffusionInputOptions options)
+        {
+            IsExecuting = true;
+            IsCanceling = false;
+            try
+            {
+                return await _diffusionRuntime.GenerateTextAsync(options);
+            }
+
             finally
             {
                 IsExecuting = false;
@@ -397,14 +239,9 @@ namespace Amuse.App.Services
             try
             {
                 IsCanceling = true;
-                if (_pipelineClient is not null)
-                    await _pipelineClient.CancelAsync();
+                await _diffusionRuntime.CancelAsync();
             }
             catch (Exception) { }
-            finally
-            {
-                await _cancellationTokenSource.SafeCancelAsync();
-            }
         }
 
 
@@ -415,7 +252,7 @@ namespace Amuse.App.Services
         {
             try
             {
-                await _pipelineClient.KillServerAsync();
+                await _diffusionRuntime.StopAsync();
             }
             catch (Exception) { }
             finally
@@ -424,7 +261,7 @@ namespace Amuse.App.Services
                 IsLoading = false;
                 IsExecuting = false;
                 IsCanceling = false;
-                _pipelineClient = null;
+                DisposeRuntime();
             }
         }
 
@@ -434,10 +271,7 @@ namespace Amuse.App.Services
         /// </summary>
         public async Task UnloadAsync()
         {
-            await CancelAsync();
-            await UnloadPythonPipeline();
-            _currentPipeline = null;
-            _defaultOptions = null;
+            await _diffusionRuntime.UnloadAsync();
             IsLoaded = false;
             IsLoading = false;
             IsExecuting = false;
@@ -445,79 +279,10 @@ namespace Amuse.App.Services
         }
 
 
-        private void HandleServerError(Exception exception)
+        private void DisposeRuntime()
         {
-            try
-            {
-                _pipelineClient?.Dispose();
-            }
-            catch (Exception) { }
-            finally
-            {
-                _pipelineClient = null;
-                _currentPipeline = null;
-                _defaultOptions = null;
-                IsLoaded = false;
-            }
-        }
-
-
-
-
-
-        private static MemoryModeType GetMemoryMode(PipelineModel pipeline)
-        {
-            var memoryMode = pipeline.MemoryMode;
-            if (memoryMode == MemoryMode.Auto)
-            {
-                var memoryProfile = pipeline.DiffusionModel.MemoryProfile.FirstOrDefault(x => x.QualityMode == pipeline.QualityMode);
-                if (memoryProfile != null)
-                {
-                    var deviceMemory = pipeline.Device.MemoryGB;
-                    var modeIndex = memoryProfile.GetIndex(deviceMemory);
-                    memoryMode = Enum.GetValues<MemoryMode>()[modeIndex + 2];
-                }
-            }
-
-            return memoryMode switch
-            {
-                MemoryMode.Balanced => MemoryModeType.Balanced,
-                MemoryMode.Low => MemoryModeType.OffloadCPU,
-                MemoryMode.Medium => MemoryModeType.OffloadModel,
-                MemoryMode.High => MemoryModeType.Device,
-                _ => MemoryModeType.OffloadCPU,
-            };
-        }
-
-
-        private static QuantizationType GetQuantizationType(PipelineModel pipeline)
-        {
-
-            return pipeline.QualityMode switch
-            {
-                QualityMode.Draft => QuantizationType.Q4Bit,
-                QualityMode.Standard => QuantizationType.Q8Bit,
-                QualityMode.Production => QuantizationType.Q16Bit,
-                _ => QuantizationType.Q8Bit,
-            };
-        }
-
-
-        private async Task UnloadPythonPipeline()
-        {
-            try
-            {
-                if (_pipelineClient != null)
-                    await _pipelineClient.UnloadAsync();
-            }
-            catch (Exception)
-            {
-            }
-            finally
-            {
-                _pipelineClient?.Dispose();
-                _pipelineClient = null;
-            }
+            _diffusionRuntime?.Dispose();
+            _diffusionRuntime = null;
         }
     }
 
@@ -540,5 +305,6 @@ namespace Amuse.App.Services
         Task<ImageTensor> GenerateImageAsync(DiffusionInputOptions options);
         Task<VideoInputStream> GenerateVideoAsync(DiffusionInputOptions options);
         Task<AudioInputStream> GenerateAudioAsync(DiffusionInputOptions options);
+        Task<TextResult> GenerateTextAsync(DiffusionInputOptions options);
     }
 }

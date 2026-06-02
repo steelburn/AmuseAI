@@ -94,9 +94,6 @@ namespace Amuse.App.Services
                     var cancellationToken = _cancellationTokenSource.Token;
                     if (_upscalePipeline != null)
                     {
-                        if (_currentConfig.Path == pipeline.UpscaleModel.Path)
-                            return; // Already loaded
-
                         await _upscalePipeline.UnloadAsync(cancellationToken);
                     }
 
@@ -111,7 +108,7 @@ namespace Amuse.App.Services
                         OutputNormalization = model.OutputNormalization,
                         SampleSize = model.SampleSize,
                         ScaleFactor = model.ScaleFactor,
-                        Path = model.Path
+                        Path = model.Checkpoint.Resolve(_settings.DirectoryUpscale)
                     };
                     _currentConfig.SetProvider(device.GetProvider());
                     _upscalePipeline = UpscalePipeline.Create(_currentConfig);

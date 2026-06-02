@@ -4,11 +4,9 @@ using Amuse.App.Common;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TensorStack.Common;
-using TensorStack.Common.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 
@@ -22,15 +20,11 @@ namespace Amuse.App.Dialogs
         private LoraAdapterModel _loraModel;
         private LoraAdapterModel _originalLoraModel;
         private string _selectedTrigger;
-        private string _selectedPath;
-        private string _selectedWeights;
 
         public LoraModelDialog(Settings settings)
         {
             Settings = settings;
-            ModelSources = [ModelSourceType.HuggingFace, ModelSourceType.SingleFile, ModelSourceType.Folder];
             Trigger = new ObservableCollection<string>();
-            Pipelines = new ObservableCollection<string>(Settings.GetPipelines());
             SaveCommand = new AsyncRelayCommand(SaveAsync, CanExecuteSave);
             CancelCommand = new AsyncRelayCommand(CancelAsync);
             AddTriggerCommand = new AsyncRelayCommand(AddTriggerAsync, CanAddTrigger);
@@ -46,9 +40,8 @@ namespace Amuse.App.Dialogs
         public AsyncRelayCommand AddTriggerCommand { get; }
         public AsyncRelayCommand<string> RemoveTriggerCommand { get; }
         public ObservableCollection<string> Trigger { get; }
-        public ObservableCollection<string> Pipelines { get; }
+        public CheckpointType[] CheckpointTypes { get; } = [CheckpointType.OnlineFile, CheckpointType.LocalFile];
         public bool IsUpdateMode => _originalLoraModel is not null;
-        public ModelSourceType[] ModelSources { get; }
 
         public LoraAdapterModel LoraModel
         {
@@ -62,40 +55,20 @@ namespace Amuse.App.Dialogs
             set { SetProperty(ref _selectedTrigger, value); }
         }
 
-        public string SelectedPath
-        {
-            get { return _selectedPath; }
-            set
-            {
-                SetProperty(ref _selectedPath, value);
-                if (_loraModel.Source == ModelSourceType.SingleFile)
-                {
-                    if (string.IsNullOrEmpty(_selectedPath))
-                    {
-                        SelectedWeights = null;
-                        return;
-                    }
-                    SelectedWeights = Path.GetFileName(_selectedPath);
-                }
-            }
-        }
-
-        public string SelectedWeights
-        {
-            get { return _selectedWeights; }
-            set { SetProperty(ref _selectedWeights, value); }
-        }
-
-
         public Task<bool> AddAsync()
         {
             var modelId = GetNextModelId();
             LoraModel = new LoraAdapterModel
             {
                 Id = modelId,
-                Backend = BackendType.Pytorch,
-                Pipeline = Pipelines.First(),
-                Source = ModelSourceType.SingleFile
+                Backend = BackendType.PyTorch,
+                Pipeline = Settings.DiffusionPipelines.First(),
+                Name = "New Lora",
+                Checkpoint = new CheckpointComponent
+                {
+                    Name = "LoraAdapter",
+                    Type = CheckpointType.LocalFile
+                }
             };
             return base.ShowDialogAsync();
         }
@@ -140,10 +113,6 @@ namespace Amuse.App.Dialogs
             }
 
             LoraModel.Key = CreateKey();
-            LoraModel.Path = _selectedPath;
-            if (LoraModel.Source == ModelSourceType.SingleFile)
-                LoraModel.Path = Path.GetDirectoryName(_selectedPath);
-            LoraModel.Weights = _selectedWeights;
             LoraModel.Triggers = Trigger.Count == 0 ? default : Trigger.ToArray();
             Settings.LoraAdapterModels.Insert(index, LoraModel);
             return base.SaveAsync();
@@ -207,11 +176,6 @@ namespace Amuse.App.Dialogs
 
         private void Populate()
         {
-            SelectedPath = LoraModel.Path;
-            SelectedWeights = LoraModel.Weights;
-            if (LoraModel.Source == ModelSourceType.SingleFile)
-                SelectedPath = Path.Combine(SelectedPath, SelectedWeights);
-
             if (!LoraModel.Triggers.IsNullOrEmpty())
             {
                 foreach (var trigger in LoraModel.Triggers)
@@ -221,40 +185,27 @@ namespace Amuse.App.Dialogs
             }
         }
 
+
         private IEnumerable<string> GetValidationErrors()
         {
+            // Name
             if (string.IsNullOrWhiteSpace(LoraModel.Name))
                 yield return "Name cannot be empty";
-            if (string.IsNullOrWhiteSpace(_selectedPath))
-                yield return "Path cannot be empty";
-            if (string.IsNullOrWhiteSpace(_selectedWeights))
-                yield return "Weights cannot be empty";
-            if (string.IsNullOrWhiteSpace(LoraModel.Pipeline))
-                yield return "Pipeline cannot be empty";
-            if (!IsUpdateMode && Settings.LoraAdapterModels.Any(x => x.Pipeline == LoraModel.Pipeline && x.Name.Equals(LoraModel.Name, StringComparison.OrdinalIgnoreCase)))
-                yield return $"Model with name '{LoraModel.Name}' already exists";
-
-            if (!string.IsNullOrWhiteSpace(_selectedPath))
+            if (!IsUpdateMode)
             {
-                if (LoraModel.Source == ModelSourceType.Folder && !Directory.Exists(_selectedPath))
-                    yield return "Model folder not found";
-                else if (LoraModel.Source == ModelSourceType.SingleFile && !File.Exists(_selectedPath))
-                    yield return "Model file not found";
-                else if (LoraModel.Source == ModelSourceType.HuggingFace && !IsLoraAdapterValid(_selectedPath, _selectedWeights))
-                    yield return "HuggingFace repository not found";
+                if (Settings.LoraAdapterModels.Any(x => x.Name.Equals(LoraModel.Name, StringComparison.OrdinalIgnoreCase)))
+                    yield return $"Model with Name '{LoraModel.Name}' already exists";
             }
+
+            // Checkpoint
+            if (!LoraModel.Checkpoint.IsValid(out var checkpointValidation))
+                yield return checkpointValidation;
         }
 
 
         private string CreateKey()
         {
             return $"{new string([.. LoraModel.Name.Where(char.IsLetterOrDigit)])}{LoraModel.Id}".ToLower();
-        }
-
-
-        private bool IsLoraAdapterValid(string loraAdapterPath, string loraWeightsPath)
-        {
-            return File.Exists(loraAdapterPath) || HuggingFace.IsLoraAdapterInstalled(Settings.DirectoryModel, loraAdapterPath, loraWeightsPath) || HuggingFace.IsValidLink(loraAdapterPath);
         }
 
     }

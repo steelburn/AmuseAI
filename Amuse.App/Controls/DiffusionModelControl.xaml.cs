@@ -1,15 +1,15 @@
 ﻿using Amuse.App.Common;
-using Amuse.App.Dialogs;
 using Amuse.App.Services;
 using Amuse.App.Views;
+using Amuse.Common;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using TensorStack.Common;
-using TensorStack.Python.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 using TensorStack.WPF.Services;
@@ -85,7 +85,6 @@ namespace Amuse.App.Controls
         public static readonly DependencyProperty IsPipelineLoadedProperty = DependencyProperty.Register(nameof(IsPipelineLoaded), typeof(bool), typeof(DiffusionModelControl), new PropertyMetadata<DiffusionModelControl>((c) => c.OnIsPipelineLoadedChanged()));
         public static readonly DependencyProperty IsSelectionValidProperty = DependencyProperty.Register(nameof(IsSelectionValid), typeof(bool), typeof(DiffusionModelControl));
         public static readonly DependencyProperty DownloadServiceProperty = DependencyProperty.Register(nameof(DownloadService), typeof(IModelDownloadService), typeof(DiffusionModelControl));
-        public static readonly DependencyProperty EnvironmentServiceProperty = DependencyProperty.Register(nameof(EnvironmentService), typeof(IEnvironmentService), typeof(DiffusionModelControl));
         public static readonly DependencyProperty NavigationServiceProperty = DependencyProperty.Register(nameof(NavigationService), typeof(NavigationService), typeof(DiffusionModelControl));
 
         public event EventHandler<PipelineModel> SelectionChanged;
@@ -117,12 +116,6 @@ namespace Amuse.App.Controls
         {
             get { return (IModelDownloadService)GetValue(DownloadServiceProperty); }
             set { SetValue(DownloadServiceProperty, value); }
-        }
-
-        public IEnvironmentService EnvironmentService
-        {
-            get { return (IEnvironmentService)GetValue(EnvironmentServiceProperty); }
-            set { SetValue(EnvironmentServiceProperty, value); }
         }
 
         public NavigationService NavigationService
@@ -266,10 +259,9 @@ namespace Amuse.App.Controls
 
         private async Task LoadAsync()
         {
-            if (!await IsAccessGrantedAsync(SelectedModel))
-                return;
 
-            if (await IsDownloadingAsync(SelectedDevice, SelectedModel))
+
+            if (await IsDownloadingAsync())
                 return;
 
             _currentDevice = SelectedDevice;
@@ -408,6 +400,7 @@ namespace Amuse.App.Controls
 
             // Base Models
             ModelCollectionView = new ListCollectionView(Settings.DiffusionModels);
+            ModelCollectionView.IsLiveFiltering = true;
             ModelCollectionView.Filter = (obj) =>
             {
                 if (obj is not DiffusionModel viewModel)
@@ -416,13 +409,35 @@ namespace Amuse.App.Controls
                 if (_selectedDevice is null)
                     return false;
 
+                if (!Settings.IsBackendOverrideEnabled && !_selectedDevice.SupportedBackends.Contains(viewModel.Backend))
+                    return false;
+
                 if (!viewModel.ProcessTypes.Contains(_processType))
                     return false;
 
                 if (!viewModel.Vendor.IsNullOrEmpty() && !viewModel.Vendor.Contains(_selectedDevice.Vendor))
                     return false;
 
-                if (IsControlNetSupported && !Settings.ControlNetModels.Any(x => x.Pipeline.Equals(viewModel.Pipeline)))
+                if (!viewModel.ViewFilter.IsNullOrEmpty() && !viewModel.ViewFilter.Contains(ViewType))
+                    return false;
+
+                return true;
+            };
+
+            // Lora Models
+            LoraCollectionView = new ListCollectionView(Settings.LoraAdapterModels);
+            LoraCollectionView.Filter = (obj) =>
+            {
+                if (obj is not LoraAdapterModel viewModel)
+                    return false;
+
+                if (_selectedModel is null)
+                    return false;
+
+                if (_selectedModel.Backend == BackendType.OnnxRuntime)
+                    return false;
+
+                if (_selectedModel.Pipeline != viewModel.Pipeline)
                     return false;
 
                 if (!viewModel.ViewFilter.IsNullOrEmpty() && !viewModel.ViewFilter.Contains(ViewType))
@@ -441,8 +456,16 @@ namespace Amuse.App.Controls
                 if (_selectedModel is null)
                     return false;
 
-                if (_selectedModel.Pipeline != viewModel.Pipeline)
+                if (_selectedModel.Backend != viewModel.Backend)
                     return false;
+
+
+                if (_selectedModel.Pipeline != viewModel.Pipeline)
+                {
+                    // LatentConsistency share same controlnets as StableDiffusion
+                    if (!(_selectedModel.Pipeline == PipelineType.LatentConsistencyPipeline && viewModel.Pipeline == PipelineType.StableDiffusionPipeline))
+                        return false;
+                }
 
                 if (!viewModel.ViewFilter.IsNullOrEmpty() && !viewModel.ViewFilter.Contains(ViewType))
                     return false;
@@ -458,24 +481,6 @@ namespace Amuse.App.Controls
                     return false;
 
                 if (_selectedModel is null)
-                    return false;
-
-                if (!viewModel.ViewFilter.IsNullOrEmpty() && !viewModel.ViewFilter.Contains(ViewType))
-                    return false;
-
-                return true;
-            };
-
-            LoraCollectionView = new ListCollectionView(Settings.LoraAdapterModels);
-            LoraCollectionView.Filter = (obj) =>
-            {
-                if (obj is not LoraAdapterModel viewModel)
-                    return false;
-
-                if (_selectedModel is null)
-                    return false;
-
-                if (_selectedModel.Pipeline != viewModel.Pipeline)
                     return false;
 
                 if (!viewModel.ViewFilter.IsNullOrEmpty() && !viewModel.ViewFilter.Contains(ViewType))
@@ -552,14 +557,13 @@ namespace Amuse.App.Controls
             }
 
             RefreshMemoryProfile();
-
             if (_selectedModel is null)
                 return;
 
+            IsLoraSupported = _selectedModel.Backend == BackendType.PyTorch;
             SelectedQualityMode = _selectedModel.UserQualityMode is null
                 ? _selectedDevice.DefaultQualityMode
                 : _selectedModel.UserQualityMode.Value;
-
             SelectedMemoryMode = _selectedModel.UserMemoryMode is null
                 ? MemoryModes.FirstOrDefault(x => x.MemoryMode == MemoryMode.Auto)
                 : MemoryModes.FirstOrDefault(x => x.MemoryMode == _selectedModel.UserMemoryMode.Value);
@@ -686,41 +690,57 @@ namespace Amuse.App.Controls
         }
 
 
-        private async Task<bool> IsDownloadingAsync(Device device, DiffusionModel model)
+        private async Task<bool> IsDownloadingAsync()
         {
-            if (!await LoadEnvironment(device, model))
-                return true;
-
-            if (model.Status == ModelStatusType.Downloading || model.Status == ModelStatusType.DownloadQueue || model.Status == ModelStatusType.DownloadFailed)
+            var status = GetPipelineStatus();
+            if (status.Contains(ModelStatusType.Downloading) || status.Contains(ModelStatusType.DownloadQueue) || status.Contains(ModelStatusType.DownloadFailed))
             {
                 await DialogService.ShowMessageAsync("Model Downloading", "This model is downloading or queued for download", TensorStack.WPF.Dialogs.MessageDialogType.Ok, TensorStack.WPF.Dialogs.MessageBoxIconType.Info, TensorStack.WPF.Dialogs.MessageBoxStyleType.Info);
                 return true;
             }
-            else if (model.Status == ModelStatusType.Verifying)
+            else if (status.Contains(ModelStatusType.Pending) || status.Contains(ModelStatusType.Unknown))
             {
-                await DialogService.ShowMessageAsync("Verifying Model", "This model is verifying or queued for verification", TensorStack.WPF.Dialogs.MessageDialogType.Ok, TensorStack.WPF.Dialogs.MessageBoxIconType.Info, TensorStack.WPF.Dialogs.MessageBoxStyleType.Info);
-                return true;
-            }
-            else if (model.Status == ModelStatusType.Pending || model.Status == ModelStatusType.Unknown)
-            {
+                var queueDownload = await DialogService.ShowMessageAsync("Queue Download", "Would you like to queue this model for download?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Question, TensorStack.WPF.Dialogs.MessageBoxStyleType.Info);
+                if (queueDownload)
+                {
+                    // LoraAdapters
+                    if (_isLoraEnabled && !LoraAdapters.IsNullOrEmpty())
+                    {
+                        foreach (var adapter in LoraAdapters.Where(x => x.Status != ModelStatusType.Installed))
+                        {
+                            if (!await DownloadService.QueueAsync(adapter))
+                                return true;
+                        }
+                    }
 
-                if (model.Status == ModelStatusType.Pending)
-                {
-                    var queueDownload = await DialogService.ShowMessageAsync("Queue Download", "Would you like to queue this model for download?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Question, TensorStack.WPF.Dialogs.MessageBoxStyleType.Info);
-                    if (queueDownload)
+                    // ControlNet
+                    if (_isControlNetEnabled && _selectedControlNet != null && _selectedControlNet.Status != ModelStatusType.Installed)
                     {
-                        await DownloadService.QueueAsync(model, false);
-                        await NavigationService.NavigateAsync((int)View.Downloads);
+                        if (!await DownloadService.QueueAsync(_selectedControlNet))
+                            return true;
                     }
-                }
-                else if (model.Status == ModelStatusType.Unknown)
-                {
-                    var queueDownload = await DialogService.ShowMessageAsync("Verify Download", "Would you like to queue this model for verification?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Question, TensorStack.WPF.Dialogs.MessageBoxStyleType.Info);
-                    if (queueDownload)
+
+                    // Extract
+                    if (_isExtractorEnabled && _selectedExtractor != null && _selectedExtractor.Status != ModelStatusType.Installed)
                     {
-                        await DownloadService.QueueAsync(model, true);
-                        await NavigationService.NavigateAsync((int)View.Downloads);
+                        if (!await DownloadService.QueueAsync(_selectedExtractor))
+                            return true;
                     }
+
+                    // Upscale
+                    if (_isUpscalerEnabled && _selectedUpscaler != null && _selectedUpscaler.Status != ModelStatusType.Installed)
+                    {
+                        if (!await DownloadService.QueueAsync(_selectedUpscaler))
+                            return true;
+                    }
+
+                    // Base Model
+                    if (_selectedModel.Status != ModelStatusType.Installed)
+                    {
+                        if (!await DownloadService.QueueAsync(_selectedModel))
+                            return true;
+                    }
+                    await NavigationService.NavigateAsync((int)View.Downloads);
                 }
                 return true;
             }
@@ -728,19 +748,33 @@ namespace Amuse.App.Controls
         }
 
 
-        private async Task<bool> IsAccessGrantedAsync(DiffusionModel model)
+        private List<ModelStatusType> GetPipelineStatus()
         {
-            if (!model.IsGated)
-                return true;
+            var statuses = new List<ModelStatusType> { _selectedModel.Status };
+            if (_isControlNetEnabled && _selectedControlNet != null)
+            {
+                statuses.Add(_selectedControlNet.Status);
+            }
 
-            if (!string.IsNullOrEmpty(Settings.SecureToken))
-                return true;
+            if (_isLoraEnabled && !LoraAdapters.IsNullOrEmpty())
+            {
+                foreach (var lora in LoraAdapters)
+                {
+                    statuses.Add(lora.Status);
+                }
+            }
 
-            var dialog = DialogService.GetDialog<GatedModelDialog>();
-            await dialog.ShowDialogAsync(model);
-            return false;
+            if (_isExtractorEnabled && _selectedExtractor != null)
+            {
+                statuses.Add(_selectedExtractor.Status);
+            }
+
+            if (_isUpscalerEnabled && _selectedUpscaler != null)
+            {
+                statuses.Add(_selectedUpscaler.Status);
+            }
+            return statuses;
         }
-
 
 
         private ProcessType GetProcessType()
@@ -754,30 +788,5 @@ namespace Amuse.App.Controls
             return _processType;
         }
 
-
-        private async Task<bool> LoadEnvironment(Device device, DiffusionModel diffusionModel)
-        {
-            var environment = EnvironmentService.GetEnvironment(device, diffusionModel);
-            if ((environment.Status == EnvironmentMode.Create || environment.Status == EnvironmentMode.Load) && EnvironmentService.Exists(environment))
-                return true;
-
-            var environmentDialog = DialogService.GetDialog<EnvironmentDialog>();
-            if (environment.Status == EnvironmentMode.Update)
-            {
-                if (!await environmentDialog.UpdateAsync(environment))
-                    return false;
-            }
-            else if (environment.Status == EnvironmentMode.Rebuild)
-            {
-                if (!await environmentDialog.RebuildAsync(environment))
-                    return false;
-            }
-            else
-            {
-                if (!await environmentDialog.CreateAsync(environment))
-                    return false;
-            }
-            return true;
-        }
     }
 }

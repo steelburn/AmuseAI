@@ -1,11 +1,12 @@
-﻿using TensorStack.Python.Config;
+﻿using System.Collections.Generic;
 
 namespace Amuse.Common.Config
 {
-    public class ClientConfig
+    public record ClientConfig
     {
         public bool IsDebugMode { get; set; }
         public string ServerPath { get; set; }
-        public EnvironmentConfig Environment { get; set; }
+        public ServerType ServerType { get; set; }
+        public Dictionary<string, string> ServerVariables { get; set; }
     }
 }

@@ -1,70 +1,217 @@
 ﻿using Amuse.App.Views;
-using System.Collections.Generic;
+using Amuse.Common;
 using System.Linq;
 using System.Text.Json.Serialization;
 using TensorStack.Common;
 using TensorStack.Common.Common;
-using TensorStack.Python.Common;
 using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
     public class DiffusionModel : BaseModel, IDownloadModel
     {
+        private BackendType _backend;
+        private string _name;
+        private string _template;
+        private PipelineType _pipeline;
+        private string _modelType = "Base";
+        private string _variant;
+        private VendorType[] _vendor;
+        private DataType _baseType;
+        private MediaType _mediaType;
+        private ProcessType[] _processTypes;
+        private View[] _viewFilter;
+        private CheckpointModel _checkpoint;
+        private MemoryProfile[] _memoryProfile;
+        private DiffusionDefaultOptions _defaultOptions;
+        private SizeOption[] _resolutions = [];
+        private string _accessToken;
+        private bool _isDefault;
+        private string _link;
         private ModelStatusType _status;
+        private MemoryMode? _userMemoryMode;
+        private QualityMode? _userQualityMode;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Id { get; set; }
-        public BackendType Backend { get; set; }
-        public string Name { get; set; }
-        public string Pipeline { get; set; }
-        public string Path { get; set; }
-        public string Variant { get; set; }
-        public ModelSourceType Source { get; set; }
-        public bool IsDefault { get; set; }
+
+        public BackendType Backend
+        {
+            get { return _backend; }
+            set { SetProperty(ref _backend, value); }
+        }
+
+        public string Name
+        {
+            get { return _name; }
+            set { SetProperty(ref _name, value); }
+        }
+
+        public string Template
+        {
+            get { return _template; }
+            set { SetProperty(ref _template, value); }
+        }
+
+        public PipelineType Pipeline
+        {
+            get { return _pipeline; }
+            set { SetProperty(ref _pipeline, value); }
+        }
+
+        public string ModelType
+        {
+            get { return _modelType; }
+            set { SetProperty(ref _modelType, value); }
+        }
+
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public View[] ViewFilter { get; set; }
-        public bool IsGated { get; set; }
-        public VendorType[] Vendor { get; set; }
+        public string Variant
+        {
+            get { return _variant; }
+            set { SetProperty(ref _variant, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public VendorType[] Vendor
+        {
+            get { return _vendor; }
+            set { SetProperty(ref _vendor, value); }
+        }
+
+        public DataType BaseType
+        {
+            get { return _baseType; }
+            set { SetProperty(ref _baseType, value); }
+        }
+
+        public MediaType MediaType
+        {
+            get { return _mediaType; }
+            set { SetProperty(ref _mediaType, value); }
+        }
+
+        public ProcessType[] ProcessTypes
+        {
+            get { return _processTypes; }
+            set { SetProperty(ref _processTypes, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public View[] ViewFilter
+        {
+            get { return _viewFilter; }
+            set { SetProperty(ref _viewFilter, value); }
+        }
+
+        public CheckpointModel Checkpoint
+        {
+            get { return _checkpoint; }
+            set { SetProperty(ref _checkpoint, value); }
+        }
+
+        public MemoryProfile[] MemoryProfile
+        {
+            get { return _memoryProfile; }
+            set { SetProperty(ref _memoryProfile, value); }
+        }
+
+        public DiffusionDefaultOptions DefaultOptions
+        {
+            get { return _defaultOptions; }
+            set { SetProperty(ref _defaultOptions, value); }
+        }
+
+        public SizeOption[] Resolutions
+        {
+            get { return _resolutions; }
+            set { SetProperty(ref _resolutions, value); }
+        }
+
         public ModelStatusType Status
         {
             get { return _status; }
             set { SetProperty(ref _status, value); }
         }
-        public string Link { get; set; }
-        public MemoryProfile[] MemoryProfile { get; set; }
-        public DataType BaseType { get; set; }
-        public MediaType MediaType { get; set; }
-        public ProcessType[] ProcessTypes { get; set; }
-        public List<SizeOption> Resolutions { get; set; } = [];
-        public DiffusionDefaultOptions DefaultOptions { get; set; }
 
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public DiffusionCheckpointModel Checkpoint { get; set; }
-
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public MemoryMode? UserMemoryMode { get; set; }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public QualityMode? UserQualityMode { get; set; }
-
-
-        public void Initialize(string modelDirectory)
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string AccessToken
         {
-            Status = HuggingFace.ModelStatus(this, modelDirectory);
+            get { return _accessToken; }
+            set { SetProperty(ref _accessToken, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool IsDefault
+        {
+            get { return _isDefault; }
+            set { SetProperty(ref _isDefault, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string Link
+        {
+            get { return _link; }
+            set { SetProperty(ref _link, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public MemoryMode? UserMemoryMode
+        {
+            get { return _userMemoryMode; }
+            set { SetProperty(ref _userMemoryMode, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public QualityMode? UserQualityMode
+        {
+            get { return _userQualityMode; }
+            set { SetProperty(ref _userQualityMode, value); }
         }
 
 
-        public void Delete(string modelDirectory)
+        public void Initialize(Settings settings)
         {
-            HuggingFace.ModelDelete(this, modelDirectory);
+            Status = GetModelStatus(settings);
         }
 
 
-        public string GetDirectory(string modelDirectory)
+        public void Delete(Settings settings)
         {
-            return HuggingFace.ModelDirectory(this, modelDirectory);
+            foreach (var component in Checkpoint.GetComponents())
+            {
+                if (component.Type == CheckpointType.Component)
+                    continue;
+
+                var resolvedPath = component.Resolve(settings.DirectoryModel, settings.Components);
+                if (component.Type == CheckpointType.LocalFile || component.Type == CheckpointType.OnlineFile)
+                    FileHelper.DeleteFile(resolvedPath);
+                else if (component.Type == CheckpointType.LocalFolder || component.Type == CheckpointType.LocalFolder)
+                    FileHelper.DeleteDirectory(resolvedPath);
+            }
+        }
+
+
+        public string GetDirectory(Settings settings)
+        {
+            return System.IO.Path.Combine(settings.DirectoryModel);
+        }
+
+
+        private ModelStatusType GetModelStatus(Settings settings)
+        {
+            if (Checkpoint == null)
+                return ModelStatusType.Pending;
+
+            var isValid = Checkpoint.IsInstalled(settings.DirectoryModel, settings.Components);
+            if (Status == ModelStatusType.Pending && isValid)
+                return ModelStatusType.Installed;
+            else if (Status == ModelStatusType.Installed && !isValid)
+                return ModelStatusType.Pending;
+            else if (Status == ModelStatusType.Downloading || Status == ModelStatusType.DownloadQueue || Status == ModelStatusType.DownloadFailed)
+                return ModelStatusType.Pending;
+
+            return Status;
         }
 
 
@@ -75,67 +222,21 @@ namespace Amuse.App.Common
                 Id = id,
                 Backend = Backend,
                 Name = Name,
-                Path = Path,
-                Variant = Variant,
+                Template = Template,
                 Pipeline = Pipeline,
-                IsDefault = IsDefault,
-                ViewFilter = ViewFilter?.ToArray(),
+                ModelType = ModelType,
+                Variant = Variant,
                 BaseType = BaseType,
                 MediaType = MediaType,
-                IsGated = IsGated,
+                AccessToken = AccessToken,
                 Link = Link,
-                MemoryProfile = MemoryProfile.Select(x => new MemoryProfile
-                {
-                    QualityMode = x.QualityMode,
-                    MemoryModes = x.MemoryModes.ToArray(),
-                }).ToArray(),
-                ProcessTypes = [.. ProcessTypes],
-                Vendor = Vendor.IsNullOrEmpty() ? null : [.. Vendor],
-                Source = Source,
-                Resolutions = [.. Resolutions.Select(x => new SizeOption
-                {
-                    Height = x.Height,
-                    Width = x.Width,
-                    IsDefault = x.IsDefault
-                })],
-                DefaultOptions = new DiffusionDefaultOptions
-                {
-                    Width = DefaultOptions.Width,
-                    Height = DefaultOptions.Height,
-                    Steps = DefaultOptions.Steps,
-                    Steps2 = DefaultOptions.Steps2,
-                    GuidanceScale = DefaultOptions.GuidanceScale,
-                    GuidanceScale2 = DefaultOptions.GuidanceScale2,
-                    Frames = DefaultOptions.Frames,
-                    FrameRate = DefaultOptions.FrameRate,
-                    SampleRate = DefaultOptions.SampleRate,
-                    FrameChunk = DefaultOptions.FrameChunk,
-                    FrameChunkOverlap = DefaultOptions.FrameChunkOverlap,
-                    FrameOptions = DefaultOptions.FrameOptions?.ToArray(),
-                    NoiseCondition = DefaultOptions.NoiseCondition,
-                    Scheduler = DefaultOptions.Scheduler,
-                    Schedulers = DefaultOptions.Schedulers with { },
-                    Strength = DefaultOptions.Strength,
-                    IsVaeSlicingEnabled = DefaultOptions.IsVaeSlicingEnabled,
-                    IsVaeTilingEnabled = DefaultOptions.IsVaeTilingEnabled,
-                    IsFirstFrameLastFrameEnabled = DefaultOptions.IsFirstFrameLastFrameEnabled,
-                    MaxLength = DefaultOptions.MaxLength,
-                    MaxLength2 = DefaultOptions.MaxLength2,
-                    Channels = DefaultOptions.Channels,
-                },
-                Checkpoint = Checkpoint is null ? null : new DiffusionCheckpointModel
-                {
-                    SingleFile = Checkpoint.SingleFile,
-                    TextEncoder = Checkpoint.TextEncoder,
-                    TextEncoder2 = Checkpoint.TextEncoder2,
-                    TextEncoder3 = Checkpoint.TextEncoder3,
-                    Transformer = Checkpoint.Transformer,
-                    Transformer2 = Checkpoint.Transformer2,
-                    Vae = Checkpoint.Vae,
-                    AudioVae = Checkpoint.AudioVae,
-                    Vocoder = Checkpoint.Vocoder,
-                    Connectors = Checkpoint.Connectors
-                }
+                Vendor = Vendor?.ToArray(),
+                Resolutions = Resolutions.Copy(),
+                ViewFilter = ViewFilter?.ToArray(),
+                Checkpoint = Checkpoint.DeepClone(),
+                MemoryProfile = MemoryProfile.Copy(),
+                ProcessTypes = ProcessTypes.ToArray(),
+                DefaultOptions = DefaultOptions.DeepClone()
             };
         }
     }

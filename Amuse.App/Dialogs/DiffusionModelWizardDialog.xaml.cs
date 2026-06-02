@@ -7,8 +7,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using TensorStack.Common.Common;
-using TensorStack.Python.Common;
+using TensorStack.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 
@@ -19,31 +18,27 @@ namespace Amuse.App.Dialogs
     /// </summary>
     public partial class DiffusionModelWizardDialog : DialogControl
     {
-        private WizardOptionModel _selectedOption;
-        private string _selectedName;
-        private string _selectedModelPath;
-        private ModelSourceType _selectedSource;
-        private DataType _selectedDataType;
-        private WizardItemModel _selectedItem;
-        private DiffusionCheckpointModel _checkpointModel;
+        private BackendType _selectedBackend;
+        private WizardItemModel _selectedPipelineOption;
+        private WizardOptionModel _selectedTemplateOption;
         private DiffusionModel _selectedTemplate;
+        private ModelSourceType _selectedSource;
+        private string _selectedFile;
+        private string _selectedPath;
+        private string _selectedName;
         private string _selectedVariant;
-        private BackendType _selectedbackend = BackendType.Pytorch;
+        private string _fileFilter;
 
         public DiffusionModelWizardDialog(Settings settings)
         {
             Settings = settings;
-            Templates = settings.Templates.DiffusionTemplates;
-            Items = settings.Templates.DiffusionTemplateMap;
+            PipelineOptions = new ObservableCollection<WizardItemModel>();
+            SelectedBackend = BackendType.PyTorch;
             Errors = new ObservableCollection<string>();
             CancelCommand = new AsyncRelayCommand(CancelAsync);
             SaveCommand = new AsyncRelayCommand(SaveAsync, CanExecuteSave);
-            SelectedItem = Items[0];
-            SelectedDataType = DataType.Bfloat16;
-            SelectedSource = ModelSourceType.HuggingFace;
-            CheckpointModel = new DiffusionCheckpointModel();
-            CheckpointModel.PropertyChanged += (s, e) => GenerateName();
-            ModelSources = [ModelSourceType.HuggingFace, ModelSourceType.Folder, ModelSourceType.SingleFile, ModelSourceType.Checkpoint];
+            SelectedSource = ModelSourceType.LocalFile;
+            ModelSources = [ModelSourceType.LocalFile, ModelSourceType.LocalFolder, ModelSourceType.Checkpoint];
             InitializeComponent();
         }
 
@@ -51,29 +46,58 @@ namespace Amuse.App.Dialogs
         public AsyncRelayCommand SaveCommand { get; }
         public AsyncRelayCommand CancelCommand { get; }
         public ObservableCollection<string> Errors { get; }
-        public List<DiffusionModel> Templates { get; }
-        public List<WizardItemModel> Items { get; }
         public ModelSourceType[] ModelSources { get; }
-        public DiffusionModel SelectedTemplate => _selectedTemplate;
-        public WizardItemModel SelectedItem
+        public ObservableCollection<WizardItemModel> PipelineOptions { get; }
+
+        public BackendType SelectedBackend
         {
-            get { return _selectedItem; }
+            get { return _selectedBackend; }
+            set { SetProperty(ref _selectedBackend, value); FilterPipelineOptions(); SetFileFilter(); }
+        }
+
+        public WizardItemModel SelectedPipelineOption
+        {
+            get { return _selectedPipelineOption; }
             set
             {
-                SetProperty(ref _selectedItem, value);
-                Reset();
-                SelectedOption = _selectedItem.Options?.FirstOrDefault();
+                SetProperty(ref _selectedPipelineOption, value);
+                SelectedTemplateOption = _selectedPipelineOption?.Options?.FirstOrDefault();
             }
         }
 
-        public WizardOptionModel SelectedOption
+        public WizardOptionModel SelectedTemplateOption
         {
-            get { return _selectedOption; }
+            get { return _selectedTemplateOption; }
             set
             {
-                SetProperty(ref _selectedOption, value);
-                _selectedTemplate = GetTemplate(_selectedOption?.Template);
+                Reset();
+                SetProperty(ref _selectedTemplateOption, value);
+                SelectedTemplate = GetTemplate(_selectedTemplateOption?.Template);
             }
+        }
+
+        public DiffusionModel SelectedTemplate
+        {
+            get { return _selectedTemplate; }
+            set { SetProperty(ref _selectedTemplate, value); }
+        }
+
+        public ModelSourceType SelectedSource
+        {
+            get { return _selectedSource; }
+            set { SetProperty(ref _selectedSource, value); }
+        }
+
+        public string SelectedFile
+        {
+            get { return _selectedFile; }
+            set { SetProperty(ref _selectedFile, value); SetModelName(); }
+        }
+
+        public string SelectedPath
+        {
+            get { return _selectedPath; }
+            set { SetProperty(ref _selectedPath, value); SetModelName(); }
         }
 
         public string SelectedName
@@ -88,74 +112,77 @@ namespace Amuse.App.Dialogs
             set { SetProperty(ref _selectedVariant, value); }
         }
 
-        public ModelSourceType SelectedSource
+        public string FileFilter
         {
-            get { return _selectedSource; }
-            set
-            {
-                SetProperty(ref _selectedSource, value);
-                if (_selectedSource == ModelSourceType.Checkpoint || _selectedSource == ModelSourceType.SingleFile)
-                    SelectedModelPath = _selectedTemplate?.Path;
-
-                GenerateName();
-            }
-        }
-
-        public DataType SelectedDataType
-        {
-            get { return _selectedDataType; }
-            set { SetProperty(ref _selectedDataType, value); }
-        }
-
-        public string SelectedModelPath
-        {
-            get { return _selectedModelPath; }
-            set { SetProperty(ref _selectedModelPath, value); GenerateName(); }
-        }
-
-        public DiffusionCheckpointModel CheckpointModel
-        {
-            get { return _checkpointModel; }
-            set { SetProperty(ref _checkpointModel, value); }
-        }
-
-        public BackendType Selectedbackend
-        {
-            get { return _selectedbackend; }
-            set { SetProperty(ref _selectedbackend, value); }
+            get { return _fileFilter; }
+            set { SetProperty(ref _fileFilter, value); }
         }
 
 
         protected override Task SaveAsync()
         {
-            _selectedTemplate.Name = SelectedName;
-            _selectedTemplate.Source = _selectedSource;
-            _selectedTemplate.Path = _selectedModelPath;
-            _selectedTemplate.Variant = SelectedVariant;
-            _selectedTemplate.Backend = _selectedbackend;
-            if ((_selectedSource == ModelSourceType.HuggingFace || _selectedSource == ModelSourceType.Checkpoint) && HuggingFace.TryParseRepo(_selectedModelPath, out var huggingfacePath))
-                _selectedTemplate.Path = huggingfacePath;
+            _selectedTemplate.Name = _selectedName;
+            _selectedTemplate.Variant = _selectedVariant;
 
-            if (_selectedSource == ModelSourceType.SingleFile)
+            if (_selectedBackend == BackendType.OnnxRuntime)
             {
-                _checkpointModel.TextEncoder = null;
-                _checkpointModel.TextEncoder2 = null;
-                _checkpointModel.TextEncoder3 = null;
-                _checkpointModel.Transformer = null;
-                _checkpointModel.Transformer2 = null;
-                _checkpointModel.Vae = null;
-                _checkpointModel.AudioVae = null;
-                _checkpointModel.Vocoder = null;
-                _checkpointModel.Connectors = null;
-                _selectedTemplate.Checkpoint = _checkpointModel;
+                if (_selectedSource == ModelSourceType.LocalFolder)
+                {
+                    _selectedTemplate.Checkpoint.Compute = new CheckpointComponent
+                    {
+                        Name = "Compute",
+                        Path = _selectedPath,
+                        Type = CheckpointType.LocalFolder,
+                    };
+                }
             }
-            if (_selectedSource == ModelSourceType.Checkpoint)
+            else
             {
-                _checkpointModel.SingleFile = null;
-                _selectedTemplate.Checkpoint = _checkpointModel;
+                if (_selectedSource == ModelSourceType.LocalFile)
+                {
+                    if (_selectedTemplate.Checkpoint.Unet != null)
+                    {
+                        _selectedTemplate.Checkpoint.Unet = new CheckpointComponent
+                        {
+                            Name = "Unet",
+                            Path = _selectedFile,
+                            Type = CheckpointType.LocalFile,
+                        };
+                    }
+                    else if (_selectedTemplate.Checkpoint.Transformer != null)
+                    {
+                        _selectedTemplate.Checkpoint.Transformer = new CheckpointComponent
+                        {
+                            Name = "Transformer",
+                            Path = _selectedFile,
+                            Type = CheckpointType.LocalFile,
+                        };
+                    }
+                }
+                else if (_selectedSource == ModelSourceType.LocalFolder)
+                {
+                    if (_selectedTemplate.Checkpoint.Unet != null)
+                    {
+                        _selectedTemplate.Checkpoint.Unet = new CheckpointComponent
+                        {
+                            Name = "Unet",
+                            Path = _selectedPath,
+                            Type = CheckpointType.LocalFolder,
+                        };
+                    }
+                    else if (_selectedTemplate.Checkpoint.Transformer != null)
+                    {
+                        _selectedTemplate.Checkpoint.Transformer = new CheckpointComponent
+                        {
+                            Name = "Transformer",
+                            Path = _selectedPath,
+                            Type = CheckpointType.LocalFolder,
+                        };
+                    }
+                }
             }
 
-            _selectedTemplate.Initialize(Settings.DirectoryModel);
+            _selectedTemplate.Initialize(Settings);
             Settings.DiffusionModels.Add(_selectedTemplate);
             return base.SaveAsync();
         }
@@ -183,62 +210,58 @@ namespace Amuse.App.Dialogs
         }
 
 
-        private IEnumerable<string> GetValidationErrors()
+        private void Reset()
         {
-            if (string.IsNullOrWhiteSpace(_selectedName))
-                yield return "Name cannot be empty";
-            if (!string.IsNullOrWhiteSpace(_selectedName) && Settings.DiffusionModels.Any(x => x.Name.Equals(_selectedName, StringComparison.OrdinalIgnoreCase)))
-                yield return $"Model with name '{_selectedName}' already exists";
-            if (string.IsNullOrWhiteSpace(_selectedModelPath))
-                yield return string.Empty;
-            if (!string.IsNullOrWhiteSpace(_selectedModelPath))
+            SelectedSource = ModelSourceType.LocalFile;
+        }
+
+
+        private DiffusionModel GetTemplate(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return null;
+
+            var template = Settings.Templates.DiffusionTemplates.FirstOrDefault(x => x.Name == name);
+            if (template == null)
+                return null;
+
+            var modelId = GetNextModelId();
+            return template.DeepClone(modelId);
+        }
+
+
+        private void SetModelName()
+        {
+            if (!string.IsNullOrEmpty(_selectedName))
+                return;
+
+            if (_selectedSource == ModelSourceType.LocalFile)
             {
-                if (_selectedSource == ModelSourceType.Folder && !Directory.Exists(_selectedModelPath))
-                    yield return "Model folder not found";
-                else if (_selectedSource == ModelSourceType.SingleFile && (string.IsNullOrEmpty(CheckpointModel.SingleFile) || !IsCheckpointValid(CheckpointModel.SingleFile)))
-                    yield return "Model file not found";
-                else if ((_selectedSource == ModelSourceType.HuggingFace || _selectedSource == ModelSourceType.Checkpoint) && !HuggingFace.TryParseRepo(_selectedModelPath, out _))
-                    yield return "HuggingFace repository not found";
-
-                if (_selectedSource == ModelSourceType.Checkpoint)
-                {
-                    if (string.IsNullOrEmpty(CheckpointModel.TextEncoder)
-                     && string.IsNullOrEmpty(CheckpointModel.TextEncoder2)
-                     && string.IsNullOrEmpty(CheckpointModel.TextEncoder3)
-                     && string.IsNullOrEmpty(CheckpointModel.Transformer)
-                     && string.IsNullOrEmpty(CheckpointModel.Transformer2)
-                     && string.IsNullOrEmpty(CheckpointModel.Vae)
-                     && string.IsNullOrEmpty(CheckpointModel.AudioVae)
-                     && string.IsNullOrEmpty(CheckpointModel.Vocoder)
-                     && string.IsNullOrEmpty(CheckpointModel.Connectors))
-                        yield return "At least one checkpoint model required";
-
-                    if (!string.IsNullOrEmpty(CheckpointModel.TextEncoder) && !IsCheckpointValid(CheckpointModel.TextEncoder))
-                        yield return "TextEncoder checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.TextEncoder2) && !IsCheckpointValid(CheckpointModel.TextEncoder2))
-                        yield return "TextEncoder2 checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.TextEncoder3) && !IsCheckpointValid(CheckpointModel.TextEncoder3))
-                        yield return "TextEncoder3 checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.Transformer) && !IsCheckpointValid(CheckpointModel.Transformer))
-                        yield return "Transformer checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.Transformer2) && !IsCheckpointValid(CheckpointModel.Transformer2))
-                        yield return "Transformer2 checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.Vae) && !IsCheckpointValid(CheckpointModel.Vae))
-                        yield return "Vae checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.AudioVae) && !IsCheckpointValid(CheckpointModel.AudioVae))
-                        yield return "AudioVae checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.Vocoder) && !IsCheckpointValid(CheckpointModel.Vocoder))
-                        yield return "Vocoder checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.Connectors) && !IsCheckpointValid(CheckpointModel.Connectors))
-                        yield return "Connectors checkpoint file not found";
-                }
+                if (!string.IsNullOrEmpty(_selectedFile))
+                    SelectedName = Path.GetFileNameWithoutExtension(_selectedFile);
+            }
+            else if (_selectedSource == ModelSourceType.LocalFolder)
+            {
+                if (!string.IsNullOrEmpty(_selectedPath))
+                    SelectedName = Path.GetFileNameWithoutExtension(_selectedPath);
             }
         }
 
 
-        private bool IsCheckpointValid(string checkpoint)
+        private void SetFileFilter()
         {
-            return File.Exists(checkpoint) || HuggingFace.IsCheckpointInstalled(Settings.DirectoryModel, checkpoint) || HuggingFace.IsValidLink(checkpoint);
+            FileFilter = _selectedBackend == BackendType.OnnxRuntime ? "Model Files|*.onnx;" : "Model Files|*.safetensors;*.gguf;";
+        }
+
+
+        private void FilterPipelineOptions()
+        {
+            PipelineOptions.Clear();
+            foreach (var pipelineOption in Settings.Templates.DiffusionTemplateMap.Where(x => x.Backend == _selectedBackend))
+            {
+                PipelineOptions.Add(pipelineOption);
+            }
+            SelectedPipelineOption = PipelineOptions.FirstOrDefault();
         }
 
 
@@ -248,60 +271,42 @@ namespace Amuse.App.Dialogs
         }
 
 
-        private void Reset()
+        private IEnumerable<string> GetValidationErrors()
         {
-            SelectedName = null;
-            SelectedVariant = null;
-            SelectedModelPath = null;
-            SelectedSource = ModelSourceType.HuggingFace;
-            CheckpointModel = new DiffusionCheckpointModel();
-        }
+            if (_selectedPipelineOption == null)
+                yield return "Pipeline cannot be empty";
 
+            if (_selectedTemplateOption == null)
+                yield return "Type cannot be empty";
 
-        private DiffusionModel GetTemplate(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-                return null;
+            // Name
+            if (string.IsNullOrWhiteSpace(_selectedName))
+                yield return "Model name cannot be empty";
+            if (Settings.DiffusionModels.Any(x => x.Name.Equals(_selectedName, StringComparison.OrdinalIgnoreCase)))
+                yield return $"Model with name '{_selectedName}' already exists";
 
-            var template = Templates.FirstOrDefault(x => x.Name == name);
-            if (template == null)
-                return null;
-
-            var modelId = GetNextModelId();
-            return template.DeepClone(modelId);
-        }
-
-
-        private void GenerateName()
-        {
-            if (!string.IsNullOrWhiteSpace(_selectedModelPath))
+            if (_selectedSource == ModelSourceType.LocalFile)
             {
-                //if (_selectedSource == ModelSourceType.Checkpoint)
-                //{
-                //    var filename = _checkpointModel.ModelCheckpoint;
-                //    if (string.IsNullOrWhiteSpace(filename))
-                //        filename = _checkpointModel.VaeCheckpoint;
-                //    else if (string.IsNullOrWhiteSpace(filename))
-                //        filename = _checkpointModel.TextEncoderCheckpoint;
-
-                //    if (!string.IsNullOrWhiteSpace(filename))
-                //        SelectedName = Path.GetFileNameWithoutExtension(filename);
-                //}
-                //else
-                //{
-                //    if (File.Exists(_selectedModelPath) || Directory.Exists(_selectedModelPath))
-                //    {
-                //        SelectedName = Path.GetFileNameWithoutExtension(_selectedModelPath);
-                //    }
-                //    else
-                //    {
-                //        SelectedName = Utils.TryParseHuggingFaceRepo(_selectedModelPath, out var huggingfaceRepo)
-                //            ? huggingfaceRepo.Split('/', '\\').LastOrDefault()
-                //            : Path.GetFileNameWithoutExtension(_selectedModelPath.Split('/', '\\').LastOrDefault());
-                //    }
-                //}
+                if (string.IsNullOrEmpty(_selectedFile))
+                    yield return "Model file name cannot be empty";
+            }
+            else if (_selectedSource == ModelSourceType.LocalFolder)
+            {
+                if (string.IsNullOrEmpty(_selectedPath))
+                    yield return "Model folder name cannot be empty";
+            }
+            else if (_selectedSource == ModelSourceType.Checkpoint)
+            {
+                // Checkpoint
+                if (_selectedTemplate?.Checkpoint != null)
+                {
+                    foreach (var checkpoint in _selectedTemplate.Checkpoint.GetComponents())
+                    {
+                        if (!checkpoint.IsValid(out var checkpointValidation))
+                            yield return $"{checkpoint.Name} {checkpointValidation}";
+                    }
+                }
             }
         }
-
     }
 }

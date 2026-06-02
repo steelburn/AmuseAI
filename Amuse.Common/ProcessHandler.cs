@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 
 namespace Amuse.Common
 {
-    internal sealed class ProcessLifetimeHandler : IDisposable
+    internal sealed class ProcessHandler : IDisposable
     {
         private IntPtr _job;
 
-        public ProcessLifetimeHandler()
+        public ProcessHandler()
         {
             _job = CreateJobObject(IntPtr.Zero, null);
 
@@ -28,10 +28,12 @@ namespace Amuse.Common
             Marshal.FreeHGlobal(ptr);
         }
 
+
         public void AddProcess(Process process)
         {
             AssignProcessToJobObject(_job, process.Handle);
         }
+
 
         public void Dispose()
         {
@@ -41,6 +43,7 @@ namespace Amuse.Common
                 _job = IntPtr.Zero;
             }
         }
+
 
         // P/Invoke
         private const int JobObjectExtendedLimitInformation = 9;

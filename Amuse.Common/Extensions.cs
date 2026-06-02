@@ -21,7 +21,7 @@ namespace Amuse.Common
         /// <param name="pipe">The pipe.</param>
         /// <param name="message">The message.</param>
         /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        internal static async Task SendMessage<T>(this PipeStream pipe, T message, CancellationToken cancellationToken = default) where T : IPipelineMessage
+        public static async Task SendMessage<T>(this PipeStream pipe, T message, CancellationToken cancellationToken = default) where T : IPipelineMessage
         {
             var intBuffer = new byte[4];
             var tensors = message.Tensors ?? [];
@@ -70,7 +70,7 @@ namespace Amuse.Common
         /// <typeparam name="T">IPythonMessage</typeparam>
         /// <param name="pipe">The pipe.</param>
         /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        internal static async Task<T> ReceiveMessage<T>(this PipeStream pipe, CancellationToken cancellationToken = default) where T : IPipelineMessage
+        public static async Task<T> ReceiveMessage<T>(this PipeStream pipe, CancellationToken cancellationToken = default) where T : IPipelineMessage
         {
             var tensorCountBytes = await pipe.ReadExactlyAsync(4, cancellationToken);
             int tensorCount = BitConverter.ToInt32(tensorCountBytes);
@@ -127,7 +127,7 @@ namespace Amuse.Common
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="pipe">The pipe.</param>
         /// <param name="dataObject">The object to send.</param>
-        internal static async Task SendObject<T>(this PipeStream pipe, T dataObject, CancellationToken cancellationToken)
+        public static async Task SendObject<T>(this PipeStream pipe, T dataObject, CancellationToken cancellationToken)
         {
             var json = JsonSerializer.Serialize(dataObject);
             var jsonBytes = Encoding.UTF8.GetBytes(json);
@@ -143,7 +143,7 @@ namespace Amuse.Common
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="pipe">The pipe.</param>
-        internal static async Task<T> ReceiveObject<T>(this PipeStream pipe, CancellationToken cancellationToken)
+        public static async Task<T> ReceiveObject<T>(this PipeStream pipe, CancellationToken cancellationToken)
         {
             var lengthBytes = new byte[4];
             await pipe.ReadExactlyAsync(lengthBytes, 0, lengthBytes.Length, cancellationToken);
@@ -163,7 +163,7 @@ namespace Amuse.Common
         /// <param name="pipe">The pipe.</param>
         /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Task.</returns>
-        internal static Task SendResponse(this PipeStream pipe, CancellationToken cancellationToken = default)
+        public static Task SendResponse(this PipeStream pipe, CancellationToken cancellationToken = default)
         {
             return pipe.SendMessage(new PipelineResponse { Tensors = [] }, cancellationToken);
         }
@@ -175,7 +175,7 @@ namespace Amuse.Common
         /// <param name="stream">The stream.</param>
         /// <param name="count">The count.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        internal static async Task<byte[]> ReadExactlyAsync(this Stream stream, int count, CancellationToken cancellationToken = default)
+        public static async Task<byte[]> ReadExactlyAsync(this Stream stream, int count, CancellationToken cancellationToken = default)
         {
             int offset = 0;
             var buffer = new byte[count];

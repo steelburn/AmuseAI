@@ -3,8 +3,6 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using TensorStack.Common;
 using TensorStack.Common.Tensor;
-using TensorStack.Python.Common;
-using TensorStack.Python.Config;
 
 namespace Amuse.Common.Message
 {
@@ -16,76 +14,109 @@ namespace Amuse.Common.Message
             Type = type;
         }
 
-        public PipelineRequest(PipelineConfig config, RequestType type)
+        public PipelineRequest(PipelineLoadOptions options, RequestType type)
         {
-            PipelineConfig = config;
+            LoadOptions = options;
             Type = type;
         }
 
         public PipelineRequest(PipelineReloadOptions options)
         {
-            PipelineReloadOptions = options;
-            Type = RequestType.PipelineReload;
+            ReloadOptions = options;
+            Type = RequestType.Reload;
         }
 
-        public PipelineRequest(EnvironmentConfig config, EnvironmentMode mode)
+        public PipelineRequest(PipelineCreateOptions options)
         {
-            Environment = new EnvironmentRequest
-            {
-                Config = config,
-                Mode = mode,
-            };
-            Type = RequestType.Environment;
+            CreateOptions = options;
+            Type = RequestType.Create;
         }
 
-        public PipelineRequest(PipelineOptions options)
+        public PipelineRequest(PipelineRunOptions options)
         {
-            PipelineOptions = options;
-            ImageTensorCount = options.InputImages?.Count ?? 0;
-            ControlNetTensorCount = options.InputControlImages?.Count ?? 0;
-            AudioTensorCount = options.InputAudios?.Count ?? 0;
-            AudioSampleRate = options.InputAudios?.FirstOrDefault()?.SampleRate ?? 0;
-            Tensors = GetInputTensors(options);
-            Type = RequestType.PipelineRun;
+            RunOptions = options;
+            Type = RequestType.Run;
+            PackTensors();
         }
-
 
         public RequestType Type { get; init; }
-        public EnvironmentRequest Environment { get; set; }
-        public PipelineConfig PipelineConfig { get; set; }
-        public PipelineReloadOptions PipelineReloadOptions { get; set; }
-        public PipelineOptions PipelineOptions { get; set; }
+        public PipelineCreateOptions CreateOptions { get; init; }
+        public PipelineLoadOptions LoadOptions { get; init; }
+        public PipelineReloadOptions ReloadOptions { get; init; }
+        public PipelineRunOptions RunOptions { get; init; }
+
         public int ImageTensorCount { get; set; }
         public int ControlNetTensorCount { get; set; }
         public int AudioTensorCount { get; set; }
-        public int AudioSampleRate { get; set; }
 
         [JsonIgnore]
         public IReadOnlyList<Tensor<float>> Tensors { get; set; }
 
 
-        private static List<Tensor<float>> GetInputTensors(PipelineOptions options)
+        public void PackTensors()
         {
-            var validTensors = new List<Tensor<float>>();
-            void AddTensors(List<ImageTensor> tensors)
-            {
-                if (tensors.IsNullOrEmpty())
-                    return;
+            if (RunOptions == null)
+                return;
 
-                foreach (var tensor in tensors)
+            ImageTensorCount = RunOptions.InputImages?.Count ?? 0;
+            ControlNetTensorCount = RunOptions.InputControlImages?.Count ?? 0;
+            AudioTensorCount = RunOptions.InputAudios?.Count ?? 0;
+            var totalCount = ImageTensorCount + ControlNetTensorCount + AudioTensorCount;
+            if (totalCount > 0)
+            {
+                var index = 0;
+                var validTensors = new Tensor<float>[totalCount];
+                if (RunOptions.InputImages != null)
                 {
-                    if (tensor is not null)
-                        validTensors.Add(tensor.GetChannels(3).ToTensor());
+                    foreach (var tensor in RunOptions.InputImages)
+                        validTensors[index++] = tensor;
                 }
+
+                if (RunOptions.InputControlImages != null)
+                {
+                    foreach (var tensor in RunOptions.InputControlImages)
+                        validTensors[index++] = tensor;
+                }
+
+                if (RunOptions.InputAudios != null)
+                {
+                    foreach (var tensor in RunOptions.InputAudios)
+                        validTensors[index++] = tensor;
+                }
+                Tensors = validTensors;
+            }
+        }
+
+
+        public void UnpackTensors()
+        {
+            if (RunOptions == null || Tensors == null)
+                return;
+
+            if (ImageTensorCount > 0)
+            {
+                RunOptions.InputImages = Tensors
+                    .Take(ImageTensorCount)
+                    .Select(x => x.AsImageTensor())
+                    .ToList();
             }
 
-            AddTensors(options.InputImages);
-            AddTensors(options.InputControlImages);
-            validTensors.AddRange(options.InputAudios);
-            if (validTensors.Count == 0)
-                return default;
+            if (ControlNetTensorCount > 0)
+            {
+                RunOptions.InputControlImages = Tensors
+                    .Skip(ImageTensorCount)
+                    .Take(ControlNetTensorCount)
+                    .Select(x => x.AsImageTensor())
+                    .ToList();
+            }
 
-            return validTensors;
+            if (AudioTensorCount > 0)
+            {
+                RunOptions.InputAudios = Tensors
+                    .Take(AudioTensorCount)
+                    .Select(x => x.AsAudioTensor(RunOptions.SampleRate))
+                    .ToList();
+            }
         }
     }
 

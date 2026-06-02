@@ -1,5 +1,6 @@
 ﻿using Amuse.App.Common;
 using Amuse.App.Services;
+using Amuse.Common;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
@@ -7,7 +8,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using TensorStack.Common;
 using TensorStack.Image;
-using TensorStack.Python.Common;
 using TensorStack.WPF.Controls;
 using TensorStack.WPF.Services;
 
@@ -24,8 +24,8 @@ namespace Amuse.App.Views
         /// <summary>
         /// Initializes a new instance of the <see cref="ImageToImageView"/> class.
         /// </summary>
-        public ImageToImageView(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IModelDownloadService downloadService, IDiffusionService diffusionService, IExtractService extractService, IUpscaleService upscaleService, IHistoryService historyService, ILogger<ImageToImageView> logger)
-            : base(settings, navigationService, environmentService, downloadService, diffusionService, extractService, upscaleService, historyService, logger)
+        public ImageToImageView(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IDiffusionService diffusionService, IExtractService extractService, IUpscaleService upscaleService, IHistoryService historyService, ILogger<ImageToImageView> logger)
+            : base(settings, navigationService, downloadService, diffusionService, extractService, upscaleService, historyService, logger)
         {
             InitializeComponent();
         }

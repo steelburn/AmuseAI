@@ -1,11 +1,11 @@
 ﻿using Amuse.App.Common;
 using Amuse.App.Views;
+using Amuse.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using TensorStack.Python.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 
@@ -231,7 +231,7 @@ namespace Amuse.App.Controls
                               ?? newModel?.Resolutions.OrderByDescending(x => x.IsDefault).FirstOrDefault();
 
             //Schedulers
-            Schedulers = newOptions.Schedulers.GetSchedulers().Select(SchedulerInputOptions.Create).ToArray();
+            Schedulers = newOptions.Schedulers.Copy();
             Options.SchedulerOptions = Schedulers.FirstOrDefault(x => x.Scheduler == newOptions.Scheduler);
 
             // Automation

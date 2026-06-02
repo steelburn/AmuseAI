@@ -2,10 +2,10 @@
 // Licensed under the Apache 2.0 License.
 using Amuse.App.Common;
 using Amuse.App.Services;
+using Amuse.Common;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using TensorStack.Python.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 
@@ -107,7 +107,10 @@ namespace Amuse.App.Dialogs
                     await _environmentService.CreateAsync(_environment, _progressCallback, _cancellation.Token);
                 await base.SaveAsync();
             }
-            catch (OperationCanceledException) { }
+            catch (OperationCanceledException)
+            {
+                await base.CloseAsync();
+            }
         }
 
 
@@ -125,8 +128,10 @@ namespace Amuse.App.Dialogs
                 await _environmentService.UpdateAsync(_environment, _progressCallback, _cancellation.Token);
                 await base.SaveAsync();
             }
-            catch (OperationCanceledException) { }
-           
+            catch (OperationCanceledException)
+            {
+                await base.CloseAsync();
+            }
         }
 
 
@@ -144,7 +149,10 @@ namespace Amuse.App.Dialogs
                 await _environmentService.RebuildAsync(_environment, _progressCallback, _cancellation.Token);
                 await base.SaveAsync();
             }
-            catch (OperationCanceledException) { }
+            catch (OperationCanceledException)
+            {
+                await base.CloseAsync();
+            }
         }
 
 

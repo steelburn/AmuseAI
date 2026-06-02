@@ -128,14 +128,16 @@
                 </DockPanel>
 
                 <!--LoRA-->
-                <DockPanel Visibility="{Binding IsLoraEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <TextBox DockPanel.Dock="Left" Text="LoRA" IsReadOnly="True" IsHitTestVisible="False" Width="60" FontStyle="Italic" FontSize="11" Opacity="0.7" Padding="4,2,0,0"/>
-                    <Grid>
-                        <Controls:LoraAdapterControl 
-                            LoraCollectionView="{Binding LoraCollectionView}"
-                            LoraAdapters="{Binding LoraAdapters, Mode=TwoWay}"/>
-                    </Grid>
-                </DockPanel>
+                <Grid Visibility="{Binding IsLoraSupported, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <DockPanel Visibility="{Binding IsLoraEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBox DockPanel.Dock="Left" Text="LoRA" IsReadOnly="True" IsHitTestVisible="False" Width="60" FontStyle="Italic" FontSize="11" Opacity="0.7" Padding="4,2,0,0"/>
+                        <Grid>
+                            <Controls:LoraAdapterControl 
+                                LoraCollectionView="{Binding LoraCollectionView}"
+                                LoraAdapters="{Binding LoraAdapters, Mode=TwoWay}"/>
+                        </Grid>
+                    </DockPanel>
+                </Grid>
 
                 <!--Upscale-->
                 <DockPanel Visibility="{Binding IsUpscalerEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">

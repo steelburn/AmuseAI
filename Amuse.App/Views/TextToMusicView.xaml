@@ -40,7 +40,6 @@
                                         Settings="{Binding Settings, Mode=OneWay}" 
                                         IsPipelineLoaded="{Binding IsPipelineLoaded, Mode=OneWay}"
                                         DownloadService="{Binding DownloadService, Mode=OneTime}"
-                                        EnvironmentService="{Binding EnvironmentService, Mode=OneTime}"
                                         NavigationService="{Binding NavigationService, Mode=OneTime}"
                                         SelectionChanged="SelectedPipelineChanged"/>
                                 </Grid>
@@ -90,10 +89,10 @@
                                     IsExecuting="{Binding DiffusionService.IsExecuting, Mode=OneWay}"
                                     IsAutomating="{Binding IsAutomating, Mode=OneWay}"
                                     IsEnabled="{Binding IsPipelineLoaded}"/>
-                                <DockPanel Margin="0,-18,0,0" Visibility="{Binding SelectedOption, ElementName=InputControl, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Options}">
+                                <DockPanel Margin="0,-6,0,0" Visibility="{Binding SelectedOption, ElementName=InputControl, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Options}">
                                     <TextBlock DockPanel.Dock="Top" Text="Reference Audio (optional)" Style="{StaticResource FieldTextBlockStyle}" Margin="0,0,0,2"/>
                                     <CommonControls:AudioStreamElement 
-                                        Height="120"
+                                        Height="160"
                                         Source="{Binding SourceAudio, Mode=TwoWay}" 
                                         IsInputEnabled="{Binding IsPipelineLoaded}"
                                         IsLoadEnabled="True" 

@@ -15,8 +15,8 @@ namespace Amuse.App.Views
     public partial class ImageComposeView : ViewBase
     {
 
-        public ImageComposeView(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IModelDownloadService downloadService, IHistoryService historyService, ILogger<SettingsControlNetView> logger)
-            : base(settings, navigationService, environmentService, downloadService, historyService, logger)
+        public ImageComposeView(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IHistoryService historyService, ILogger<SettingsControlNetView> logger)
+            : base(settings, navigationService, downloadService, historyService, logger)
         {
             InitializeComponent();
         }

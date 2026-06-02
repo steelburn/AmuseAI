@@ -1,4 +1,5 @@
-﻿using TensorStack.Python.Common;
+﻿
+using Amuse.Common;
 using TensorStack.WPF;
 
 namespace Amuse.App.Common
@@ -11,7 +12,6 @@ namespace Amuse.App.Common
         private ExtractModel _extractModel;
         private LoraAdapterModel[] _loraAdapterModel;
         private UpscaleModel _upscaleModel;
-        private AudioModel _audioModel;
         private MemoryMode _memoryMode;
         private ProcessType _processType;
         private QualityMode _qualityMode;
@@ -50,12 +50,6 @@ namespace Amuse.App.Common
         {
             get { return _upscaleModel; }
             set { SetProperty(ref _upscaleModel, value); }
-        }
-
-        public AudioModel AudioModel
-        {
-            get { return _audioModel; }
-            set { SetProperty(ref _audioModel, value); }
         }
 
         public ProcessType ProcessType

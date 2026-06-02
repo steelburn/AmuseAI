@@ -24,8 +24,8 @@ namespace Amuse.App.Views
         /// <summary>
         /// Initializes a new instance of the <see cref="ImageUpscaleView"/> class.
         /// </summary>
-        public ImageUpscaleView(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IModelDownloadService downloadService, IHistoryService historyService, IUpscaleService upscaleService, ILogger<ImageUpscaleView> logger)
-            : base(settings, navigationService, environmentService, downloadService, historyService, logger)
+        public ImageUpscaleView(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IHistoryService historyService, IUpscaleService upscaleService, ILogger<ImageUpscaleView> logger)
+            : base(settings, navigationService, downloadService, historyService, logger)
         {
             UpscaleService = upscaleService;
             InitializeComponent();
@@ -346,9 +346,6 @@ namespace Amuse.App.Views
                 else
                 {
                     Progress.Indeterminate($"Loading {pipeline.UpscaleModel.Name}...");
-
-                    if (!await DownloadModels(pipeline))
-                        return; // Canceled/Failed to download models
 
                     if (!await LoadPipelineAsync())
                         return; // Canceled/Failed to load pipeline

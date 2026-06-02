@@ -24,14 +24,32 @@ namespace Amuse.App
         private bool _isUpdateEnabled = false;
         private bool _isUpdateAvailable;
 
+        public Settings()
+        {
+            Pipelines = Enum.GetValues<PipelineType>();
+            DiffusionPipelines = Pipelines.Where(x => (int)x < 500).ToArray();
+        }
+
         [AppDefault]
         public int Version { get; set; }
         public VendorType[] Vendors { get; set; }
         public int DefaultDeviceId { get; set; }
-        public string DirectoryTemp { get; set; }
-        public string DirectoryModel { get; set; }
-        public string DirectoryHistory { get; set; }
-        public string SecureToken { get; set; }
+        public string DirectoryTemp { get; private set; }
+        public string DirectoryHistory { get; private set; }
+        public string DirectoryModel { get; private set; }
+
+        [JsonIgnore]
+        public string DirectoryLoraAdapter { get; private set; }
+
+        [JsonIgnore]
+        public string DirectoryControlNet { get; private set; }
+
+        [JsonIgnore]
+        public string DirectoryUpscale { get; private set; }
+
+        [JsonIgnore]
+        public string DirectoryExtract { get; private set; }
+
         public int ReadBuffer { get; set; } = 32;
         public int WriteBuffer { get; set; } = 32;
         public string VideoCodec { get; set; } = "mp4v";
@@ -40,6 +58,7 @@ namespace Amuse.App
         public bool IsOptimizeDeviceEnabled { get; set; } = false;
         public bool IsOptimizeChannelsEnabled { get; set; } = false;
         public bool IsDeviceQuantizationEnabled { get; set; } = false;
+        public bool IsBackendOverrideEnabled { get; set; } = false;
         public bool IsHistoryRecentItemsEnabled { get; set; } = true;
         public bool IsHistoryAutoSortEnabled { get; set; } = true;
 
@@ -99,13 +118,13 @@ namespace Amuse.App
         }
 
         [AppDefault]
+        public AccessTokenModel[] AccessTokens { get; set; }
+
+        [AppDefault]
         public ObservableCollection<EnvironmentModel> Environments { get; set; }
 
         [AppDefault]
-        public ObservableCollection<UpscaleModel> UpscaleModels { get; set; }
-
-        [AppDefault]
-        public ObservableCollection<AudioModel> AudioModels { get; set; }
+        public ObservableCollection<ComponentModel> Components { get; set; }
 
         [AppDefault]
         public ObservableCollection<DiffusionModel> DiffusionModels { get; set; }
@@ -117,6 +136,9 @@ namespace Amuse.App
         public ObservableCollection<ControlNetModel> ControlNetModels { get; set; }
 
         [AppDefault]
+        public ObservableCollection<UpscaleModel> UpscaleModels { get; set; }
+
+        [AppDefault]
         public ObservableCollection<ExtractModel> ExtractModels { get; set; }
 
         [JsonIgnore]
@@ -124,26 +146,24 @@ namespace Amuse.App
 
         [JsonIgnore]
         public TemplateSettings Templates { get; set; }
-     
+
 
         public async Task Initialize(string directoryData)
         {
             if (string.IsNullOrEmpty(DirectoryTemp) || !Path.Exists(DirectoryTemp))
                 DirectoryTemp = Path.Combine(directoryData, "Temp");
-            if (string.IsNullOrEmpty(DirectoryModel) || !Path.Exists(DirectoryModel))
-                DirectoryModel = Path.Combine(directoryData, "Models");
             if (string.IsNullOrEmpty(DirectoryHistory) || !Path.Exists(DirectoryHistory))
                 DirectoryHistory = Path.Combine(directoryData, "History");
 
-            var templateSettings = Path.Combine(App.DirectoryData, "Templates.json");
+            Directory.CreateDirectory(DirectoryTemp);
+            Directory.CreateDirectory(DirectoryHistory);
+            CreateModelDirectory(directoryData);
+
+            var templateSettings = Path.Combine(directoryData, "Templates.json");
             if (File.Exists(templateSettings))
             {
                 Templates = await Json.LoadAsync<TemplateSettings>(templateSettings);
             }
-
-            Directory.CreateDirectory(DirectoryTemp);
-            Directory.CreateDirectory(DirectoryModel);
-            Directory.CreateDirectory(DirectoryHistory);
 
             ScanModels();
             SettingsManager.Save(this);
@@ -192,67 +212,82 @@ namespace Amuse.App
 
                 pipeline.ExtractModel.IsDefault = true;
             }
-            if (pipeline.AudioModel != null)
-            {
-                var defaultModel = AudioModels.FirstOrDefault(x => x.IsDefault);
-                if (defaultModel is not null)
-                    defaultModel.IsDefault = false;
-
-                pipeline.AudioModel.IsDefault = true;
-            }
 
             DefaultDeviceId = pipeline.Device.Id;
             await SettingsManager.SaveAsync(this);
         }
 
 
-        public HashSet<string> GetPipelines()
-        {
-            var pipelines = new HashSet<string>(
-            [
-                "ChromaPipeline",
-                "CogVideoXPipeline",
-                "FluxPipeline",
-                "Flux2Pipeline",
-                "Flux2KleinPipeline",
-                "HeliosPipeline",
-                "Kandinsky5Pipeline",
-                "LTXPipeline",
-                "LTX20Pipeline",
-                "LTX23Pipeline",
-                "QwenImagePipeline",
-                "SkyReelsV2Pipeline",
-                "StableDiffusion3Pipeline",
-                "StableDiffusionXLPipeline",
-                "WanPipeline",
-                "ZImagePipeline"
-            ]);
-
-            foreach (var pipeline in DiffusionModels.Select(x => x.Pipeline).Distinct())
-            {
-                pipelines.Add(pipeline);
-            }
-            return pipelines;
-        }
-
-
         public void ScanModels()
         {
-            var upscaleDirectory = Path.Combine(DirectoryModel, "Upscale");
-            foreach (var upscaleModel in UpscaleModels)
-                upscaleModel.Initialize(upscaleDirectory);
-            var extractDirectory = Path.Combine(DirectoryModel, "Extract");
-            foreach (var extractModel in ExtractModels)
-                extractModel.Initialize(extractDirectory);
-            var audioDirectory = Path.Combine(DirectoryModel, "Audio");
-            foreach (var audioModel in AudioModels)
-                audioModel.Initialize(audioDirectory);
+            foreach (var component in Components)
+                component.Initialize(this);
+
             foreach (var diffusionModel in DiffusionModels)
-                diffusionModel.Initialize(DirectoryModel);
+                diffusionModel.Initialize(this);
+
             foreach (var loraAdapterModel in LoraAdapterModels)
-                loraAdapterModel.Initialize(DirectoryModel);
+                loraAdapterModel.Initialize(this);
+
             foreach (var controlNetModel in ControlNetModels)
-                controlNetModel.Initialize(DirectoryModel);
+                controlNetModel.Initialize(this);
+
+            foreach (var upscaleModel in UpscaleModels)
+                upscaleModel.Initialize(this);
+
+            foreach (var extractModel in ExtractModels)
+                extractModel.Initialize(this);
         }
+
+
+        public void SetTempDirectory(string directory)
+        {
+            DirectoryTemp = directory;
+            Directory.CreateDirectory(directory);
+        }
+
+
+        public void SetHistoryDirectory(string directory)
+        {
+            DirectoryHistory = directory;
+            Directory.CreateDirectory(directory);
+        }
+
+
+        public void SetModelDirectory(string directory)
+        {
+            DirectoryModel = directory;
+            DirectoryUpscale = Path.Combine(directory, "Upscale");
+            DirectoryExtract = Path.Combine(directory, "Extract");
+            DirectoryControlNet = Path.Combine(directory, "ControlNet");
+            DirectoryLoraAdapter = Path.Combine(directory, "LoraAdapter");
+            CreateModelDirectories();
+        }
+
+
+        private void CreateModelDirectory(string directoryData)
+        {
+            if (string.IsNullOrEmpty(DirectoryModel) || !Path.Exists(DirectoryModel))
+                DirectoryModel = Path.Combine(directoryData, "Models");
+
+            SetModelDirectory(DirectoryModel);
+        }
+
+
+        private void CreateModelDirectories()
+        {
+            Directory.CreateDirectory(DirectoryModel);
+            Directory.CreateDirectory(DirectoryUpscale);
+            Directory.CreateDirectory(DirectoryExtract);
+            Directory.CreateDirectory(DirectoryControlNet);
+            Directory.CreateDirectory(DirectoryLoraAdapter);
+        }
+
+
+        [JsonIgnore]
+        public PipelineType[] Pipelines { get; }
+
+        [JsonIgnore]
+        public PipelineType[] DiffusionPipelines { get; }
     }
 }

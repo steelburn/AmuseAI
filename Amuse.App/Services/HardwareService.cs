@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using TensorStack.Common;
 using TensorStack.Providers;
@@ -39,7 +40,7 @@ namespace Amuse.App.Services
             Provider.Initialize();
             _hardwareSettings = hardwareSettings;
             _cancellationTokenSource = new CancellationTokenSource();
-            _objectSearcherDriver = new ManagementObjectSearcher("root\\CIMV2", "SELECT DeviceName, DriverVersion, Location FROM Win32_PnPSignedDriver");
+            _objectSearcherDriver = new ManagementObjectSearcher("root\\CIMV2", "SELECT DeviceID, DeviceName, DriverVersion, Location FROM Win32_PnPSignedDriver");
             _objectSearcherProcessor = new ManagementObjectSearcher("root\\CIMV2", "SELECT Name FROM Win32_Processor");
             _objectSearcherGPUEngine = new ManagementObjectSearcher("root\\CIMV2", $"SELECT Name, UtilizationPercentage FROM Win32_PerfFormattedData_GPUPerformanceCounters_GPUEngine");
             _objectSearcherGPUMemory = new ManagementObjectSearcher("root\\CIMV2", "SELECT Name, SharedUsage, DedicatedUsage, TotalCommitted FROM Win32_PerfFormattedData_GPUPerformanceCounters_GPUAdapterMemory");
@@ -387,9 +388,15 @@ namespace Amuse.App.Services
                         if (!devices.Contains(deviceName))
                             continue;
 
+                        var deviceType = string.Empty;
+                        var deviceIdStr = result["DeviceID"]?.ToString() ?? string.Empty;
                         var location = result["Location"]?.ToString() ?? string.Empty;
                         var driverVersion = result["DriverVersion"]?.ToString() ?? string.Empty;
-                        versions.Add(new DeviceInfo(deviceName.Trim(), driverVersion, location));
+                        var match = Regex.Match(deviceIdStr, @"DEV_([0-9A-Fa-f]{4})");
+                        if (match.Success)
+                            deviceType = GetDeviceType(deviceIdStr, match.Groups[1].Value.ToUpper());
+
+                        versions.Add(new DeviceInfo(deviceName.Trim(), driverVersion, location, deviceType));
                     }
                 }
 
@@ -487,6 +494,42 @@ namespace Amuse.App.Services
             _cancellationTokenSource.Dispose();
         }
 
+
+        static string GetDeviceType(string device, string deviceId)
+        {
+            if (device.Contains("VEN_1002"))
+            {
+                return deviceId switch
+                {
+                    // -------------------------------------------------------------
+                    // RDNA 4 (Navi 4x / Radeon RX 9000 Series)
+                    // -------------------------------------------------------------
+                    "7483" or "7489" or "749F" => "gfx1200", // (Navi 44 / RDNA4)
+                    "7480" or "7481" or "7490" => "gfx1201", // (Navi 48 / RDNA4)
+
+                    // -------------------------------------------------------------
+                    // RDNA 3 (Navi 3x / Radeon RX 7000 Series)
+                    // -------------------------------------------------------------
+                    "744C" or "7440" or "744E" => "gfx1100",// (Navi 31 / RDNA3)
+                    "7460" or "7461" => "gfx1101",          // (Navi 32 / RDNA3)
+                    "747E" => "gfx1102",                    // (Navi 33 / RDNA3)
+                    "7487" => "gfx1103",                    // (Phoenix/Strix APU)
+
+                    // -------------------------------------------------------------
+                    // RDNA 2 (Navi 2x / Radeon RX 6000 Series)
+                    // -------------------------------------------------------------
+                    "73BF" or "73C0" or "73C1" => "gfx1030",// (Navi 21 / RDNA2)
+                    "73DF" or "73E0" => "gfx1031",          // (Navi 22 / RDNA2)
+                    "741F" or "740C" => "gfx1032",          // (Navi 23 / RDNA2)
+                    "73FF" => "gfx1034",                    // (Navi 24 / RDNA2)
+
+                    // Default fallback
+                    _ => "Unknown"
+                };
+            }
+            return deviceId;
+        }
+
         private record struct GPUUtilization(string AdapterId, string Instance, ulong Utilization, int ProcessId);
         private record struct GPUMemory(string AdapterId, ulong SharedUsage, ulong DedicatedUsage, ulong TotalCommitted, int ProcessId);
     }
@@ -542,7 +585,7 @@ namespace Amuse.App.Services
         public float MemoryAvailable { get; set; }
     }
 
-    public record struct DeviceInfo(string Name, string DriverVersion, string Location);
+    public record struct DeviceInfo(string Name, string DriverVersion, string Location, string DeviceType);
 
     public record GPUDevice
     {
@@ -551,6 +594,7 @@ namespace Amuse.App.Services
             Id = (int)adapter.Id;
             AdapterInfo = adapter;
             Name = adapter.Description;
+            DeviceType = deviceInfo.DeviceType;
             Location = deviceInfo.Location;
             PCIBusId = GetBusId(deviceInfo.Location);
             DriverVersion = deviceInfo.DriverVersion;
@@ -561,6 +605,7 @@ namespace Amuse.App.Services
 
         public int Id { get; }
         public string Name { get; }
+        public string DeviceType { get; }
         public string Location { get; }
         public int PCIBusId { get; }
         public string AdapterId { get; }
@@ -619,6 +664,7 @@ namespace Amuse.App.Services
             Id = (int)adapter.Id;
             AdapterInfo = adapter;
             Name = adapter.Description;
+            DeviceType = deviceInfo.DeviceType;
             DriverVersion = deviceInfo.DriverVersion;
             MemoryTotal = adapter.SharedSystemMemory / 1024f / 1024f;
             AdapterId = $"luid_0x{adapter.AdapterLuid.HighPart:X8}_0x{adapter.AdapterLuid.LowPart:X8}_phys_0";
@@ -626,6 +672,7 @@ namespace Amuse.App.Services
 
         public int Id { get; }
         public string Name { get; }
+        public string DeviceType { get; }
         public string AdapterId { get; }
         public string DriverVersion { get; }
         public float MemoryTotal { get; }

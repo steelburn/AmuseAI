@@ -1,86 +1,187 @@
 ﻿using Amuse.App.Views;
-using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using TensorStack.Common;
 using TensorStack.Common.Common;
 using TensorStack.WPF;
-using TensorStack.WPF.Services;
 
 namespace Amuse.App.Common
 {
     public class UpscaleModel : BaseModel, IDownloadModel
     {
+        private BackendType _backend;
+        private string _name;
+        private PipelineType _pipeline;
+        private View[] _viewFilter;
+        private int _channels = 3;
+        private int _sampleSize;
+        private int _scaleFactor = 1;
+        private float _memorySize = 2;
+        private Normalization _normalization = Normalization.ZeroToOne;
+        private Normalization _outputNormalization = Normalization.OneToOne;
+        private CheckpointComponent _checkpoint;
+        private UpscaleInputOptions _defaultOptions;
         private ModelStatusType _status;
+        private string _accessToken;
+        private bool _isDefault;
+        private string _link;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Id { get; set; }
-        public BackendType Backend { get; set; }
-        public string Name { get; set; }
-        public string Pipeline { get; set; } = "OnnxRuntime";
-        public bool IsDefault { get; set; }
+
+        public BackendType Backend
+        {
+            get { return _backend; }
+            set { SetProperty(ref _backend, value); }
+        }
+
+        public string Name
+        {
+            get { return _name; }
+            set { SetProperty(ref _name, value); }
+        }
+
+        public PipelineType Pipeline
+        {
+            get { return _pipeline; }
+            set { SetProperty(ref _pipeline, value); }
+        }
+
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public View[] ViewFilter { get; set; }
-        public bool IsGated { get; set; }
+        public View[] ViewFilter
+        {
+            get { return _viewFilter; }
+            set { SetProperty(ref _viewFilter, value); }
+        }
+
+        public int Channels
+        {
+            get { return _channels; }
+            set { SetProperty(ref _channels, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int SampleSize
+        {
+            get { return _sampleSize; }
+            set { SetProperty(ref _sampleSize, value); }
+        }
+
+        public int ScaleFactor
+        {
+            get { return _scaleFactor; }
+            set { SetProperty(ref _scaleFactor, value); }
+        }
+
+        public float MemorySize
+        {
+            get { return _memorySize; }
+            set { SetProperty(ref _memorySize, value); }
+        }
+
+        public Normalization Normalization
+        {
+            get { return _normalization; }
+            set { SetProperty(ref _normalization, value); }
+        }
+
+        public Normalization OutputNormalization
+        {
+            get { return _outputNormalization; }
+            set { SetProperty(ref _outputNormalization, value); }
+        }
+
+        public CheckpointComponent Checkpoint
+        {
+            get { return _checkpoint; }
+            set { SetProperty(ref _checkpoint, value); }
+        }
+
+        public UpscaleInputOptions DefaultOptions
+        {
+            get { return _defaultOptions; }
+            set { SetProperty(ref _defaultOptions, value); }
+        }
+
         public ModelStatusType Status
         {
             get { return _status; }
             set { SetProperty(ref _status, value); }
         }
-        public string Link { get; set; }
-        public int Channels { get; set; } = 3;
-        public int SampleSize { get; set; }
-        public int ScaleFactor { get; set; } = 1;
-        public int MemorySize { get; set; } = 2;
-        public Normalization Normalization { get; set; } = Normalization.ZeroToOne;
-        public Normalization OutputNormalization { get; set; } = Normalization.OneToOne;
-        public UpscaleInputOptions DefaultOptions { get; set; }
-        public string[] UrlPaths { get; set; }
 
-        [JsonIgnore]
-        public string Path { get; set; }
-
-
-        public void Initialize(string modelDirectory)
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string AccessToken
         {
-            var isValid = false;
-            var directory = System.IO.Path.Combine(modelDirectory, Name);
-            var modelFiles = FileHelper.GetUrlFileMapping(UrlPaths, directory);
-            if (modelFiles.Values.All(File.Exists))
+            get { return _accessToken; }
+            set { SetProperty(ref _accessToken, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool IsDefault
+        {
+            get { return _isDefault; }
+            set { SetProperty(ref _isDefault, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string Link
+        {
+            get { return _link; }
+            set { SetProperty(ref _link, value); }
+        }
+
+
+        public void Initialize(Settings settings)
+        {
+            Status = GetModelStatus(settings);
+        }
+
+
+        public void Delete(Settings settings)
+        {
+            var resolvedCheckpoint = Checkpoint.Resolve(settings.DirectoryUpscale, settings.Components);
+            if (string.IsNullOrEmpty(resolvedCheckpoint))
+                return;
+
+            if (System.IO.File.Exists(resolvedCheckpoint))
             {
-                isValid = true;
-                Path = modelFiles.Values.First(x => x.EndsWith(".onnx"));
+                FileHelper.DeleteFile(resolvedCheckpoint);
+                FileHelper.DeleteDirectory(System.IO.Path.GetDirectoryName(resolvedCheckpoint), false);
             }
+            else if (System.IO.Directory.Exists(resolvedCheckpoint))
+            {
+                FileHelper.DeleteDirectory(resolvedCheckpoint);
+            }
+        }
 
+
+        public string GetDirectory(Settings settings)
+        {
+            var resolvedCheckpoint = Checkpoint.Resolve(settings.DirectoryUpscale, settings.Components);
+            if (string.IsNullOrEmpty(resolvedCheckpoint))
+                return null;
+
+            if (System.IO.Directory.Exists(resolvedCheckpoint))
+                return resolvedCheckpoint;
+
+            return System.IO.Path.GetDirectoryName(resolvedCheckpoint);
+        }
+
+
+        private ModelStatusType GetModelStatus(Settings settings)
+        {
+            if (Checkpoint == null)
+                return ModelStatusType.Pending;
+
+            var isValid = Checkpoint.IsInstalled(settings.DirectoryUpscale, settings.Components);
             if (Status == ModelStatusType.Pending && isValid)
-                Status = ModelStatusType.Installed;
+                return ModelStatusType.Installed;
             else if (Status == ModelStatusType.Installed && !isValid)
-                Status = ModelStatusType.Pending;
-            else if (Status == ModelStatusType.Downloading || Status == ModelStatusType.DownloadQueue || Status == ModelStatusType.DownloadFailed || Status == ModelStatusType.Verifying)
-                Status = ModelStatusType.Pending;
-        }
+                return ModelStatusType.Pending;
+            else if (Status == ModelStatusType.Downloading || Status == ModelStatusType.DownloadQueue || Status == ModelStatusType.DownloadFailed)
+                return ModelStatusType.Pending;
 
-
-        public void Delete(string modelDirectory)
-        {
-            FileHelper.DeleteDirectory(System.IO.Path.GetDirectoryName(Path));
-        }
-
-
-        public string GetDirectory(string modelDirectory)
-        {
-            return System.IO.Path.GetDirectoryName(Path);
-        }
-
-
-        public async Task<bool> DownloadAsync(string modelDirectory)
-        {
-            var directory = System.IO.Path.Combine(modelDirectory, Name);
-            if (await DialogService.DownloadAsync($"Download '{Name}' model?", UrlPaths, directory))
-                Initialize(modelDirectory);
-
-            return Status == ModelStatusType.Installed;
+            return Status;
         }
 
 
@@ -91,24 +192,18 @@ namespace Amuse.App.Common
                 Id = id,
                 Backend = Backend,
                 Name = Name,
-                Path = Path,
+                Pipeline = Pipeline,
                 Channels = Channels,
-                IsDefault = IsDefault,
                 Normalization = Normalization,
                 OutputNormalization = OutputNormalization,
                 SampleSize = SampleSize,
                 ScaleFactor = ScaleFactor,
-                UrlPaths = UrlPaths?.ToArray(),
-                IsGated = IsGated,
-                Link = Link,
                 ViewFilter = ViewFilter?.ToArray(),
+                Checkpoint = Checkpoint.DeepClone(),
+                DefaultOptions = DefaultOptions.DeepClone(),
                 MemorySize = MemorySize,
-                DefaultOptions = new UpscaleInputOptions
-                {
-                    IsTileEnabled = DefaultOptions.IsTileEnabled,
-                    TileOverlap = DefaultOptions.TileOverlap,
-                    TileSize = DefaultOptions.TileSize,
-                }
+                AccessToken = AccessToken,
+                Link = Link
             };
         }
     }

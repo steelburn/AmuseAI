@@ -5,8 +5,7 @@
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:CoreCommon="clr-namespace:TensorStack.Common;assembly=TensorStack.Common"
              xmlns:CommonControls="clr-namespace:TensorStack.WPF.Controls;assembly=TensorStack.WPF"
-             xmlns:PythonOptions="clr-namespace:TensorStack.Python.Common;assembly=TensorStack.Python"
-             xmlns:PythonScheduler="clr-namespace:TensorStack.Python.Scheduler;assembly=TensorStack.Python"
+             xmlns:AmuseCommon="clr-namespace:Amuse.Common;assembly=Amuse.Common"
              xmlns:Extractors="clr-namespace:TensorStack.Extractors.Common;assembly=TensorStack.Extractors"
              xmlns:Whisper="clr-namespace:TensorStack.TextGeneration.Pipelines.Whisper;assembly=TensorStack.TextGeneration"
              xmlns:TextGeneration="clr-namespace:TensorStack.TextGeneration.Common;assembly=TensorStack.TextGeneration"
@@ -39,6 +38,12 @@
             <ObjectDataProvider x:Key="NormalizationType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
                     <x:Type TypeName="CoreCommon:Normalization"/>
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+
+            <ObjectDataProvider x:Key="BackendType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:Type TypeName="CoreCommon:BackendType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
@@ -90,93 +95,99 @@
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
+            <ObjectDataProvider x:Key="CheckpointType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:Type TypeName="Common:CheckpointType"/>
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+            
             <ObjectDataProvider x:Key="QuantizationType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonOptions:QuantizationType"/>
+                    <x:Type TypeName="AmuseCommon:QuantizationType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="DataType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonOptions:DataType"/>
+                    <x:Type TypeName="AmuseCommon:DataType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="SchedulerType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:SchedulerType"/>
+                    <x:Type TypeName="AmuseCommon:SchedulerType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="TimestepSpacingType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:TimestepSpacingType"/>
+                    <x:Type TypeName="AmuseCommon:TimestepSpacingType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="AlgorithmType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:AlgorithmType"/>
+                    <x:Type TypeName="AmuseCommon:AlgorithmType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="SolverType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:SolverType"/>
+                    <x:Type TypeName="AmuseCommon:SolverType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="BetaScheduleType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:BetaScheduleType"/>
+                    <x:Type TypeName="AmuseCommon:BetaScheduleType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="PredictionType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:PredictionType"/>
+                    <x:Type TypeName="AmuseCommon:PredictionType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="VarianceType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:VarianceType"/>
+                    <x:Type TypeName="AmuseCommon:VarianceType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="FinalSigmasType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:FinalSigmasType"/>
+                    <x:Type TypeName="AmuseCommon:FinalSigmasType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="TimestepType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:TimestepType"/>
+                    <x:Type TypeName="AmuseCommon:TimestepType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="InterpolationType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:InterpolationType"/>
+                    <x:Type TypeName="AmuseCommon:InterpolationType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="TimeShiftType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:TimeShiftType"/>
+                    <x:Type TypeName="AmuseCommon:TimeShiftType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="SigmaScheduleType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:SigmaScheduleType"/>
+                    <x:Type TypeName="AmuseCommon:SigmaScheduleType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
             <ObjectDataProvider x:Key="UpscaleModeType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="PythonScheduler:UpscaleModeType"/>
+                    <x:Type TypeName="AmuseCommon:UpscaleModeType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
 
@@ -338,11 +349,6 @@
                         <Setter Property="Color" Value="{StaticResource WarningColour}"/>
                         <Setter Property="ToolTip" Value="Unknown State"/>
                     </DataTrigger>
-                    <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="Verifying">
-                        <Setter Property="Icon" Value="21"/>
-                        <Setter Property="Color" Value="{StaticResource InfoColour}"/>
-                        <Setter Property="ToolTip" Value="Verifying..."/>
-                    </DataTrigger>
                     <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="DownloadQueue">
                         <Setter Property="Icon" Value="f0ed"/>
                         <Setter Property="Color" Value="{StaticResource WarningColour}"/>
@@ -373,10 +379,6 @@
                         <Setter Property="Foreground" Value="{StaticResource WarningColour}"/>
                         <Setter Property="ToolTip" Value="Unknown State"/>
                     </DataTrigger>
-                    <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="Verifying">
-                        <Setter Property="Foreground" Value="{StaticResource InfoColour}"/>
-                        <Setter Property="ToolTip" Value="Verifying..."/>
-                    </DataTrigger>
                     <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="DownloadQueue">
                         <Setter Property="Foreground" Value="{StaticResource WarningColour}"/>
                         <Setter Property="ToolTip" Value="Download Queued..."/>
@@ -406,11 +408,6 @@
                         <Setter Property="Background" Value="{StaticResource WarningColour}"/>
                         <Setter Property="BorderBrush" Value="{StaticResource WarningColour}"/>
                         <Setter Property="ToolTip" Value="Unknown State"/>
-                    </DataTrigger>
-                    <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="Verifying">
-                        <Setter Property="Background" Value="{StaticResource InfoColour}"/>
-                        <Setter Property="BorderBrush" Value="{StaticResource InfoColour}"/>
-                        <Setter Property="ToolTip" Value="Verifying..."/>
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="DownloadQueue">
                         <Setter Property="Background" Value="{StaticResource WarningColour}"/>
@@ -492,16 +489,20 @@
                 <DockPanel>
                     <UniformGrid DockPanel.Dock="Right"  Columns="2">
 
-                        <!--IsGated-->
+                        <!--AccessToken-->
                         <CommonControls:FontAwesome Icon="f084" Size="10" IconStyle="Solid" Opacity=".6"  Width="15" ToolTipService.InitialShowDelay="200">
                             <CommonControls:FontAwesome.Style>
                                 <Style TargetType="{x:Type CommonControls:FontAwesome}" BasedOn="{StaticResource {x:Type CommonControls:FontAwesome}}">
                                     <Setter Property="ToolTip" Value="{x:Null}"/>
                                     <Setter Property="Color" Value="#10FFFFFF"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsGated}" Value="True">
+                                        <DataTrigger Binding="{Binding AccessToken}" Value="HuggingFace">
                                             <Setter Property="Color" Value="{StaticResource WarningColour}"/>
                                             <Setter Property="ToolTip" Value="Gated Model - HuggingFace Authentication Required."/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding AccessToken}" Value="Civitai">
+                                            <Setter Property="Color" Value="{StaticResource WarningColour}"/>
+                                            <Setter Property="ToolTip" Value="Gated Model - Civitai Authentication Required."/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -549,7 +550,7 @@
                         </StackPanel>
 
                         <!--Details-->
-                        <UniformGrid Columns="3" Margin="0,4,0,0" Visibility="{Binding MediaType, Converter={StaticResource InverseEnumToVisibilityConverter}, ConverterParameter=Audio}">
+                        <UniformGrid Columns="3" Margin="0,4,0,0" Visibility="{Binding MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Image|Video}">
                             <StackPanel>
                                 <TextBlock Text="{Binding MediaType, StringFormat={}{0} Size}" Style="{StaticResource FieldTextBlockStyle}" />
                                 <TextBlock>
@@ -583,22 +584,37 @@
                             </StackPanel>
                         </UniformGrid>
 
+                        <UniformGrid Columns="3" Margin="0,4,0,0" Visibility="{Binding MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Text}">
+                            <!--<StackPanel>
+                                <TextBlock Text="Duration" Style="{StaticResource FieldTextBlockStyle}"/>
+                                <TextBlock Text="{Binding Duration, FallbackValue=00:00:00, StringFormat={}mm\\:ss\\.ff}" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="Sample Rate" Style="{StaticResource FieldTextBlockStyle}"/>
+                                <TextBlock Text="{Binding SampleRate, FallbackValue=0hz, StringFormat={}{0}hz}" />
+                            </StackPanel>-->
+                        </UniformGrid>
+
+
                         <!--Prompts-->
-                        <StackPanel Margin="0,4,0,0">
-                            <TextBlock Text="Prompt" Style="{StaticResource FieldTextBlockStyle}" />
-                            <TextBox Text="{Binding Options.Prompt}" Style="{StaticResource TextBlockStyle}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="200"/>
+                        <StackPanel Visibility="{Binding MediaType, Converter={StaticResource InverseEnumToVisibilityConverter}, ConverterParameter=Text}">
+                            <StackPanel Margin="0,4,0,0">
+                                <TextBlock Text="Prompt" Style="{StaticResource FieldTextBlockStyle}" />
+                                <TextBox Text="{Binding Options.Prompt}" Style="{StaticResource TextBlockStyle}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="200"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,4,0,0" Visibility="{Binding Options.NegativePrompt, Converter={StaticResource NullOrEmptyVisibilityConverter}}">
+                                <TextBlock Text="Negative Prompt" Style="{StaticResource FieldTextBlockStyle}" />
+                                <TextBox Text="{Binding Options.NegativePrompt}" Style="{StaticResource TextBlockStyle}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="200"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,4,0,0" Visibility="{Binding Options.Prompt2, Converter={StaticResource NullOrEmptyVisibilityConverter}}">
+                                <TextBlock Text="Prompt2" Style="{StaticResource FieldTextBlockStyle}" />
+                                <TextBox Text="{Binding Options.Prompt2}" Style="{StaticResource TextBlockStyle}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="200"/>
+                            </StackPanel>
                         </StackPanel>
-                        <StackPanel Margin="0,4,0,0" Visibility="{Binding Options.NegativePrompt, Converter={StaticResource NullOrEmptyVisibilityConverter}}">
-                            <TextBlock Text="Negative Prompt" Style="{StaticResource FieldTextBlockStyle}" />
-                            <TextBox Text="{Binding Options.NegativePrompt}" Style="{StaticResource TextBlockStyle}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="200"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,4,0,0" Visibility="{Binding Options.Prompt2, Converter={StaticResource NullOrEmptyVisibilityConverter}}">
-                            <TextBlock Text="Prompt2" Style="{StaticResource FieldTextBlockStyle}" />
-                            <TextBox Text="{Binding Options.Prompt2}" Style="{StaticResource TextBlockStyle}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="200"/>
-                        </StackPanel>
+                   
 
                         <!--Scheduler Settings-->
-                        <UniformGrid Columns="3" Margin="0,4,0,0">
+                        <UniformGrid Columns="3" Margin="0,4,0,0" Visibility="{Binding MediaType, Converter={StaticResource InverseEnumToVisibilityConverter}, ConverterParameter=Text}">
                             <StackPanel>
                                 <TextBlock Text="Seed" Style="{StaticResource FieldTextBlockStyle}" />
                                 <TextBox Text="{Binding Options.Seed}" Style="{StaticResource TextBlockStyle}" />

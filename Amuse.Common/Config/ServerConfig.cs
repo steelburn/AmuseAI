@@ -1,6 +1,8 @@
-﻿namespace Amuse.Common.Config
+﻿using System.Collections.Generic;
+
+namespace Amuse.Common.Config
 {
-    public class ChannelConfig
+    public record ServerConfig
     {
         public int ChunkSize { get; } = 32 * 1024 * 1024; // 32 MB
         public string Name { get; init; }
@@ -9,26 +11,41 @@
         public string ChannelCommand { get; init; }
         public string ChannelPipeName { get; init; }
         public string ChannelProgress { get; init; }
+        public string DirectoryBase { get; init; }
 
-
-        public readonly static ChannelConfig PipelineConfig = new ChannelConfig
+        public static ServerConfig GetConfig(ServerType serverType, string directoryBase = null)
         {
-            Name = "AmuseHost",
-            Executable = "AmuseHost.exe",
-            ChannelCommand = "AmuseHost.Command",
-            ChannelPipeName = "AmuseHost.PipeName",
-            ChannelProgress = "AmuseHost.Progress"
-        };
+            return _configurations[serverType] with
+            {
+                DirectoryBase = directoryBase,
+            };
+        }
 
 
-        public readonly static ChannelConfig DownloadConfig = new ChannelConfig
+        private readonly static Dictionary<ServerType, ServerConfig> _configurations = new Dictionary<ServerType, ServerConfig>
         {
-            Name = "AmuseDownload",
-            Executable = "AmuseHost.exe",
-            Arguments = ["download"],
-            ChannelCommand = "AmuseDownload.Command",
-            ChannelPipeName = "AmuseDownload.PipeName",
-            ChannelProgress = "AmuseDownload.Progress"
+            {
+                ServerType.OnnxRuntime,  new ServerConfig
+                {
+                    Name = "AmuseOnnx",
+                    Arguments = [nameof(ServerType.OnnxRuntime)],
+                    Executable = "AmuseHost.Onnx.exe",
+                    ChannelCommand = "AmuseOnnx.Command",
+                    ChannelPipeName = "AmuseOnnx.PipeName",
+                    ChannelProgress = "AmuseOnnx.Progress"
+                }
+            },
+            {
+                ServerType.PyTorch,  new ServerConfig
+                {
+                    Name = "AmusePyTorch",
+                    Arguments = [nameof(ServerType.PyTorch)],
+                    Executable = "AmuseHost.PyTorch.exe",
+                    ChannelCommand = "AmusePyTorch.Command",
+                    ChannelPipeName = "AmusePyTorch.PipeName",
+                    ChannelProgress = "AmusePyTorch.Progress"
+                }
+            }
         };
     }
 }

@@ -14,8 +14,8 @@ namespace Amuse.App.Views
     /// </summary>
     public partial class SettingsGeneralView : ViewBase
     {
-        public SettingsGeneralView(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IModelDownloadService downloadService, IHistoryService historyService, ILogger<SettingsGeneralView> logger)
-            : base(settings, navigationService, environmentService, downloadService, historyService, logger)
+        public SettingsGeneralView(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IHistoryService historyService, ILogger<SettingsGeneralView> logger)
+            : base(settings, navigationService, downloadService, historyService, logger)
         {
             SaveCommand = new AsyncRelayCommand(SaveAsync);
             MoveModelDirectoryCommand = new AsyncRelayCommand(MoveModelDirectoryAsync);
@@ -47,7 +47,7 @@ namespace Amuse.App.Views
             var moveDialog = DialogService.GetDialog<MoveFolderDialog>();
             if (await moveDialog.ShowDialogAsync(Settings.DirectoryModel, "Models"))
             {
-                Settings.DirectoryModel = moveDialog.DestinationDirectory;
+                Settings.SetModelDirectory(moveDialog.DestinationDirectory);
                 Settings.NotifyPropertyChanged(nameof(Settings.DirectoryModel));
                 await SaveAsync();
             }
@@ -59,7 +59,7 @@ namespace Amuse.App.Views
             var moveDialog = DialogService.GetDialog<MoveFolderDialog>();
             if (await moveDialog.ShowDialogAsync(Settings.DirectoryHistory, "History"))
             {
-                Settings.DirectoryHistory = moveDialog.DestinationDirectory;
+                Settings.SetHistoryDirectory(moveDialog.DestinationDirectory);
                 await HistoryService.InitializeAsync();
                 Settings.NotifyPropertyChanged(nameof(Settings.DirectoryHistory));
                 await SaveAsync();
@@ -72,7 +72,7 @@ namespace Amuse.App.Views
             var moveDialog = DialogService.GetDialog<MoveFolderDialog>();
             if (await moveDialog.ShowDialogAsync(Settings.DirectoryTemp, "Temp"))
             {
-                Settings.DirectoryTemp = moveDialog.DestinationDirectory;
+                Settings.SetTempDirectory(moveDialog.DestinationDirectory);
                 Settings.NotifyPropertyChanged(nameof(Settings.DirectoryTemp));
                 await SaveAsync();
             }

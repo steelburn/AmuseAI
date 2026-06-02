@@ -1,6 +1,4 @@
-﻿using TensorStack.Python.Common;
-
-namespace Amuse.Common.Message
+﻿namespace Amuse.Common.Message
 {
     public class CommandRequest
     {

@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using TensorStack.Common;
-using TensorStack.Common.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 
@@ -20,16 +19,12 @@ namespace Amuse.App.Dialogs
     {
         private ExtractModel _extractModel;
         private ExtractModel _originalExtractModel;
-        private string _selectedFile;
 
         public ExtractModelDialog(Settings settings)
         {
             Settings = settings;
             SaveCommand = new AsyncRelayCommand(SaveAsync, CanExecuteSave);
             CancelCommand = new AsyncRelayCommand(CancelAsync);
-            AddFileCommand = new AsyncRelayCommand(AddFileAsync, CanAddFile);
-            RemoveFileCommand = new AsyncRelayCommand<string>(RemoveFileAsync);
-            Files = new ObservableCollection<string>();
             Errors = new ObservableCollection<string>();
             InitializeComponent();
         }
@@ -38,9 +33,7 @@ namespace Amuse.App.Dialogs
         public AsyncRelayCommand SaveCommand { get; }
         public AsyncRelayCommand CancelCommand { get; }
         public ObservableCollection<string> Errors { get; }
-        public AsyncRelayCommand AddFileCommand { get; }
-        public AsyncRelayCommand<string> RemoveFileCommand { get; }
-        public ObservableCollection<string> Files { get; }
+        public CheckpointType[] CheckpointTypes { get; } = [CheckpointType.OnlineFile, CheckpointType.LocalFile];
         public bool IsUpdateMode => _originalExtractModel is not null;
 
         public ExtractModel ExtractModel
@@ -49,13 +42,6 @@ namespace Amuse.App.Dialogs
             set { SetProperty(ref _extractModel, value); }
         }
 
-        public string SelectedFile
-        {
-            get { return _selectedFile; }
-            set { SetProperty(ref _selectedFile, value); }
-        }
-
-
         public Task<bool> AddAsync()
         {
             var modelId = GetNextModelId();
@@ -63,9 +49,18 @@ namespace Amuse.App.Dialogs
             {
                 Id = modelId,
                 Backend = BackendType.OnnxRuntime,
+                Pipeline = PipelineType.ExtractPipeline,
+                Name = "New Extractor",
+                Checkpoint = new CheckpointComponent
+                {
+                    Name = "Extract",
+                    Type = CheckpointType.LocalFile
+                },
                 DefaultOptions = new ExtractInputOptions
                 {
-
+                    IsTileEnabled = true,
+                    TileOverlap = 16,
+                    TileSize = 512
                 }
             };
             return base.ShowDialogAsync();
@@ -77,10 +72,6 @@ namespace Amuse.App.Dialogs
             var modelId = extractModel.Id;
             _originalExtractModel = extractModel;
             ExtractModel = extractModel.DeepClone(modelId);
-            foreach (var path in ExtractModel.UrlPaths)
-            {
-                Files.Add(path);
-            }
             return base.ShowDialogAsync();
         }
 
@@ -89,10 +80,7 @@ namespace Amuse.App.Dialogs
         {
             var modelId = GetNextModelId();
             ExtractModel = extractModel.DeepClone(modelId);
-            foreach (var path in ExtractModel.UrlPaths)
-            {
-                Files.Add(path);
-            }
+            ExtractModel.Name += " copy";
             return base.ShowDialogAsync();
         }
 
@@ -101,33 +89,7 @@ namespace Amuse.App.Dialogs
         {
             extractModel.Id = GetNextModelId();
             ExtractModel = extractModel;
-            foreach (var path in ExtractModel.UrlPaths)
-            {
-                Files.Add(path);
-            }
             return base.ShowDialogAsync();
-        }
-
-
-        private Task AddFileAsync()
-        {
-            Files.Add(SelectedFile);
-            SelectedFile = null;
-            return Task.CompletedTask;
-        }
-
-
-        private bool CanAddFile()
-        {
-            return !Files.Any(x => x == SelectedFile);
-        }
-
-
-        private Task RemoveFileAsync(string file)
-        {
-            Files.Remove(file);
-            SelectedFile = null;
-            return Task.CompletedTask;
         }
 
 
@@ -139,8 +101,6 @@ namespace Amuse.App.Dialogs
                 index = Settings.ExtractModels.IndexOf(_originalExtractModel);
                 Settings.ExtractModels.Remove(_originalExtractModel);
             }
-
-            ExtractModel.UrlPaths = Files.ToArray();
             Settings.ExtractModels.Insert(index, ExtractModel);
             return base.SaveAsync();
         }
@@ -181,16 +141,32 @@ namespace Amuse.App.Dialogs
 
         private IEnumerable<string> GetValidationErrors()
         {
+            // Name
             if (string.IsNullOrWhiteSpace(ExtractModel.Name))
                 yield return "Name cannot be empty";
-            if (ExtractModel.Channels < 3)
-                yield return "Channels must be >= 3";
+            if (!IsUpdateMode)
+            {
+                if (Settings.ExtractModels.Any(x => x.Name.Equals(ExtractModel.Name, StringComparison.OrdinalIgnoreCase)))
+                    yield return $"Model with Name '{ExtractModel.Name}' already exists";
+            }
+
+            // Options
+            if (ExtractModel.Channels <= 0)
+                yield return "Channels must be > 0";
             if (ExtractModel.SampleSize < 0)
                 yield return "Sample Size must be >= 0";
-            if (Files.IsNullOrEmpty())
-                yield return "No files have been added";
-            if (!IsUpdateMode && Settings.ExtractModels.Any(x => x.Name.Equals(ExtractModel.Name, StringComparison.OrdinalIgnoreCase)))
-                yield return $"Model with name '{ExtractModel.Name}' already exists";
+            if (ExtractModel.MemorySize < 0)
+                yield return "Sample Size must be >= 0";
+
+            //DefaultOptions
+            if (ExtractModel.DefaultOptions.TileSize < 0)
+                yield return "TileSize Size must be >= 0";
+            if (ExtractModel.DefaultOptions.TileOverlap < 0)
+                yield return "TileOverlap Size must be >= 0";
+
+            // Checkpoint
+            if (!ExtractModel.Checkpoint.IsValid(out var checkpointValidation))
+                yield return checkpointValidation;
         }
 
     }

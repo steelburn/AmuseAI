@@ -20,7 +20,7 @@
         </StackPanel>
 
         <!--Environment Settings-->
-        <UniformGrid DockPanel.Dock="Top" Columns="3" >
+        <UniformGrid DockPanel.Dock="Top" Columns="4" >
             <StackPanel Margin="0,0,2,0" IsEnabled="{Binding IsFixedEnvironment, Converter={StaticResource InverseBoolConverter}}">
                 <TextBlock Text="Name" Style="{StaticResource FieldTextBlockStyle}"/>
                 <TextBox Text="{Binding EnvironmentModel.Name, UpdateSourceTrigger=PropertyChanged}" />
@@ -28,6 +28,10 @@
             <StackPanel Margin="2,0,2,0" IsEnabled="{Binding IsFixedEnvironment, Converter={StaticResource InverseBoolConverter}}">
                 <TextBlock Text="Environment" Style="{StaticResource FieldTextBlockStyle}"/>
                 <TextBox Text="{Binding EnvironmentModel.Environment, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+            <StackPanel Margin="2,0,2,0" IsEnabled="{Binding IsFixedEnvironment, Converter={StaticResource InverseBoolConverter}}">
+                <TextBlock Text="Python" Style="{StaticResource FieldTextBlockStyle}"/>
+                <ComboBox SelectedItem="{Binding EnvironmentModel.PythonVersion}" ItemsSource="{Binding PythonVersions}" />
             </StackPanel>
             <StackPanel Margin="2,0,0,0" VerticalAlignment="Bottom" >
                 <CheckBox Content="Default" IsChecked="{Binding EnvironmentModel.IsDefault}" Margin="10,0,0,2"/>
@@ -43,11 +47,11 @@
             <Grid Margin="2,0,0,0" IsEnabled="{Binding IsFixedEnvironment, Converter={StaticResource InverseBoolConverter}}">
                 <StackPanel Visibility="{Binding  EnvironmentModel.Type, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Device}">
                     <TextBlock Text="Device" Style="{StaticResource FieldTextBlockStyle}"/>
-                    <ComboBox ItemsSource="{Binding Settings.Devices}" SelectedItem="{Binding EnvironmentModel.Device}" DisplayMemberPath="Name" SelectedValuePath="HardwareID" SelectedIndex="0" />
+                    <ComboBox ItemsSource="{Binding Settings.Devices}" SelectedValue="{Binding EnvironmentModel.Device}" DisplayMemberPath="Name" SelectedValuePath="HardwareID" SelectedIndex="0"/>
                 </StackPanel>
                 <StackPanel Visibility="{Binding  EnvironmentModel.Type, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Pipeline}">
                     <TextBlock Text="Pipeline" Style="{StaticResource FieldTextBlockStyle}"/>
-                    <ComboBox ItemsSource="{Binding Pipelines}" SelectedItem="{Binding EnvironmentModel.Pipeline}" SelectedIndex="0" />
+                    <ComboBox ItemsSource="{Binding Settings.DiffusionPipelines}" SelectedItem="{Binding EnvironmentModel.Pipeline}" SelectedIndex="0" />
                 </StackPanel>
             </Grid>
         </UniformGrid>

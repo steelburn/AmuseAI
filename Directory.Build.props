@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
-    <Version>3.4.0</Version>
-    <PackageVersion>0.7.0</PackageVersion>
+    <Version>3.5.0</Version>
+    <PackageVersion>0.8.0</PackageVersion>
     <Company>TensorStack</Company>
     <Copyright>TensorStack - 2026</Copyright>
     <RepositoryUrl>https://github.com/TensorStack-AI/AmuseAI</RepositoryUrl>

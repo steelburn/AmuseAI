@@ -1,4 +1,5 @@
-﻿using Amuse.App.Views;
+﻿using Amuse.App.Controls;
+using Amuse.App.Views;
 using System;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
@@ -38,7 +39,7 @@ namespace Amuse.App.Common
 
         public string Model { get; init; }
 
-        public AudioInputOptions Options { get; init; }
+        public DiffusionInputOption Options { get; init; }
 
 
         [JsonIgnore]

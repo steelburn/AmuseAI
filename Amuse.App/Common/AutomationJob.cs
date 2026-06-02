@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+using TensorStack.Audio;
+using TensorStack.Common;
 using TensorStack.Image;
 using TensorStack.Video;
 
@@ -16,7 +18,9 @@ namespace Amuse.App.Common
 
         public string OutputFile { get; init; }
         public ImageInput[] InputImages { get; init; }
+        public TextInput[] InputTexts { get; init; }
         public VideoInputStream[] VideoStreams { get; init; }
+        public AudioInputStream[] AudioStreams { get; init; }
 
         public async Task SaveAsync(ImageInput imageInput)
         {
@@ -26,12 +30,30 @@ namespace Amuse.App.Common
             await imageInput.SaveAsync(OutputFile);
         }
 
+        public async Task SaveAsync(TextInput textInput)
+        {
+            if (string.IsNullOrWhiteSpace(OutputFile))
+                return;
+
+            await textInput.SaveAsync(OutputFile);
+        }
+
         public Task SaveAsync(VideoInputStream videoInput)
         {
             if (string.IsNullOrWhiteSpace(OutputFile))
                 return Task.CompletedTask;
 
             File.Copy(videoInput.SourceFile, OutputFile, true);
+            return Task.CompletedTask;
+        }
+
+
+        public Task SaveAsync(AudioInputStream audioInput)
+        {
+            if (string.IsNullOrWhiteSpace(OutputFile))
+                return Task.CompletedTask;
+
+            File.Copy(audioInput.SourceFile, OutputFile, true);
             return Task.CompletedTask;
         }
     }

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Amuse.Common;
+using System;
 using System.Threading;
 using TensorStack.Common;
-using TensorStack.Python.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 
@@ -13,15 +13,17 @@ namespace Amuse.App.Common
         private float _speed;
         private string _component;
         private string _fileName;
+        private string _description;
+        private string _errorMessage;
 
-        public DownloadQueueItem(int index, IDownloadModel model, bool isVerify)
+        public DownloadQueueItem(int index, IDownloadModel model)
         {
             Index = index;
-            IsVerify = isVerify;
             DownloadModel = model;
             Progress = new ProgressInfo();
             TotalProgress = new ProgressInfo();
             ProgressCallback = new Progress<PipelineProgress>(OnProgress);
+            _description = GetDescription();
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
@@ -32,8 +34,7 @@ namespace Amuse.App.Common
         public CancellationToken CancellationToken => _cancellationTokenSource.Token;
         public ModelStatusType Status => DownloadModel.Status;
         public string Name => DownloadModel?.Name;
-        public string Pipeline => DownloadModel?.Pipeline;
-        public bool IsVerify { get; set; }
+        public string Description => _description;
         public IDownloadModel DownloadModel { get; }
 
         public float Speed
@@ -54,9 +55,15 @@ namespace Amuse.App.Common
             set { SetProperty(ref _fileName, value); }
         }
 
+        public string ErrorMessage
+        {
+            get { return _errorMessage; }
+            set { SetProperty(ref _errorMessage, value); }
+        }
 
         public void Cancel()
         {
+            ErrorMessage = null;
             _cancellationTokenSource.SafeCancel();
         }
 
@@ -82,5 +89,20 @@ namespace Amuse.App.Common
             TotalProgress.Update(progress.BatchValue, progress.BatchMaximum);
         }
 
+
+        private string GetDescription()
+        {
+            try
+            {
+                if (DownloadModel is ComponentModel)
+                    return "Component";
+
+                return $"{DownloadModel.GetType().GetProperty("Pipeline").GetValue(DownloadModel)}";
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+        }
     }
 }

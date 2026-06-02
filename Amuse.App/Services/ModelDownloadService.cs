@@ -1,6 +1,9 @@
 ﻿using Amuse.App.Common;
+using Amuse.App.Dialogs;
+using Amuse.Common;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -8,8 +11,6 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using TensorStack.Common;
-using TensorStack.Python.Common;
-using TensorStack.Python.Config;
 using TensorStack.WPF.Services;
 
 namespace Amuse.App.Services
@@ -18,19 +19,17 @@ namespace Amuse.App.Services
     {
         private readonly ILogger _logger;
         private readonly Settings _settings;
-        private readonly IEnvironmentService _environmentService;
         private readonly Channel<DownloadQueueItem> _downloadQueue;
         private readonly ObservableCollection<DownloadQueueItem> _downloadItems;
         private readonly DownloadService _downloadService;
         private bool _isDownloading;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public ModelDownloadService(Settings settings, IEnvironmentService environmentService, DownloadService downloadService, ILogger<ModelDownloadService> logger)
+        public ModelDownloadService(Settings settings, DownloadService downloadService, ILogger<ModelDownloadService> logger)
         {
             _logger = logger;
             _settings = settings;
             _downloadService = downloadService;
-            _environmentService = environmentService;
             _downloadItems = new ObservableCollection<DownloadQueueItem>();
             _downloadQueue = Channel.CreateUnbounded<DownloadQueueItem>();
             _cancellationTokenSource = new CancellationTokenSource();
@@ -40,16 +39,11 @@ namespace Amuse.App.Services
         public int QueueLength => _downloadItems.Count;
         public bool CanCancel => _downloadItems.Count > 0;
         public ObservableCollection<DownloadQueueItem> Queue => _downloadItems;
+
         public bool IsDownloading
         {
             get { return _isDownloading; }
             private set { SetProperty(ref _isDownloading, value); NotifyPropertyChanged(nameof(CanCancel)); NotifyPropertyChanged(nameof(QueueLength)); }
-        }
-
-        public void Shutdown()
-        {
-            _cancellationTokenSource.SafeCancel();
-            _downloadItems.Clear();
         }
 
 
@@ -58,26 +52,6 @@ namespace Amuse.App.Services
             queueItem.Cancel();
             RemoveQueueItem(queueItem);
             await UpdateStatus(queueItem, ModelStatusType.Pending);
-        }
-
-
-        public async Task CancelAllAsync()
-        {
-            foreach (var queueItem in _downloadItems.OrderByDescending(x => x.Index))
-            {
-                await CancelAsync(queueItem);
-            }
-        }
-
-
-        public async Task<bool> QueueAsync<T>(T model, bool isVerify) where T : IDownloadModel
-        {
-            if (_downloadItems.Any(x => x.DownloadModel is T && x.DownloadModel.Id == model.Id))
-                return false;
-
-            var index = GetNextIndex();
-            var queueItem = new DownloadQueueItem(index, model, isVerify);
-            return await QueueItem(queueItem);
         }
 
 
@@ -91,13 +65,87 @@ namespace Amuse.App.Services
         }
 
 
-        public bool CanQueueItem<T>(T model) where T : IDownloadModel
+        public async Task CancelAllAsync()
         {
-            return _environmentService.IsInstalled();
+            foreach (var queueItem in _downloadItems.OrderByDescending(x => x.Index))
+            {
+                await CancelAsync(queueItem);
+            }
         }
 
 
-        private async Task<bool> QueueItem(DownloadQueueItem queueItem)
+        public void Shutdown()
+        {
+            _cancellationTokenSource.SafeCancel();
+            _downloadItems.Clear();
+        }
+
+
+        public async Task<bool> IsAccessTokenSetAsync(IDownloadModel model)
+        {
+            if (string.IsNullOrWhiteSpace(model.AccessToken))
+                return true;
+
+            var accessToken = _settings.AccessTokens?.FirstOrDefault(x => x.Name.Equals(model.AccessToken, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(accessToken?.Token))
+                return true;
+
+            var dialog = DialogService.GetDialog<GatedModelDialog>();
+            await dialog.ShowDialogAsync(model);
+            return false;
+        }
+
+
+        public async Task<bool> QueueAsync<T>(T model) where T : IDownloadModel
+        {
+            if (!await IsAccessTokenSetAsync(model))
+                return false;
+
+            var existingDownload = _downloadItems.FirstOrDefault(x => x.DownloadModel is T && x.DownloadModel.Id == model.Id);
+            if (existingDownload != null)
+            {
+                if (existingDownload.Status != ModelStatusType.DownloadFailed)
+                    return false;
+
+                await CancelAsync(existingDownload);
+            }
+
+
+            if (model is DiffusionModel diffusionModel)
+            {
+                foreach (var checkpointComponent in diffusionModel.Checkpoint.GetComponents())
+                {
+                    if (checkpointComponent.Type != CheckpointType.Component)
+                        continue;
+
+                    var component = _settings.Components.FirstOrDefault(x => x.Key == checkpointComponent.Path);
+                    if (component == null)
+                        continue; // throw?
+
+                    if (component.Status == ModelStatusType.Installed)
+                        continue;
+
+                    if (_downloadItems.Any(x => x.DownloadModel is ComponentModel && x.DownloadModel.Id == component.Id))
+                        continue;
+
+                    if (!await CreateQueueItem(component))
+                        continue; // throw?
+                }
+            }
+
+            return await CreateQueueItem(model);
+        }
+
+
+        private async Task<bool> CreateQueueItem<T>(T model) where T : IDownloadModel
+        {
+            var index = GetNextIndex();
+            var queueItem = new DownloadQueueItem(index, model);
+            return await AddQueueItem(queueItem);
+        }
+
+
+        private async Task<bool> AddQueueItem(DownloadQueueItem queueItem)
         {
             await UpdateStatus(queueItem, ModelStatusType.DownloadQueue);
             if (_downloadQueue.Writer.TryWrite(queueItem))
@@ -120,69 +168,36 @@ namespace Amuse.App.Services
                     return;
 
                 IsDownloading = true;
-                await UpdateStatus(queueItem, queueItem.IsVerify ? ModelStatusType.Verifying : ModelStatusType.Downloading);
+                await UpdateStatus(queueItem, ModelStatusType.Downloading);
                 queueItem.Progress.Indeterminate();
 
-                if (queueItem.DownloadModel is ExtractModel extractModel)
+                var components = _settings.Components;
+                if (queueItem.DownloadModel is ComponentModel componentModel)
                 {
-                    await _downloadService.DownloadAsync([.. extractModel.UrlPaths], Path.Combine(_settings.DirectoryModel, "Extract", extractModel.Name), CreateProgressCallback(queueItem), queueItem.CancellationToken);
+                    await DownloadComponentAsync(queueItem, componentModel);
                 }
                 else if (queueItem.DownloadModel is UpscaleModel upscaleModel)
                 {
-                    await _downloadService.DownloadAsync([.. upscaleModel.UrlPaths], Path.Combine(_settings.DirectoryModel, "Upscale", upscaleModel.Name), CreateProgressCallback(queueItem), queueItem.CancellationToken);
+                    await DownloadCheckpointAsync(queueItem, _settings.DirectoryUpscale, upscaleModel.Checkpoint, components);
                 }
-                else if (queueItem.DownloadModel is AudioModel audioModel)
+                else if (queueItem.DownloadModel is ExtractModel extractModel)
                 {
-                    await _downloadService.DownloadAsync([.. audioModel.UrlPaths], Path.Combine(_settings.DirectoryModel, "Audio", audioModel.Name), CreateProgressCallback(queueItem), queueItem.CancellationToken);
+                    await DownloadCheckpointAsync(queueItem, _settings.DirectoryExtract, extractModel.Checkpoint, components);
                 }
-                else
+                else if (queueItem.DownloadModel is ControlNetModel controlNetModel)
                 {
-                    var downloadClient = await _environmentService.CreateDownloadClientAsync(queueItem.ProgressCallback, queueItem.CancellationToken);
-                    if (queueItem.DownloadModel is DiffusionModel diffusionModel)
+                    await DownloadCheckpointAsync(queueItem, _settings.DirectoryControlNet, controlNetModel.Checkpoint, components);
+                }
+                else if (queueItem.DownloadModel is LoraAdapterModel loraAdapterModel)
+                {
+                    await DownloadCheckpointAsync(queueItem, _settings.DirectoryLoraAdapter, loraAdapterModel.Checkpoint, components);
+                }
+                else if (queueItem.DownloadModel is DiffusionModel diffusionModel)
+                {
+                    foreach (var checkpointComponent in diffusionModel.Checkpoint.GetComponents())
                     {
-                        await downloadClient.DownloadAsync(new PipelineConfig
-                        {
-                            Variant = diffusionModel.Variant,
-                            BaseModelPath = diffusionModel.Path,
-                            Pipeline = diffusionModel.Pipeline,
-                            DataType = diffusionModel.BaseType,
-                            CacheDirectory = Path.GetFullPath(_settings.DirectoryModel),
-                            SecureToken = _settings.SecureToken,
-                            MemoryMode = MemoryModeType.OffloadCPU,
-                            CheckpointConfig = diffusionModel.Checkpoint.ToConfig(),
-                            ProcessType = diffusionModel.ProcessTypes.FirstOrDefault()
-                        }, queueItem.CancellationToken);
+                        await DownloadCheckpointAsync(queueItem, _settings.DirectoryModel, checkpointComponent, components);
                     }
-                    else if (queueItem.DownloadModel is LoraAdapterModel loraModel)
-                    {
-                        var models = new LoraAdapterModel[] { loraModel };
-                        await downloadClient.DownloadAsync(new PipelineConfig
-                        {
-                            BaseModelPath = loraModel.Path,
-                            Pipeline = loraModel.Pipeline,
-                            DataType = DataType.Bfloat16,
-                            CacheDirectory = Path.GetFullPath(_settings.DirectoryModel),
-                            SecureToken = _settings.SecureToken,
-                            MemoryMode = MemoryModeType.OffloadCPU,
-                            ProcessType = ProcessType.TextToImage,
-                            LoraAdapters = models.GetLoraAdapters()
-                        }, queueItem.CancellationToken);
-                    }
-                    else if (queueItem.DownloadModel is ControlNetModel controlNetModel)
-                    {
-                        await downloadClient.DownloadAsync(new PipelineConfig
-                        {
-                            BaseModelPath = controlNetModel.Path,
-                            Pipeline = controlNetModel.Pipeline,
-                            DataType = DataType.Bfloat16,
-                            CacheDirectory = Path.GetFullPath(_settings.DirectoryModel),
-                            SecureToken = _settings.SecureToken,
-                            MemoryMode = MemoryModeType.OffloadCPU,
-                            ProcessType = ProcessType.TextToImage,
-                            ControlNet = controlNetModel.GetControlNet()
-                        }, queueItem.CancellationToken);
-                    }
-                    await downloadClient.StopAsync();
                 }
 
                 RemoveQueueItem(queueItem);
@@ -190,12 +205,13 @@ namespace Amuse.App.Services
             }
             catch (OperationCanceledException)
             {
-                await UpdateStatus(queueItem, queueItem.IsVerify ? ModelStatusType.Unknown : ModelStatusType.Pending);
+                await UpdateStatus(queueItem, ModelStatusType.Pending);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 queueItem.Progress.Clear();
-                await UpdateStatus(queueItem, queueItem.IsVerify ? ModelStatusType.Unknown : ModelStatusType.DownloadFailed);
+                queueItem.ErrorMessage = ex.Message;
+                await UpdateStatus(queueItem, ModelStatusType.DownloadFailed);
             }
             finally
             {
@@ -203,6 +219,26 @@ namespace Amuse.App.Services
                 NotifyPropertyChanged(nameof(CanCancel));
                 NotifyPropertyChanged(nameof(QueueLength));
             }
+        }
+
+
+        private async Task DownloadCheckpointAsync(DownloadQueueItem queueItem, string directory, CheckpointComponent checkpoint, IReadOnlyCollection<ComponentModel> components)
+        {
+            if (checkpoint.Type == CheckpointType.OnlineFolder || checkpoint.Type == CheckpointType.OnlineFile)
+            {
+                if (!checkpoint.IsInstalled(directory, components))
+                {
+                    var output = CheckpointComponent.GetSafePath(directory, checkpoint.Folder, checkpoint.Path);
+                    await _downloadService.DownloadAsync([.. checkpoint.DownloadFiles], output, CreateProgressCallback(queueItem), queueItem.CancellationToken);
+                }
+            }
+        }
+
+
+        private async Task DownloadComponentAsync(DownloadQueueItem queueItem, ComponentModel component)
+        {
+            var output = Path.Combine(_settings.DirectoryModel, component.Type, component.Folder);
+            await _downloadService.DownloadAsync([.. component.DownloadFiles], output, CreateProgressCallback(queueItem), queueItem.CancellationToken);
         }
 
 
@@ -266,8 +302,9 @@ namespace Amuse.App.Services
         Task CancelAllAsync();
         Task CancelAsync(DownloadQueueItem model);
 
-        Task<bool> QueueAsync<T>(T model, bool isVerify) where T : IDownloadModel;
+        Task<bool> QueueAsync<T>(T model) where T : IDownloadModel;
         Task CancelAsync<T>(T model) where T : IDownloadModel;
-        bool CanQueueItem<T>(T model) where T : IDownloadModel;
+
+        Task<bool> IsAccessTokenSetAsync(IDownloadModel model);
     }
 }

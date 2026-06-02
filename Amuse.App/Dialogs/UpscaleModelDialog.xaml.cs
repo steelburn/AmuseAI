@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using TensorStack.Common;
-using TensorStack.Common.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 
@@ -20,16 +19,12 @@ namespace Amuse.App.Dialogs
     {
         private UpscaleModel _upscaleModel;
         private UpscaleModel _originalUpscaleModel;
-        private string _selectedFile;
 
         public UpscaleModelDialog(Settings settings)
         {
             Settings = settings;
             SaveCommand = new AsyncRelayCommand(SaveAsync, CanExecuteSave);
             CancelCommand = new AsyncRelayCommand(CancelAsync);
-            AddFileCommand = new AsyncRelayCommand(AddFileAsync, CanAddFile);
-            RemoveFileCommand = new AsyncRelayCommand<string>(RemoveFileAsync);
-            Files = new ObservableCollection<string>();
             Errors = new ObservableCollection<string>();
             InitializeComponent();
         }
@@ -38,21 +33,13 @@ namespace Amuse.App.Dialogs
         public AsyncRelayCommand SaveCommand { get; }
         public AsyncRelayCommand CancelCommand { get; }
         public ObservableCollection<string> Errors { get; }
-        public AsyncRelayCommand AddFileCommand { get; }
-        public AsyncRelayCommand<string> RemoveFileCommand { get; }
-        public ObservableCollection<string> Files { get; }
+        public CheckpointType[] CheckpointTypes { get; } = [CheckpointType.OnlineFile, CheckpointType.LocalFile];
         public bool IsUpdateMode => _originalUpscaleModel is not null;
 
         public UpscaleModel UpscaleModel
         {
             get { return _upscaleModel; }
             set { SetProperty(ref _upscaleModel, value); }
-        }
-
-        public string SelectedFile
-        {
-            get { return _selectedFile; }
-            set { SetProperty(ref _selectedFile, value); }
         }
 
 
@@ -63,6 +50,13 @@ namespace Amuse.App.Dialogs
             {
                 Id = modelId,
                 Backend = BackendType.OnnxRuntime,
+                Pipeline = PipelineType.UpscalePipeline,
+                Name = "New Upscaler",
+                Checkpoint = new CheckpointComponent
+                {
+                    Name = "Upscale",
+                    Type = CheckpointType.LocalFile
+                },
                 DefaultOptions = new UpscaleInputOptions
                 {
                     IsTileEnabled = true,
@@ -79,10 +73,6 @@ namespace Amuse.App.Dialogs
             var modelId = upscaleModel.Id;
             _originalUpscaleModel = upscaleModel;
             UpscaleModel = upscaleModel.DeepClone(modelId);
-            foreach (var path in UpscaleModel.UrlPaths)
-            {
-                Files.Add(path);
-            }
             return base.ShowDialogAsync();
         }
 
@@ -91,10 +81,7 @@ namespace Amuse.App.Dialogs
         {
             var modelId = GetNextModelId();
             UpscaleModel = upscaleModel.DeepClone(modelId);
-            foreach (var path in UpscaleModel.UrlPaths)
-            {
-                Files.Add(path);
-            }
+            UpscaleModel.Name += " copy";
             return base.ShowDialogAsync();
         }
 
@@ -103,33 +90,7 @@ namespace Amuse.App.Dialogs
         {
             upscaleModel.Id = GetNextModelId();
             UpscaleModel = upscaleModel;
-            foreach (var path in UpscaleModel.UrlPaths)
-            {
-                Files.Add(path);
-            }
             return base.ShowDialogAsync();
-        }
-
-
-        private Task AddFileAsync()
-        {
-            Files.Add(SelectedFile);
-            SelectedFile = null;
-            return Task.CompletedTask;
-        }
-
-
-        private bool CanAddFile()
-        {
-            return !Files.Any(x => x == SelectedFile);
-        }
-
-
-        private Task RemoveFileAsync(string file)
-        {
-            Files.Remove(file);
-            SelectedFile = null;
-            return Task.CompletedTask;
         }
 
 
@@ -142,7 +103,6 @@ namespace Amuse.App.Dialogs
                 Settings.UpscaleModels.Remove(_originalUpscaleModel);
             }
 
-            UpscaleModel.UrlPaths = Files.ToArray();
             Settings.UpscaleModels.Insert(index, UpscaleModel);
             return base.SaveAsync();
         }
@@ -183,19 +143,34 @@ namespace Amuse.App.Dialogs
 
         private IEnumerable<string> GetValidationErrors()
         {
+            // Name
             if (string.IsNullOrWhiteSpace(UpscaleModel.Name))
                 yield return "Name cannot be empty";
+            if (!IsUpdateMode)
+            {
+                if (Settings.UpscaleModels.Any(x => x.Name.Equals(UpscaleModel.Name, StringComparison.OrdinalIgnoreCase)))
+                    yield return $"Model with Name '{UpscaleModel.Name}' already exists";
+            }
+
+            // Options
             if (UpscaleModel.Channels < 3)
                 yield return "Channels must be >= 3";
             if (UpscaleModel.ScaleFactor <= 0)
                 yield return "Scale Factor must be > 0";
             if (UpscaleModel.SampleSize < 0)
                 yield return "Sample Size must be >= 0";
-            if (Files.IsNullOrEmpty())
-                yield return "No files have been added";
-            if (!IsUpdateMode && Settings.UpscaleModels.Any(x => x.Name.Equals(UpscaleModel.Name, StringComparison.OrdinalIgnoreCase)))
-                yield return $"Model with name '{UpscaleModel.Name}' already exists";
-        }
+            if (UpscaleModel.MemorySize < 0)
+                yield return "Sample Size must be >= 0";
 
+            //DefaultOptions
+            if (UpscaleModel.DefaultOptions.TileSize < 0)
+                yield return "TileSize Size must be >= 0";
+            if (UpscaleModel.DefaultOptions.TileOverlap < 0)
+                yield return "TileOverlap Size must be >= 0";
+
+            // Checkpoint
+            if (!UpscaleModel.Checkpoint.IsValid(out var checkpointValidation))
+                yield return checkpointValidation;
+        }
     }
 }

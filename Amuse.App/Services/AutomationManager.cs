@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TensorStack.Audio;
 using TensorStack.Common;
 using TensorStack.Image;
 using TensorStack.Video;
@@ -90,7 +91,9 @@ namespace Amuse.App.Services
             {
                 if (inputMediaType == MediaType.Image)
                 {
-                    var imageFiles = Directory.EnumerateFiles(automationOptions.InputDirectory, "*.png").ToArray();
+                    var imageFiles = Directory.EnumerateFiles(automationOptions.InputDirectory, "*.*")
+                       .Where(x => TensorStack.WPF.Common.ImageFileExtensions.Contains(Path.GetExtension(x)))
+                       .ToArray();
                     var seeds = GetSeeds(diffusionOptions.Seed, imageFiles.Length);
                     foreach (var (index, filename) in imageFiles.Index())
                     {
@@ -116,7 +119,9 @@ namespace Amuse.App.Services
                 }
                 else if (inputMediaType == MediaType.Video)
                 {
-                    var videoFiles = Directory.EnumerateFiles(automationOptions.InputDirectory, "*.mp4").ToArray();
+                    var videoFiles = Directory.EnumerateFiles(automationOptions.InputDirectory, "*.*")
+                       .Where(x => TensorStack.WPF.Common.VideoFileExtensions.Contains(Path.GetExtension(x)))
+                       .ToArray();
                     var seeds = GetSeeds(diffusionOptions.Seed, videoFiles.Length);
                     foreach (var (index, filename) in videoFiles.Index())
                     {
@@ -129,6 +134,48 @@ namespace Amuse.App.Services
                             Count = seeds.Length,
                             DiffusionOptions = diffusionOptions with { Seed = seed },
                             VideoStreams = [videoStream],
+                            OutputFile = GetOutputFile(automationOptions, outputMediaType, $"Diffusion_{name}_{seed}")
+                        };
+                    }
+                }
+                else if (inputMediaType == MediaType.Audio)
+                {
+                    var audioFiles = Directory.EnumerateFiles(automationOptions.InputDirectory, "*.*")
+                        .Where(x => TensorStack.WPF.Common.AudioFileExtensions.Contains(Path.GetExtension(x)))
+                        .ToArray();
+                    var seeds = GetSeeds(diffusionOptions.Seed, audioFiles.Length);
+                    foreach (var (index, filename) in audioFiles.Index())
+                    {
+                        var seed = seeds[index];
+                        var name = Path.GetFileNameWithoutExtension(filename);
+                        var audioStream = await AudioInputStream.CreateAsync(filename);
+                        yield return new AutomationJob
+                        {
+                            Id = index + 1,
+                            Count = seeds.Length,
+                            DiffusionOptions = diffusionOptions with { Seed = seed },
+                            AudioStreams = [audioStream],
+                            OutputFile = GetOutputFile(automationOptions, outputMediaType, $"Diffusion_{name}_{seed}")
+                        };
+                    }
+                }
+                else if (inputMediaType == MediaType.Text)
+                {
+                    var textFiles = Directory.EnumerateFiles(automationOptions.InputDirectory, "*.*")
+                        .Where(x => TensorStack.WPF.Common.TextFileExtensions.Contains(Path.GetExtension(x)))
+                        .ToArray();
+                    var seeds = GetSeeds(diffusionOptions.Seed, textFiles.Length);
+                    foreach (var (index, filename) in textFiles.Index())
+                    {
+                        var seed = seeds[index];
+                        var name = Path.GetFileNameWithoutExtension(filename);
+                        var textInput = await TextInput.CreateAsync(filename, System.Text.Encoding.UTF8);
+                        yield return new AutomationJob
+                        {
+                            Id = index + 1,
+                            Count = seeds.Length,
+                            DiffusionOptions = diffusionOptions with { Seed = seed },
+                            InputTexts = [textInput],
                             OutputFile = GetOutputFile(automationOptions, outputMediaType, $"Diffusion_{name}_{seed}")
                         };
                     }
@@ -259,7 +306,7 @@ namespace Amuse.App.Services
                             Id = index + 1,
                             Count = videoFiles.Length,
                             VideoStreams = [videoStream],
-                            InterpolateOptions = interpolateOptions with{ },
+                            InterpolateOptions = interpolateOptions with { },
                             OutputFile = GetOutputFile(automationOptions, outputMediaType, $"Interpolate_{name}")
                         };
                     }

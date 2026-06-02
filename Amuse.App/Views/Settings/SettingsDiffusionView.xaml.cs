@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using TensorStack.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 using TensorStack.WPF.Services;
@@ -20,14 +21,26 @@ namespace Amuse.App.Views
     {
         private DiffusionModel _selectedModel;
         private string _filterText;
+        private string _filterBackend;
+        private string _filterPipeline;
+        private string _filterStatus;
+        private string _filterMediaType;
 
-        public SettingsDiffusionView(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IModelDownloadService downloadService, IHistoryService historyService, ILogger<SettingsDiffusionView> logger)
-            : base(settings, navigationService, environmentService, downloadService, historyService, logger)
+        public SettingsDiffusionView(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IHistoryService historyService, ILogger<SettingsDiffusionView> logger)
+            : base(settings, navigationService, downloadService, historyService, logger)
         {
+            FilterBackends = ["Show All", .. Enum.GetNames<BackendType>()];
+            FilterStatuses = ["Show All", .. Enum.GetNames<ModelStatusType>()];
+            FilterPipelines = ["Show All", .. settings.DiffusionPipelines.Select(x => x.ToString())];
+            FilterMediaTypes = ["Show All", .. Enum.GetNames<MediaType>()];
+            FilterBackend = FilterBackends[0];
+            FilterStatus = FilterStatuses[0];
+            FilterPipeline = FilterPipelines[0];
+            FilterMediaType = FilterMediaTypes[0];
             SaveCommand = new AsyncRelayCommand(SaveAsync);
             AddModelWizardCommand = new AsyncRelayCommand(AddModelWizardAsync);
             CopyModelCommand = new AsyncRelayCommand(CopyModelAsync, () => SelectedModel is not null);
-            UpdateModelCommand = new AsyncRelayCommand(UpdateModelAsync, () => SelectedModel?.Id > Utils.FixedIdRange);
+            UpdateModelCommand = new AsyncRelayCommand(UpdateModelAsync);
             RemoveModelCommand = new AsyncRelayCommand(RemoveModelAsync, () => SelectedModel?.Id > Utils.FixedIdRange);
             ImportModelCommand = new AsyncRelayCommand(ImportModelAsync);
             ExportModelCommand = new AsyncRelayCommand(ExportModelAsync, () => SelectedModel is not null);
@@ -37,6 +50,7 @@ namespace Amuse.App.Views
             DownloadModelCancelCommand = new AsyncRelayCommand(DownloadModelCancelAsync);
             FilterClearCommand = new AsyncRelayCommand(FilterClearAsync, CanClearFilter);
             ModelCollection = new ListCollectionView(settings.DiffusionModels) { Filter = CollectionFilter(), IsLiveSorting = true };
+            ModelCollection.SortDescriptions.Add(new SortDescription(nameof(DiffusionModel.Backend), ListSortDirection.Descending));
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(DiffusionModel.Pipeline), ListSortDirection.Ascending));
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(DiffusionModel.Name), ListSortDirection.Ascending));
             SelectedModel = settings.DiffusionModels.FirstOrDefault();
@@ -57,6 +71,10 @@ namespace Amuse.App.Views
         public AsyncRelayCommand DownloadModelCancelCommand { get; }
         public AsyncRelayCommand FilterClearCommand { get; }
         public ListCollectionView ModelCollection { get; }
+        public string[] FilterBackends { get; }
+        public string[] FilterPipelines { get; }
+        public string[] FilterStatuses { get; }
+        public string[] FilterMediaTypes { get; }
 
         public DiffusionModel SelectedModel
         {
@@ -70,6 +88,29 @@ namespace Amuse.App.Views
             set { SetProperty(ref _filterText, value); ModelCollection?.Refresh(); }
         }
 
+        public string FilterBackend
+        {
+            get { return _filterBackend; }
+            set { SetProperty(ref _filterBackend, value); ModelCollection?.Refresh(); }
+        }
+
+        public string FilterPipeline
+        {
+            get { return _filterPipeline; }
+            set { SetProperty(ref _filterPipeline, value); ModelCollection?.Refresh(); }
+        }
+
+        public string FilterStatus
+        {
+            get { return _filterStatus; }
+            set { SetProperty(ref _filterStatus, value); ModelCollection?.Refresh(); }
+        }
+
+        public string FilterMediaType
+        {
+            get { return _filterMediaType; }
+            set { SetProperty(ref _filterMediaType, value); ModelCollection?.Refresh(); }
+        }
 
         public override Task OpenAsync(OpenViewArgs args = null)
         {
@@ -84,12 +125,39 @@ namespace Amuse.App.Views
                 if (obj is not DiffusionModel model)
                     return false;
 
+                var isvalid = true;
+                if (!string.IsNullOrEmpty(_filterBackend))
+                {
+                    if (Enum.TryParse<BackendType>(_filterBackend, out var backendType))
+                    {
+                        isvalid = isvalid && model.Backend == backendType;
+                    }
+                }
+                if (!string.IsNullOrEmpty(_filterStatus))
+                {
+                    if (Enum.TryParse<ModelStatusType>(_filterStatus, out var statusType))
+                    {
+                        isvalid = isvalid && model.Status == statusType;
+                    }
+                }
+                if (!string.IsNullOrEmpty(_filterMediaType))
+                {
+                    if (Enum.TryParse<MediaType>(_filterMediaType, out var mediaType))
+                    {
+                        isvalid = isvalid && model.MediaType == mediaType;
+                    }
+                }
+                if (!string.IsNullOrEmpty(_filterPipeline))
+                {
+                    isvalid = isvalid && (_filterPipeline == FilterPipelines[0] || model.Pipeline.ToString() == _filterPipeline);
+                }
                 if (!string.IsNullOrEmpty(_filterText))
                 {
-                    return model.Name.Contains(_filterText, StringComparison.OrdinalIgnoreCase)
-                        || model.Pipeline.Contains(_filterText, StringComparison.OrdinalIgnoreCase);
+                    isvalid = isvalid && (model.Name.Contains(_filterText, StringComparison.OrdinalIgnoreCase)
+                                       || model.Pipeline.ToString().Contains(_filterText, StringComparison.OrdinalIgnoreCase));
                 }
-                return true;
+
+                return isvalid;
             };
         }
 
@@ -97,13 +165,21 @@ namespace Amuse.App.Views
         private Task FilterClearAsync()
         {
             FilterText = null;
+            FilterBackend = FilterBackends[0];
+            FilterStatus = FilterStatuses[0];
+            FilterPipeline = FilterPipelines[0];
+            FilterMediaType = FilterMediaTypes[0];
             return Task.CompletedTask;
         }
 
 
         private bool CanClearFilter()
         {
-            return !string.IsNullOrWhiteSpace(_filterText);
+            return !string.IsNullOrWhiteSpace(_filterText)
+                || _filterBackend != FilterBackends[0]
+                || _filterStatus != FilterStatuses[0]
+                || _filterPipeline != FilterPipelines[0]
+                || _filterMediaType != FilterMediaTypes[0];
         }
 
 
@@ -193,7 +269,7 @@ namespace Amuse.App.Views
 
         private Task OpenModelAsync()
         {
-            URL.NavigateToUrl(_selectedModel.GetDirectory(Settings.DirectoryModel));
+            URL.NavigateToUrl(_selectedModel.GetDirectory(Settings));
             return Task.CompletedTask;
         }
 
@@ -202,7 +278,7 @@ namespace Amuse.App.Views
         {
             if (await DialogService.ShowMessageAsync("Delete Model", $"Are you sure you want to delete this model?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Warning, TensorStack.WPF.Dialogs.MessageBoxStyleType.Danger))
             {
-                await Task.Run(() => _selectedModel.Delete(Settings.DirectoryModel));
+                await Task.Run(() => _selectedModel.Delete(Settings));
                 _selectedModel.Status = ModelStatusType.Pending;
                 await SaveAsync();
             }
@@ -211,13 +287,7 @@ namespace Amuse.App.Views
 
         private async Task DownloadModelAsync()
         {
-            var isEnvironmentInstalled = EnvironmentService.IsInstalled();
-            if (!isEnvironmentInstalled)
-            {
-                await DialogService.ShowErrorAsync("Environment Error", "No Environment Found, Please setup an environment and try again.");
-                return;
-            }
-            await DownloadService.QueueAsync(_selectedModel, false);
+            await DownloadService.QueueAsync(_selectedModel);
         }
 
 

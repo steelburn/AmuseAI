@@ -1,11 +1,12 @@
 ﻿using Amuse.App.Common;
 using Amuse.App.Views;
+using Amuse.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using TensorStack.Python.Common;
+using TensorStack.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 
@@ -19,6 +20,8 @@ namespace Amuse.App.Controls
         private bool _isAudioInputEnabled;
         private SchedulerInputOptions[] _schedulers;
         private DiffusionInputOption _selectedOption;
+        private bool _isSupertonicPipeline;
+        private bool _isWhisperPipeline;
 
         public AudioDiffusionInputControl()
         {
@@ -37,6 +40,7 @@ namespace Amuse.App.Controls
         public static readonly DependencyProperty IsExecutingProperty = DependencyProperty.Register(nameof(IsExecuting), typeof(bool), typeof(AudioDiffusionInputControl));
         public static readonly DependencyProperty IsAutomatingProperty = DependencyProperty.Register(nameof(IsAutomating), typeof(bool), typeof(AudioDiffusionInputControl));
         public static readonly DependencyProperty AutomationProgressProperty = DependencyProperty.Register(nameof(AutomationProgress), typeof(ProgressInfo), typeof(AudioDiffusionInputControl));
+        public static readonly DependencyProperty IsMultipleResultProperty = DependencyProperty.Register(nameof(IsMultipleResult), typeof(bool), typeof(AudioDiffusionInputControl));
 
         public View ViewType { get; set; }
         public ProcessType ProcessType { get; set; }
@@ -79,6 +83,12 @@ namespace Amuse.App.Controls
             set { SetValue(IsAutomatingProperty, value); }
         }
 
+        public bool IsMultipleResult
+        {
+            get { return (bool)GetValue(IsMultipleResultProperty); }
+            set { SetValue(IsMultipleResultProperty, value); }
+        }
+
         public bool IsAudioInputEnabled
         {
             get { return _isAudioInputEnabled; }
@@ -95,6 +105,18 @@ namespace Amuse.App.Controls
         {
             get { return _selectedOption; }
             set { SetProperty(ref _selectedOption, value); }
+        }
+
+        public bool IsSupertonicPipeline
+        {
+            get { return _isSupertonicPipeline; }
+            set { SetProperty(ref _isSupertonicPipeline, value); }
+        }
+
+        public bool IsWhisperPipeline
+        {
+            get { return _isWhisperPipeline; }
+            set { SetProperty(ref _isWhisperPipeline, value); }
         }
 
 
@@ -133,20 +155,47 @@ namespace Amuse.App.Controls
                 Steps2 = newOptions.Steps2,
                 GuidanceScale = newOptions.GuidanceScale,
                 GuidanceScale2 = newOptions.GuidanceScale2,
+                IsVaeSlicingEnabled = newOptions.IsVaeSlicingEnabled,
+                IsVaeTilingEnabled = newOptions.IsVaeTilingEnabled,
 
-                Task = "text2music", // "text2music"`, `"cover"`, `"repaint"`, `"extract"`, `"lego"`
-                Duration = 0,
-                Bpm = 80,
-                VocalLanguage = "unknown",
+                Language = "en",
+                Task = newOptions.Task,
+
+                // AceStep
+                Duration = newOptions.Duration,
+                Bpm = newOptions.BPM,
                 Keyscale = null,
                 TimeSignature = null,
                 TrackName = null,
                 Instruction = null,
+
+                //Supertonic
+                Speed = newOptions.Speed,
+                SilenceDuration = newOptions.SilenceDuration,
+
+                //Whisper
+                MinLength = newOptions.MinLength,
+                MaxLength = newOptions.MaxLength,
+                Beams = newOptions.Beams,
+                DiversityLength = newOptions.DiversityLength,
+                LengthPenalty = newOptions.LengthPenalty,
+                NoRepeatNgramSize = newOptions.NoRepeatNgramSize,
+                Temperature = newOptions.Temperature,
+                TopK = newOptions.TopK,
+                TopP = newOptions.TopP,
+                ChunkSize = newOptions.ChunkSize,
+                EarlyStopping = newOptions.EarlyStopping
             };
 
+            IsWhisperPipeline = newModel.Pipeline == PipelineType.WanPipeline;
+            IsSupertonicPipeline = newModel.Pipeline ==  PipelineType.SupertonicPipeline;
+
             //Schedulers
-            Schedulers = newOptions.Schedulers.GetSchedulers().Select(SchedulerInputOptions.Create).ToArray();
-            Options.SchedulerOptions = Schedulers.FirstOrDefault(x => x.Scheduler == newOptions.Scheduler);
+            if (!newOptions.Schedulers.IsNullOrEmpty())
+            {
+                Schedulers = newOptions.Schedulers.Copy();
+                Options.SchedulerOptions = Schedulers.FirstOrDefault(x => x.Scheduler == newOptions.Scheduler);
+            }
 
             // Automation
             AutomationOptions = new AutomationOptions

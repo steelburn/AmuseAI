@@ -2,14 +2,13 @@
 // Licensed under the Apache 2.0 License.
 using Amuse.App.Common;
 using Amuse.App.Views;
+using Amuse.Common;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TensorStack.Common;
-using TensorStack.Python.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 
@@ -23,7 +22,7 @@ namespace Amuse.App.Dialogs
         private SizeOption _selectedSize;
         private DiffusionModel _diffusionModel;
         private DiffusionModel _originalDiffusionModel;
-        private DiffusionCheckpointModel _checkpointModel;
+        private CheckpointModel _checkpointModel;
         private string _frameOptions;
         private SchedulerInputOptions[] _schedulers;
 
@@ -31,13 +30,13 @@ namespace Amuse.App.Dialogs
         {
             Settings = settings;
             DataTypes = [DataType.Bfloat16, DataType.Float16, DataType.Float8, DataType.Int8];
-            ModelSources = [ModelSourceType.HuggingFace, ModelSourceType.Folder, ModelSourceType.SingleFile, ModelSourceType.Checkpoint];
             Sizes = new ObservableCollection<SizeOption>();
             SaveCommand = new AsyncRelayCommand(SaveAsync, CanExecuteSave);
             CancelCommand = new AsyncRelayCommand(CancelAsync);
             AddSizeCommand = new AsyncRelayCommand(AddSizeAsync, CanAddSize);
             RemoveSizeCommand = new AsyncRelayCommand<SizeOption>(RemoveSizeAsync);
             Errors = new ObservableCollection<string>();
+            AccessTokens = [new AccessToken("None", null), .. settings.AccessTokens.Select(x => new AccessToken(x.Name, x.Name))];
             InitializeComponent();
         }
 
@@ -50,7 +49,7 @@ namespace Amuse.App.Dialogs
         public ObservableCollection<SizeOption> Sizes { get; }
         public bool IsUpdateMode => _originalDiffusionModel is not null;
         public DataType[] DataTypes { get; }
-        public ModelSourceType[] ModelSources { get; }
+        public AccessToken[] AccessTokens { get; }
 
         public DiffusionModel DiffusionModel
         {
@@ -58,7 +57,7 @@ namespace Amuse.App.Dialogs
             set { SetProperty(ref _diffusionModel, value); }
         }
 
-        public DiffusionCheckpointModel CheckpointModel
+        public CheckpointModel CheckpointModel
         {
             get { return _checkpointModel; }
             set { SetProperty(ref _checkpointModel, value); }
@@ -113,13 +112,6 @@ namespace Amuse.App.Dialogs
 
         protected override Task SaveAsync()
         {
-            var index = Settings.DiffusionModels.Count;
-            if (IsUpdateMode)
-            {
-                index = Settings.DiffusionModels.IndexOf(_originalDiffusionModel);
-                Settings.DiffusionModels.Remove(_originalDiffusionModel);
-            }
-
             DiffusionModel.Resolutions = [.. Sizes];
             DiffusionModel.ProcessTypes = GetProcessTypes();
             DiffusionModel.ViewFilter = GetViewFilter();
@@ -128,30 +120,14 @@ namespace Amuse.App.Dialogs
             DiffusionModel.DefaultOptions.Width = defaultSize.Width;
             DiffusionModel.DefaultOptions.Height = defaultSize.Height; ;
             DiffusionModel.DefaultOptions.FrameOptions = GetFrameOptions(FrameOptions);
+            DiffusionModel.Initialize(Settings);
 
-            if ((DiffusionModel.Source == ModelSourceType.HuggingFace || DiffusionModel.Source == ModelSourceType.Checkpoint || DiffusionModel.Source == ModelSourceType.SingleFile) && HuggingFace.TryParseRepo(DiffusionModel.Path, out var huggingfacePath))
-                DiffusionModel.Path = huggingfacePath;
-
-            if (DiffusionModel.Source == ModelSourceType.SingleFile)
+            var index = Settings.DiffusionModels.Count;
+            if (IsUpdateMode)
             {
-                _checkpointModel.TextEncoder = null;
-                _checkpointModel.TextEncoder2 = null;
-                _checkpointModel.TextEncoder3 = null;
-                _checkpointModel.Transformer = null;
-                _checkpointModel.Transformer2 = null;
-                _checkpointModel.Vae = null;
-                _checkpointModel.AudioVae = null;
-                _checkpointModel.Vocoder = null;
-                _checkpointModel.Connectors = null;
-                DiffusionModel.Checkpoint = _checkpointModel;
+                index = Settings.DiffusionModels.IndexOf(_originalDiffusionModel);
+                Settings.DiffusionModels.Remove(_originalDiffusionModel);
             }
-            if (DiffusionModel.Source == ModelSourceType.Checkpoint)
-            {
-                _checkpointModel.SingleFile = null;
-                DiffusionModel.Checkpoint = _checkpointModel;
-            }
-
-            DiffusionModel.Initialize(Settings.DirectoryModel);
             Settings.DiffusionModels.Insert(index, DiffusionModel);
             return base.SaveAsync();
         }
@@ -229,13 +205,14 @@ namespace Amuse.App.Dialogs
             foreach (var size in DiffusionModel.Resolutions)
                 Sizes.Add(size);
 
-            Schedulers = DiffusionModel.DefaultOptions.Schedulers.GetSchedulers().Select(SchedulerInputOptions.Create).ToArray();
+            if (DiffusionModel.DefaultOptions.Schedulers != null)
+                Schedulers = DiffusionModel.DefaultOptions.Schedulers.Copy();
 
             SetViewFilters();
             SetProcessTypes();
             FrameOptions = GetFrameOptions(DiffusionModel.DefaultOptions.FrameOptions);
             SelectedSize = Sizes.FirstOrDefault(x => x.IsDefault) ?? Sizes.FirstOrDefault();
-            CheckpointModel = DiffusionModel.Checkpoint ?? new DiffusionCheckpointModel();
+            CheckpointModel = DiffusionModel.Checkpoint;
             NotifyPropertyChanged(nameof(IsUpdateMode));
         }
 
@@ -271,58 +248,33 @@ namespace Amuse.App.Dialogs
 
         private IEnumerable<string> GetValidationErrors()
         {
+            // Name
             if (string.IsNullOrWhiteSpace(DiffusionModel.Name))
                 yield return "Name cannot be empty";
-            if (string.IsNullOrWhiteSpace(DiffusionModel.Path))
-                yield return "Path cannot be empty";
-            if (string.IsNullOrWhiteSpace(DiffusionModel.Pipeline))
-                yield return "Pipeline cannot be empty";
-            if (!IsUpdateMode && Settings.DiffusionModels.Any(x => x.Name.Equals(DiffusionModel.Name, StringComparison.OrdinalIgnoreCase)))
-                yield return $"Model with name '{DiffusionModel.Name}' already exists";
-
-            if (string.IsNullOrWhiteSpace(DiffusionModel.Path))
-                yield return string.Empty;
-            if (!string.IsNullOrWhiteSpace(DiffusionModel.Path))
+            if (!IsUpdateMode)
             {
-                if (DiffusionModel.Source == ModelSourceType.Folder && !Directory.Exists(DiffusionModel.Path))
-                    yield return "Model folder not found";
-                else if (DiffusionModel.Source == ModelSourceType.SingleFile && (string.IsNullOrEmpty(CheckpointModel.SingleFile) || !IsCheckpointValid(CheckpointModel.SingleFile)))
-                    yield return "Model file not found";
-                else if ((DiffusionModel.Source == ModelSourceType.HuggingFace || DiffusionModel.Source == ModelSourceType.Checkpoint) && !HuggingFace.TryParseRepo(DiffusionModel.Path, out _))
-                    yield return "HuggingFace repository not found";
+                if (Settings.DiffusionModels.Any(x => x.Name.Equals(DiffusionModel.Name, StringComparison.OrdinalIgnoreCase)))
+                    yield return $"Model with Name '{DiffusionModel.Name}' already exists";
+            }
 
-                if (DiffusionModel.Source == ModelSourceType.Checkpoint)
-                {
-                    if (string.IsNullOrEmpty(CheckpointModel.TextEncoder)
-                     && string.IsNullOrEmpty(CheckpointModel.TextEncoder2)
-                     && string.IsNullOrEmpty(CheckpointModel.TextEncoder3)
-                     && string.IsNullOrEmpty(CheckpointModel.Transformer)
-                     && string.IsNullOrEmpty(CheckpointModel.Transformer2)
-                     && string.IsNullOrEmpty(CheckpointModel.Vae)
-                     && string.IsNullOrEmpty(CheckpointModel.AudioVae)
-                     && string.IsNullOrEmpty(CheckpointModel.Vocoder)
-                     && string.IsNullOrEmpty(CheckpointModel.Connectors))
-                        yield return "At least one checkpoint model required";
+            if (DiffusionModel.MediaType == MediaType.Image)
+            {
+                if (!Sizes.Any())
+                    yield return "Resolutions cannot be empty";
+                if (!Sizes.Any(x => x.IsDefault))
+                    yield return "Default resolutions is not set";
+            }
+            else if (DiffusionModel.MediaType == MediaType.Video)
+            {
+                if (!Sizes.Any())
+                    yield return "Resolutions cannot be empty";
+                if (!Sizes.Any(x => x.IsDefault))
+                    yield return "Default resolutions is not set";
 
-                    if (!string.IsNullOrEmpty(CheckpointModel.TextEncoder) && !IsCheckpointValid(CheckpointModel.TextEncoder))
-                        yield return "TextEncoder checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.TextEncoder2) && !IsCheckpointValid(CheckpointModel.TextEncoder2))
-                        yield return "TextEncoder2 checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.TextEncoder3) && !IsCheckpointValid(CheckpointModel.TextEncoder3))
-                        yield return "TextEncoder3 checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.Transformer) && !IsCheckpointValid(CheckpointModel.Transformer))
-                        yield return "Transformer checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.Transformer2) && !IsCheckpointValid(CheckpointModel.Transformer2))
-                        yield return "Transformer2 checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.Vae) && !IsCheckpointValid(CheckpointModel.Vae))
-                        yield return "Vae checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.AudioVae) && !IsCheckpointValid(CheckpointModel.AudioVae))
-                        yield return "AudioVae checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.Vocoder) && !IsCheckpointValid(CheckpointModel.Vocoder))
-                        yield return "Vocoder checkpoint file not found";
-                    if (!string.IsNullOrEmpty(CheckpointModel.Connectors) && !IsCheckpointValid(CheckpointModel.Connectors))
-                        yield return "Connectors checkpoint file not found";
-                }
+                if (DiffusionModel.DefaultOptions.Frames < 0)
+                    yield return "Frames must be be >= 0";
+                if (DiffusionModel.DefaultOptions.FrameRate < 0)
+                    yield return "FrameRate must be be >= 0";
             }
 
             if (DiffusionModel.DefaultOptions.Steps < 1)
@@ -331,30 +283,26 @@ namespace Amuse.App.Dialogs
                 yield return "GuidanceScale must be be >= 0";
             if (DiffusionModel.DefaultOptions.GuidanceScale2 < 0)
                 yield return "GuidanceScale2 must be be >= 0";
-            if (DiffusionModel.DefaultOptions.Frames < 0)
-                yield return "Frames must be be >= 0";
-            if (DiffusionModel.DefaultOptions.FrameRate < 0)
-                yield return "FrameRate must be be >= 0";
-            if (!Sizes.Any())
-                yield return "Resolutions cannot be empty";
-            if (!Sizes.Any(x => x.IsDefault))
-                yield return "Default resolutions is not set";
 
+
+            // MemoryProfile
             foreach (var profile in DiffusionModel.MemoryProfile)
             {
                 if (profile.MemoryModes.Any(x => x < 0))
                     yield return "MemoryMode must be >= 0";
             }
 
+            // ProcessTypes
             var processTypes = GetProcessTypes();
             if (processTypes.IsNullOrEmpty())
                 yield return "ProcessTypes cannot be empty";
-        }
 
-
-        private bool IsCheckpointValid(string checkpoint)
-        {
-            return File.Exists(checkpoint) || HuggingFace.IsCheckpointInstalled(Settings.DirectoryModel, checkpoint) || HuggingFace.IsValidLink(checkpoint);
+            // Checkpoint
+            foreach (var checkpoint in DiffusionModel.Checkpoint.GetComponents())
+            {
+                if (!checkpoint.IsValid(out var checkpointValidation))
+                    yield return $"{checkpoint.Name} {checkpointValidation}";
+            }
         }
 
 
@@ -487,5 +435,8 @@ namespace Amuse.App.Dialogs
                     CheckBoxViewTextToAudio.IsChecked = true;
             }
         }
+
+
+        public record AccessToken(string Name, string Value);
     }
 }

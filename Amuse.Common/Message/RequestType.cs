@@ -4,11 +4,10 @@
     {
         Start = 0,
         Stop = 1,
-        Environment = 2,
-        PipelineLoad = 3,
-        PipelineUnload = 4,
-        PipelineRun = 5,
-        PipelineReload = 6,
-        PipelineDownload = 7
+        Create = 10,
+        Load = 11,
+        Reload = 12,
+        Unload = 13,
+        Run = 20
     }
 }

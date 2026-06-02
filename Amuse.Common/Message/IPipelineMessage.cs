@@ -3,7 +3,7 @@ using TensorStack.Common.Tensor;
 
 namespace Amuse.Common.Message
 {
-    internal interface IPipelineMessage
+    public interface IPipelineMessage
     {
         IReadOnlyList<Tensor<float>> Tensors { get; set; }
     }

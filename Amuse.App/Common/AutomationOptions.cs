@@ -100,7 +100,6 @@ namespace Amuse.App.Common
 
         private AutomationType[] GetSupportedTypes(View viewType)
         {
-
             switch (viewType)
             {
                 case View.TextToImage:
@@ -134,7 +133,9 @@ namespace Amuse.App.Common
                     return [AutomationType.InputFiles];
 
                 case View.TextToAudio:
-                    return [AutomationType.Seed, AutomationType.PromptLines, AutomationType.PromptFiles];
+                    return [AutomationType.Seed, AutomationType.InputFiles];
+                case View.TextToMusic:
+                    return [AutomationType.Seed];
                 case View.AudioToText:
                     return [AutomationType.Seed, AutomationType.InputFiles];
                 default:

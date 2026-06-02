@@ -3,15 +3,12 @@ using Amuse.Common;
 using Amuse.Common.Config;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TensorStack.Common;
 using TensorStack.Common.Common;
-using TensorStack.Python.Common;
-using TensorStack.Python.Config;
 
 namespace Amuse.App.Services
 {
@@ -31,61 +28,16 @@ namespace Amuse.App.Services
         }
 
 
-        public async Task<PipelineClient> CreateClientAsync(PipelineModel pipeline, PipelineConfig pipelineConfig, EnvironmentMode mode, IProgress<PipelineProgress> progressCallback, CancellationToken cancellationToken = default)
-        {
-            var environment = await GetAsync(pipeline);
-            var pipelineClientConfig = new ClientConfig
-            {
-                Environment = environment,
-                ServerPath = App.DirectoryServer,
-                IsDebugMode = environment.IsDebug,
-            };
-
-            var diffusionPipeline = new PipelineClient(pipelineClientConfig, progressCallback, _logger);
-
-            try
-            {
-                await diffusionPipeline.LoadAsync(pipelineConfig, mode, cancellationToken);
-                return diffusionPipeline;
-            }
-            catch (Exception)
-            {
-                diffusionPipeline?.Dispose();
-                throw;
-            }
-        }
-
-
-        public Task<DownloadClient> CreateDownloadClientAsync(IProgress<PipelineProgress> progressCallback, CancellationToken cancellationToken = default)
-        {
-            var environmentModel = _settings.Environments
-                      .Where(x => x.IsDefault && Exists(x))
-                      .OrderByDescending(x => x.IsDefault)
-                      .FirstOrDefault()
-                ?? throw new Exception("No Environment Found");
-
-            var environment = FromModel(environmentModel, _settings.IsServerDebugEnabled);
-            var pipelineClientConfig = new ClientConfig
-            {
-                Environment = environment,
-                ServerPath = App.DirectoryServer,
-                IsDebugMode = environment.IsDebug,
-            };
-
-            return Task.FromResult(new DownloadClient(pipelineClientConfig, progressCallback, _logger));
-        }
-
-
-        public Task<EnvironmentConfig> GetAsync(PipelineModel pipeline)
+        public bool Exists(PipelineModel pipeline)
         {
             var environment = GetEnvironment(pipeline);
-            return Task.FromResult(FromModel(environment, _settings.IsServerDebugEnabled));
+            return Exists(environment);
         }
 
 
-        public Task<EnvironmentConfig> GetAsync(EnvironmentModel environment)
+        public bool Exists(EnvironmentModel environment)
         {
-            return Task.FromResult(FromModel(environment, _settings.IsServerDebugEnabled));
+            return Directory.Exists(GetPath(environment));
         }
 
 
@@ -118,32 +70,6 @@ namespace Amuse.App.Services
         {
             FileHelper.DeleteDirectory(GetPath(environment));
             return Task.CompletedTask;
-        }
-
-
-        public bool Exists(PipelineModel pipeline)
-        {
-            var environment = GetEnvironment(pipeline);
-            return Exists(environment);
-        }
-
-
-        public bool Exists(EnvironmentModel environment)
-        {
-            return Directory.Exists(GetPath(environment));
-        }
-
-
-        public bool IsInstalled()
-        {
-            var environment = _settings.Environments
-                .Where(x => Exists(x))
-                .OrderByDescending(x => x.IsDefault)
-                .FirstOrDefault();
-            if (environment == null)
-                return false;
-
-            return true;
         }
 
 
@@ -195,14 +121,20 @@ namespace Amuse.App.Services
 
         private async Task CreateInternalAsync(EnvironmentModel environment, EnvironmentMode mode, IProgress<PipelineProgress> progressCallback, CancellationToken cancellationToken = default)
         {
-            using var pipelineClient = new PipelineClient(new ClientConfig
+            var createOptions = environment.ToClientOptions(_settings, mode);
+            var clientConfig = new ClientConfig
             {
-                IsDebugMode = _settings.IsServerDebugEnabled,
-                Environment = FromModel(environment, _settings.IsServerDebugEnabled),
+                IsDebugMode = createOptions.IsDebug,
                 ServerPath = App.DirectoryServer,
-            }, progressCallback, _logger);
-            await pipelineClient.StartAsync(mode, cancellationToken);
-            await SaveEnvironmentStatusAsync(environment);
+                ServerType = ServerType.PyTorch,
+                ServerVariables = createOptions.Variables
+            };
+
+            using (var pipelineClient = new PipelineClient(clientConfig, progressCallback, _logger))
+            {
+                await pipelineClient.CreateAsync(createOptions, cancellationToken);
+                await SaveEnvironmentStatusAsync(environment);
+            }
         }
 
 
@@ -217,46 +149,24 @@ namespace Amuse.App.Services
             environment.Status = EnvironmentMode.Create;
             await SettingsManager.SaveAsync(_settings);
         }
-
-
-        private EnvironmentConfig FromModel(EnvironmentModel environment, bool isDebugEnabled)
-        {
-            var environmentConfig = new EnvironmentConfig
-            {
-                IsDebug = isDebugEnabled,
-                Directory = App.DirectoryPython,
-                Environment = environment.Environment,
-                Requirements = environment.Requirements.ToArray(),
-                Variables = environment.Variables?.ToDictionary() ?? new Dictionary<string, string>(),
-            };
-
-            environmentConfig.Variables.Add("HF_HUB_CACHE", _settings.DirectoryModel);
-            if (!string.IsNullOrEmpty(_settings.SecureToken))
-                environmentConfig.Variables.Add("HF_TOKEN", _settings.SecureToken);
-
-            return environmentConfig;
-        }
     }
 
 
     public interface IEnvironmentService
     {
-        Task<EnvironmentConfig> GetAsync(PipelineModel pipeline);
-        Task<EnvironmentConfig> GetAsync(EnvironmentModel environment);
-        Task<PipelineClient> CreateClientAsync(PipelineModel pipeline, PipelineConfig pipelineConfig, EnvironmentMode mode, IProgress<PipelineProgress> progressCallback, CancellationToken cancellationToken = default);
-        Task<DownloadClient> CreateDownloadClientAsync(IProgress<PipelineProgress> progressCallback, CancellationToken cancellationToken = default);
-
-        bool IsInstalled();
         bool Exists(PipelineModel pipeline);
         bool Exists(EnvironmentModel environment);
+
         Task CreateAsync(PipelineModel pipeline, IProgress<PipelineProgress> progressCallback, CancellationToken cancellationToken = default);
         Task CreateAsync(EnvironmentModel environment, IProgress<PipelineProgress> progressCallback, CancellationToken cancellationToken = default);
+
         Task UpdateAsync(EnvironmentModel environment, IProgress<PipelineProgress> progressCallback, CancellationToken cancellationToken = default);
         Task RebuildAsync(EnvironmentModel environment, IProgress<PipelineProgress> progressCallback, CancellationToken cancellationToken = default);
         Task DeleteAsync(EnvironmentModel environment);
 
         EnvironmentMode GetStatus(PipelineModel pipeline);
         EnvironmentMode GetStatus(EnvironmentModel environment);
+
         EnvironmentModel GetEnvironment(PipelineModel pipeline);
         EnvironmentModel GetEnvironment(Device device, DiffusionModel diffusionModel);
     }

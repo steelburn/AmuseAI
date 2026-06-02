@@ -262,6 +262,22 @@
                                 IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Upscale}">
                             </CommonControls:IconButton>
                             <CommonControls:IconButton 
+                                Text="Components" 
+                                Icon="e479"
+                                IconSize="18"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Orientation="Horizontal"
+                                Alignment="Left"
+                                Placement="Right"
+                                TextOpacity=".8"
+                                IconMargin="20,0,6,0"
+                                IconColor="{StaticResource AccentColour2}"
+                                Command="{Binding NavigateCommand}" 
+                                CommandParameter="{x:Static Views:View.Component}" 
+                                IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Component}">
+                            </CommonControls:IconButton>
+                            <CommonControls:IconButton 
                                 Text="Downloads" 
                                 Icon="f57d"
                                 IconSize="18"

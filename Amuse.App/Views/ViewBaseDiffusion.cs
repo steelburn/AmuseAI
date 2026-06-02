@@ -1,5 +1,6 @@
 ﻿using Amuse.App.Common;
 using Amuse.App.Services;
+using Amuse.Common;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
@@ -8,7 +9,6 @@ using TensorStack.Audio;
 using TensorStack.Common.Pipeline;
 using TensorStack.Common.Tensor;
 using TensorStack.Image;
-using TensorStack.Python.Common;
 using TensorStack.Video;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
@@ -25,6 +25,7 @@ namespace Amuse.App.Views
         private VideoInputStream _resultVideo;
         private VideoInputStream _compareVideo;
         private AudioInputStream _resultAudio;
+        private TextResult _resultText;
         private DiffusionInputOptions _options;
         private ExtractInputOptions _extractOptions;
         private UpscaleInputOptions _upscaleOptions;
@@ -34,8 +35,8 @@ namespace Amuse.App.Views
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewBaseDiffusion"/> class.
         /// </summary>
-        public ViewBaseDiffusion(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IModelDownloadService downloadService, IDiffusionService diffusionService, IExtractService extractService, IUpscaleService upscaleService, IHistoryService historyService, ILogger logger)
-            : base(settings, navigationService, environmentService, downloadService, historyService, logger)
+        public ViewBaseDiffusion(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IDiffusionService diffusionService, IExtractService extractService, IUpscaleService upscaleService, IHistoryService historyService, ILogger logger)
+            : base(settings, navigationService, downloadService, historyService, logger)
         {
             DiffusionService = diffusionService;
             ExtractService = extractService;
@@ -102,7 +103,7 @@ namespace Amuse.App.Views
         /// <summary>
         /// Gets or sets the automation progress.
         /// </summary>
-        public ProgressInfo AutomationProgress { get;}
+        public ProgressInfo AutomationProgress { get; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is pipeline loaded.
@@ -158,11 +159,24 @@ namespace Amuse.App.Views
             set { SetProperty(ref _compareVideo, value); }
         }
 
+        /// <summary>
+        /// Gets or sets the result audio.
+        /// </summary>
         public AudioInputStream ResultAudio
         {
             get { return _resultAudio; }
             set { SetProperty(ref _resultAudio, value); }
         }
+
+        /// <summary>
+        /// Gets or sets the result text.
+        /// </summary>
+        public TextResult ResultText
+        {
+            get { return _resultText; }
+            set { SetProperty(ref _resultText, value); }
+        }
+
 
         /// <summary>
         /// Gets or sets the options.
@@ -423,7 +437,6 @@ namespace Amuse.App.Views
         }
 
 
-
         /// <summary>
         /// Execute Audio diffusion
         /// </summary>
@@ -453,6 +466,22 @@ namespace Amuse.App.Views
 
             Logger.LogInformation("[{View}] [ExecuteVideoDiffusion] Diffusion complete, Elapsed: {Elapsed:c}", ViewName, Stopwatch.GetElapsedTime(timestamp));
             return resultTensor;
+        }
+
+
+        /// <summary>
+        /// Execute text diffusion
+        /// </summary>
+        /// <param name="options">The options.</param>
+        protected async Task<TextResult> ExecuteTextDiffusionAsync(DiffusionInputOptions options)
+        {
+            var timestamp = Stopwatch.GetTimestamp();
+            Logger.LogInformation("[{View}] [ExecuteTextDiffusion] Executing diffusion...", ViewName);
+
+            var textResult = await DiffusionService.GenerateTextAsync(options);
+
+            Logger.LogInformation("[{View}] [ExecuteTextDiffusion] Diffusion complete, Elapsed: {Elapsed:c}", ViewName, Stopwatch.GetElapsedTime(timestamp));
+            return textResult;
         }
 
 
@@ -618,10 +647,6 @@ namespace Amuse.App.Views
                 }
                 else
                 {
-                    Progress.Indeterminate("Downloading Models...");
-                    if (!await DownloadModels(pipeline))
-                        return; // Canceled/Failed to download models
-
                     Progress.Indeterminate($"Loading {CurrentPipeline.DiffusionModel.Name}...");
                     if (!await LoadPipelineAsync())
                         return;// Canceled/Failed to load pipeline

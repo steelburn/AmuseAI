@@ -20,8 +20,8 @@ namespace Amuse.App.Views
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewBaseModel"/> class.
         /// </summary>
-        public ViewBaseModel(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IModelDownloadService downloadService, IHistoryService historyService, ILogger logger)
-            : base(settings, navigationService, environmentService, downloadService, historyService, logger)
+        public ViewBaseModel(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IHistoryService historyService, ILogger logger)
+            : base(settings, navigationService, downloadService, historyService, logger)
         {
             Statistics = new StatisticsModel(Dispatcher);
             ProgressCallback = new Progress<RunProgress>(OnProgress);

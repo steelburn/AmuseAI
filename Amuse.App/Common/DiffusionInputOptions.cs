@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using TensorStack.Audio;
 using TensorStack.Common.Tensor;
+using TensorStack.TextGeneration.Common;
 using TensorStack.WPF;
 
 namespace Amuse.App.Common
@@ -32,15 +33,28 @@ namespace Amuse.App.Common
         private bool _isSource2Enabled;
         private bool _isSource3Enabled;
         private bool _isSource4Enabled;
-        private int _bpm = 80;
+        private int _bpm;
         private string _instruction;
         private string _keyscale;
         private string _prompt2;
         private string _task;
         private string _timeSignature;
         private string _trackName;
-        private string _vocalLanguage;
-        private float _duration = 0;
+        private float _duration;
+        private string _language;
+        private float _speed;
+        private float _silenceDuration;
+        private int _minLength;
+        private int _maxLength;
+        private int _noRepeatNgramSize;
+        private int _beams;
+        private int _topK;
+        private float _topP;
+        private float _temperature;
+        private float _lengthPenalty;
+        private EarlyStopping _earlyStopping;
+        private int _diversityLength;
+        private int _chunkSize;
 
         public int Width
         {
@@ -256,17 +270,108 @@ namespace Amuse.App.Common
         }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string VocalLanguage
-        {
-            get { return _vocalLanguage; }
-            set { SetProperty(ref _vocalLanguage, value); }
-        }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public float Duration
         {
             get { return _duration; }
             set { SetProperty(ref _duration, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string Language
+        {
+            get { return _language; }
+            set { SetProperty(ref _language, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public float Speed
+        {
+            get { return _speed; }
+            set { SetProperty(ref _speed, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public float SilenceDuration
+        {
+            get { return _silenceDuration; }
+            set { SetProperty(ref _silenceDuration, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int MinLength
+        {
+            get { return _minLength; }
+            set { SetProperty(ref _minLength, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int MaxLength
+        {
+            get { return _maxLength; }
+            set { SetProperty(ref _maxLength, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int NoRepeatNgramSize
+        {
+            get { return _noRepeatNgramSize; }
+            set { SetProperty(ref _noRepeatNgramSize, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int Beams
+        {
+            get { return _beams; }
+            set { SetProperty(ref _beams, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int TopK
+        {
+            get { return _topK; }
+            set { SetProperty(ref _topK, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public float TopP
+        {
+            get { return _topP; }
+            set { SetProperty(ref _topP, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public float Temperature
+        {
+            get { return _temperature; }
+            set { SetProperty(ref _temperature, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public float LengthPenalty
+        {
+            get { return _lengthPenalty; }
+            set { SetProperty(ref _lengthPenalty, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public EarlyStopping EarlyStopping
+        {
+            get { return _earlyStopping; }
+            set { SetProperty(ref _earlyStopping, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int DiversityLength
+        {
+            get { return _diversityLength; }
+            set { SetProperty(ref _diversityLength, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int ChunkSize
+        {
+            get { return _chunkSize; }
+            set { SetProperty(ref _chunkSize, value); }
         }
 
 

@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 using TensorStack.Common;
 using Logger = Microsoft.Extensions.Logging.ILogger;
 
-namespace Amuse.Host
+namespace Amuse.Host.PyTorch
 {
     internal class Program
     {
         private static Logger _logger;
         private static string _directoryBase;
         private static string _directoryData;
-        private static ChannelConfig _channelConfig;
+        private static ServerConfig _serverConfig;
 
         /// <summary>
         /// Defines the entry point of the application.
@@ -24,17 +24,18 @@ namespace Amuse.Host
         /// <param name="args">The arguments.</param>
         static async Task Main(string[] args)
         {
-            _channelConfig = args.IsNullOrEmpty() || !args[0].Equals("download", StringComparison.OrdinalIgnoreCase)
-                ? ChannelConfig.PipelineConfig
-                : ChannelConfig.DownloadConfig;
+            if (!Enum.TryParse<ServerType>(args[0], true, out var serverType))
+                throw new InvalidOperationException("Invalid ServerType");
 
-            using (var mutex = new Mutex(true, $"Global\\{_channelConfig.Name}", out var createdNew))
+            _directoryBase = AppDomain.CurrentDomain.BaseDirectory;
+            _directoryData = GetApplicationDataDirectory();
+            _serverConfig = ServerConfig.GetConfig(serverType, _directoryData);
+
+            using (var mutex = new Mutex(true, $"Global\\{_serverConfig.Name}", out var createdNew))
             {
                 if (!createdNew)
                     throw new InvalidOperationException("Another instance of this application is already running.");
 
-                _directoryBase = AppDomain.CurrentDomain.BaseDirectory;
-                _directoryData = GetApplicationDataDirectory();
                 _logger = ConfigureLogging();
                 await StartAsync();
             }
@@ -50,18 +51,18 @@ namespace Amuse.Host
         {
             try
             {
-                _logger.LogInformation("[StartAsync] Starting {Name}...", _channelConfig.Name);
+                _logger.LogInformation("[StartAsync] Starting {Name}...", _serverConfig.Name);
                 using (var cancellationTokenSource = new CancellationTokenSource())
                 {
                     AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) => cancellationTokenSource.SafeCancel();
 
                     // Start Server
-                    using (var pipelineServer = new PipelineServer(_directoryData, _channelConfig, _logger))
+                    using (var hostServer = new HostServer(_serverConfig, _logger))
                     {
-                        await pipelineServer.StartAsync(cancellationTokenSource.Token);
+                        await hostServer.StartAsync(cancellationTokenSource.Token);
                     }
                 }
-                _logger.LogInformation("[StartAsync] {Name} stopped.", _channelConfig.Name);
+                _logger.LogInformation("[StartAsync] {Name} stopped.", _serverConfig.Name);
             }
             catch (EndOfStreamException)
             {
@@ -112,7 +113,7 @@ namespace Amuse.Host
         private static string GetLogName()
         {
             var now = DateTime.Now;
-            return Path.Combine(_directoryData, @$"Logs\{_channelConfig.Name}-{DateTime.Now:dd-MM-yyyy}-{now.Hour * 3600 + now.Minute * 60 + now.Second}.txt");
+            return Path.Combine(_directoryData, @$"Logs\{_serverConfig.Name}-{DateTime.Now:dd-MM-yyyy}-{now.Hour * 3600 + now.Minute * 60 + now.Second}.txt");
         }
     }
 }

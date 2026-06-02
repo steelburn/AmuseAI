@@ -41,7 +41,7 @@ namespace Amuse.App.Common
         public int InputLength { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public AudioInputOptions AudioOptions { get; set; }
+        public DiffusionInputOptions Options { get; set; }
 
 
 

@@ -13,6 +13,7 @@ namespace Amuse.App.Views
         Extract = 55,
         Upscale = 56,
         Downloads = 57,
+        Component = 58,
 
         TextToImage = 100,
         ImageToImage = 101,
@@ -78,6 +79,7 @@ namespace Amuse.App.Views
             { View.Extract , ViewCategory.Settings  },
             { View.Upscale , ViewCategory.Settings  },
             { View.Downloads , ViewCategory.Settings  },
+            { View.Component , ViewCategory.Settings  },
 
             // Image
             { View.TextToImage, ViewCategory.Image  },

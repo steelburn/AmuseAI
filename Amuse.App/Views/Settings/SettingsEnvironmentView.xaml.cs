@@ -21,9 +21,10 @@ namespace Amuse.App.Views
         private EnvironmentModel _selectedEnvironment;
         private string _filterText;
 
-        public SettingsEnvironmentView(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IModelDownloadService downloadService, IHistoryService historyService, ILogger<SettingsEnvironmentView> logger)
-            : base(settings, navigationService, environmentService, downloadService, historyService, logger)
+        public SettingsEnvironmentView(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IHistoryService historyService, IEnvironmentService environmentService, ILogger<SettingsEnvironmentView> logger)
+            : base(settings, navigationService, downloadService, historyService, logger)
         {
+            EnvironmentService = environmentService;
             SaveCommand = new AsyncRelayCommand(SaveAsync);
             AddEnvironmentCommand = new AsyncRelayCommand(AddEnvironmentAsync);
             AddEnvironmentWizardCommand = new AsyncRelayCommand(AddEnvironmentWizardAsync);
@@ -45,6 +46,7 @@ namespace Amuse.App.Views
         }
 
         public override View View => View.Environment;
+        public IEnvironmentService EnvironmentService { get; }
         public AsyncRelayCommand SaveCommand { get; }
         public AsyncRelayCommand AddEnvironmentCommand { get; }
         public AsyncRelayCommand AddEnvironmentWizardCommand { get; }
@@ -117,6 +119,7 @@ namespace Amuse.App.Views
             if (await dialog.AddAsync())
             {
                 await SaveAsync();
+                SelectedEnvironment = dialog.EnvironmentModel;
             }
         }
 
@@ -133,6 +136,7 @@ namespace Amuse.App.Views
             if (await dialog.CopyAsync(_selectedEnvironment))
             {
                 await SaveAsync();
+                SelectedEnvironment = dialog.EnvironmentModel;
             }
         }
 
@@ -143,6 +147,7 @@ namespace Amuse.App.Views
             if (await dialog.UpdateAsync(_selectedEnvironment))
             {
                 await SaveAsync();
+                SelectedEnvironment = dialog.EnvironmentModel;
             }
         }
 

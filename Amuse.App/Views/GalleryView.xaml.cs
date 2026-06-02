@@ -37,8 +37,8 @@ namespace Amuse.App.Views
         private View? _filterProcessType;
         private TextInput _currentText;
 
-        public GalleryView(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IModelDownloadService downloadService, IHistoryService historyService, ILogger<GalleryView> logger)
-            : base(settings, navigationService, environmentService, downloadService, historyService, logger)
+        public GalleryView(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IHistoryService historyService, ILogger<GalleryView> logger)
+            : base(settings, navigationService, downloadService, historyService, logger)
         {
             RemoveFiltersCommand = new AsyncRelayCommand(RemoveFilters, CanRemoveFilters);
             DeleteItemCommand = new AsyncRelayCommand<IHistoryItem>(RemoveItemAsync, (x) => SelectedItem is not null);
@@ -131,7 +131,7 @@ namespace Amuse.App.Views
             {
                 Progress.Indeterminate();
 
-                CurrentText= default;
+                CurrentText = default;
                 CurrentImage = default;
                 CurrentAudioStream = default;
                 CurrentVideoStream = default;

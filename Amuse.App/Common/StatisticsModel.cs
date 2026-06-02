@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Amuse.Common;
+using System;
 using System.Diagnostics;
 using System.Windows.Threading;
-using TensorStack.Python.Common;
 using TensorStack.WPF;
 
 namespace Amuse.App.Common

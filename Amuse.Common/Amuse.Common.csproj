@@ -9,27 +9,17 @@
 
   <!--Common-->
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
-    <PackageReference Include="ZstdSharp.Port" Version="0.8.8" />
   </ItemGroup>
 
   <!--Debug-->
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <ProjectReference Include="..\..\TensorStack.Common\TensorStack.Common.csproj" />
-    <ProjectReference Include="..\..\TensorStack.Python\TensorStack.Python.csproj" />
   </ItemGroup>
 
   <!--Release-->
   <ItemGroup Condition="'$(Configuration)' == 'Release' OR '$(Configuration)' == 'Release_Installer'">
-    <PackageReference Include="TensorStack.Python" Version="$(PackageVersion)" />
-  </ItemGroup>
-
-  <!--Binaries-->
-  <ItemGroup>
-    <Reference Include="CSnakes.Runtime">
-      <HintPath>CSnakes.Runtime.dll</HintPath>
-    </Reference>
+    <PackageReference Include="TensorStack.Common" Version="$(PackageVersion)" />
   </ItemGroup>
 
 </Project>

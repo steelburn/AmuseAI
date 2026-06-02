@@ -96,9 +96,6 @@ namespace Amuse.App.Services
                     var cancellationToken = _cancellationTokenSource.Token;
                     if (_extractPipeline != null)
                     {
-                        if (_currentConfig.Path == pipeline.ExtractModel.Path)
-                            return; // Already loaded
-
                         await _extractPipeline.UnloadAsync(cancellationToken);
                     }
 
@@ -108,13 +105,13 @@ namespace Amuse.App.Services
                     _defaultOptions = model.DefaultOptions;
                     _currentConfig = new ExtractorConfig
                     {
-                        Path = model.Path,
                         Channels = model.Channels,
                         Normalization = model.Normalization,
                         OutputChannels = model.OutputChannels,
                         OutputNormalization = model.OutputNormalization,
                         IsDynamicOutput = model.IsDynamicOutput,
-                        SampleSize = model.SampleSize
+                        SampleSize = model.SampleSize,
+                        Path = model.Checkpoint.Resolve(_settings.DirectoryExtract)
                     };
 
                     _currentConfig.SetProvider(device.GetProvider(Microsoft.ML.OnnxRuntime.GraphOptimizationLevel.ORT_DISABLE_ALL));

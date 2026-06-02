@@ -17,6 +17,7 @@ namespace Amuse.App.Dialogs
         private readonly NavigationService _navigationService;
         private string _modelName;
         private string _modelLink;
+        private string _message;
 
         public GatedModelDialog(NavigationService navigationService)
         {
@@ -41,10 +42,17 @@ namespace Amuse.App.Dialogs
             set { SetProperty(ref _modelLink, value); }
         }
 
-        public Task<bool> ShowDialogAsync(DiffusionModel model)
+        public string Message
+        {
+            get { return _message; }
+            set { SetProperty(ref _message, value); }
+        }
+
+        public Task<bool> ShowDialogAsync(IDownloadModel model)
         {
             ModelName = model.Name;
             ModelLink = model.Link;
+            Message = $"This model requires a {model.AccessToken} Access Token, you can add this on the settings page";
             return base.ShowDialogAsync();
         }
 
@@ -52,7 +60,7 @@ namespace Amuse.App.Dialogs
         protected override async Task SaveAsync()
         {
             await _navigationService.NavigateAsync((int)View.General);
-            await base.SaveAsync();
+            await base.CancelAsync();
         }
 
 

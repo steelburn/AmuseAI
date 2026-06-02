@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Amuse.Common;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using TensorStack.Python.Common;
 
 namespace Amuse.App
 {
@@ -103,9 +104,27 @@ namespace Amuse.App
             var properties = typeof(Settings).GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach (var property in properties)
             {
+                var isIgnoreValue = Attribute.IsDefined(property, typeof(JsonIgnoreAttribute));
+                if (isIgnoreValue)
+                    continue;
+
                 var isDefaultValue = Attribute.IsDefined(property, typeof(AppDefaultAttribute));
                 if (isDefaultValue)
                 {
+
+                    if (property.Name == nameof(defaultSettings.AccessTokens))
+                    {
+                        foreach (var existingToken in currentSettings.AccessTokens)
+                        {
+                            // Add back any Tokens the user has added
+                            var defaultToken = defaultSettings.AccessTokens.FirstOrDefault(x => x.Name == existingToken.Name);
+                            if (defaultToken != null)
+                            {
+                                defaultToken.Token = existingToken.Token;
+                            }
+                        }
+                    }
+
                     // Merge Templates
                     if (property.Name == nameof(defaultSettings.Environments))
                     {

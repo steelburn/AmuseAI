@@ -36,14 +36,13 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <DockPanel Margin="4">
-                                <UniformGrid DockPanel.Dock="Bottom" Rows="2" >
-                                    <CommonControls:ProgressElement Progress="{Binding Progress}" Height="8"/>
+                                <StackPanel DockPanel.Dock="Bottom"  >
                                     <CommonControls:ProgressElement Progress="{Binding TotalProgress}" Height="8"/>
-                                </UniformGrid>
+                                    <TextBlock Text="{Binding ErrorMessage}" FontSize="10" FontStyle="Italic" Opacity=".8" TextWrapping="Wrap" Foreground="{StaticResource DangerColour}" Margin="0,2,0,0" Visibility="{Binding ErrorMessage, FallbackValue=Collapsed, Converter={StaticResource NullVisibilityConverter}}"/>
+                                </StackPanel>
                                 <DockPanel>
                                     <StackPanel DockPanel.Dock="Right">
                                         <Grid Margin="0,0,2,2">
-                                            <TextBlock Text="Verifying" TextAlignment="Right"  Opacity=".7" FontSize="11" Visibility="{Binding Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Verifying}"/>
                                             <TextBlock Text="Queued" TextAlignment="Right"  Opacity=".7" FontSize="11" Visibility="{Binding Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=DownloadQueue}"/>
                                             <TextBlock Text="Downloading" TextAlignment="Right"  Opacity=".7" FontSize="11" Visibility="{Binding Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Downloading}"/>
                                             <TextBlock Text="Failed" TextAlignment="Right"  Opacity=".7" FontSize="11" Visibility="{Binding Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=DownloadFailed}"/>
@@ -53,7 +52,7 @@
 
                                     <StackPanel>
                                         <TextBlock Text="{Binding Name}" FontSize="12" Margin="3,0,0,0" FontWeight="Medium" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Text="{Binding Pipeline}"  Margin="3,0,0,0" Opacity=".7" FontSize="11"/>
+                                        <TextBlock Text="{Binding Description}"  Margin="3,0,0,0" Opacity=".7" FontSize="11"/>
                                     </StackPanel>
                                 </DockPanel>
                             </DockPanel>

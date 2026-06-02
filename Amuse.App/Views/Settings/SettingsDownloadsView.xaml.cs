@@ -1,5 +1,4 @@
 ﻿using Amuse.App.Common;
-using Amuse.App.Dialogs;
 using Amuse.App.Services;
 using Microsoft.Extensions.Logging;
 using System;
@@ -22,8 +21,8 @@ namespace Amuse.App.Views
         private DownloadQueueItem _selectedModel;
         private string _filterText;
 
-        public SettingsDownloadsView(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IHistoryService historyService, IModelDownloadService downloadService, ILogger<SettingsDownloadsView> logger)
-            : base(settings, navigationService, environmentService, downloadService, historyService, logger)
+        public SettingsDownloadsView(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IHistoryService historyService, ILogger<SettingsDownloadsView> logger)
+            : base(settings, navigationService, downloadService, historyService, logger)
         {
             _downloadService = downloadService;
             SaveCommand = new AsyncRelayCommand(SaveAsync);

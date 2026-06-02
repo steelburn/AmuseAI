@@ -24,8 +24,8 @@ namespace Amuse.App.Views
         /// <summary>
         /// Initializes a new instance of the <see cref="ImageExtractView"/> class.
         /// </summary>
-        public ImageExtractView(Settings settings, NavigationService navigationService, IEnvironmentService environmentService, IModelDownloadService downloadService, IHistoryService historyService, IExtractService extractService, ILogger<ImageExtractView> logger)
-            : base(settings, navigationService, environmentService, downloadService, historyService, logger)
+        public ImageExtractView(Settings settings, NavigationService navigationService, IModelDownloadService downloadService, IHistoryService historyService, IExtractService extractService, ILogger<ImageExtractView> logger)
+            : base(settings, navigationService, downloadService, historyService, logger)
         {
             ExtractService = extractService;
             InitializeComponent();
@@ -338,9 +338,6 @@ namespace Amuse.App.Views
                 else
                 {
                     Progress.Indeterminate($"Loading {pipeline.ExtractModel.Name}...");
-
-                    if (!await DownloadModels(pipeline))
-                        return;  // Canceled/Failed to download models
 
                     if (!await LoadPipelineAsync())
                         return;   // Canceled/Failed to load pipeline

@@ -491,6 +491,31 @@ namespace Amuse.App.Services
         }
 
 
+        public async Task<TextInput> AddAsync(TextInput text, DiffusionHistory diffusionHistory)
+        {
+            if (_settings.HistoryItems <= 0)
+                return text;
+
+            var key = GetRandomName();
+            var history = diffusionHistory with
+            {
+                Id = key,
+                Version = HistoryVersion,
+                Extension = "txt",
+                MediaType = MediaType.Text,
+                Timestamp = DateTime.Now,
+                LastAccess = DateTime.Now,
+                FilePath = Path.Combine(_settings.DirectoryHistory, $"GenerateAudio_{key}.json"),
+                MediaPath = Path.Combine(_settings.DirectoryHistory, $"GenerateAudio_{key}.txt"),
+                //ThumbPath = Path.Combine(_settings.DirectoryHistory, $"GenerateAudio_{key}.png"),
+                //   InputLength = text.Length,
+                //  InputText = text.Text
+            };
+
+            return await AddTextInternalAsync(text, history);
+        }
+
+
         private string GetRandomName()
         {
             return Path.GetFileNameWithoutExtension(Path.GetRandomFileName());
@@ -573,6 +598,7 @@ namespace Amuse.App.Services
 
      
         Task<TextInput> AddAsync(TextInput text, TextHistory history);
+        Task<TextInput> AddAsync(TextInput text, DiffusionHistory history);
     }
 
 }

@@ -15,13 +15,29 @@
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Column="0">
 
-                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
-                    <Border DockPanel.Dock="Left" Width="26" BorderThickness="1" BorderBrush="{StaticResource DefaultBorderColor}">
-                        <CommonControls:FontAwesome Icon="f002" Size="12"/>
-                    </Border>
-                    <CommonControls:IconButton DockPanel.Dock="Right" Icon="f00d" IconSize="12" IconColor="{StaticResource DangerColour}" Width="23" Command="{Binding FilterClearCommand}"/>
-                    <CommonControls:PlaceholderTextBox Text="{Binding FilterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Placeholder="Search ControlNet Models" PlaceholderOpacity=".5"/>
-                </DockPanel>
+                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,4">
+                    <DockPanel>
+                        <Border DockPanel.Dock="Left" Width="26" BorderThickness="1" BorderBrush="{StaticResource DefaultBorderColor}">
+                            <CommonControls:FontAwesome Icon="f002" Size="12"/>
+                        </Border>
+                        <CommonControls:IconButton DockPanel.Dock="Right" Icon="f00d" IconSize="12" IconColor="{StaticResource DangerColour}" Width="23" Command="{Binding FilterClearCommand}"/>
+                        <CommonControls:PlaceholderTextBox Text="{Binding FilterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Placeholder="Search Diffusion Models" PlaceholderOpacity=".5"/>
+                    </DockPanel>
+                    <UniformGrid Rows="1">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="Backend" Style="{StaticResource FieldTextBlockStyle}" FontSize="10"/>
+                            <ComboBox ItemsSource="{Binding FilterBackends}" SelectedItem="{Binding FilterBackend}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="Pipeline" Style="{StaticResource FieldTextBlockStyle}" FontSize="10"/>
+                            <ComboBox ItemsSource="{Binding FilterPipelines}" SelectedItem="{Binding FilterPipeline}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="Status" Style="{StaticResource FieldTextBlockStyle}" FontSize="10"/>
+                            <ComboBox ItemsSource="{Binding FilterStatuses}" SelectedItem="{Binding FilterStatus}" />
+                        </DockPanel>
+                    </UniformGrid>
+                </StackPanel>
 
                 <StackPanel DockPanel.Dock="Bottom">
                     <!--<CommonControls:IconButton Text="Add Model Wizard" FontSize="13" Icon="e2ca" IconStyle="Light" IconColor="{StaticResource SuccessColour}" Command="{Binding AddModelWizardCommand}" Height="40"  />-->
@@ -47,7 +63,7 @@
                                     </StackPanel>
                                     <StackPanel>
                                         <TextBlock Text="{Binding Status}" TextAlignment="Right" Opacity=".7" FontSize="11"/>
-                                        <TextBlock Text="{Binding Path}" TextAlignment="Right" Opacity=".7" FontSize="11"/>
+                                        <TextBlock Text="{Binding Backend}" TextAlignment="Right" Opacity=".7" FontSize="11"/>
                                     </StackPanel>
                                 </DockPanel>
                             </DockPanel>
@@ -66,7 +82,7 @@
                             <CommonControls:IconButton Text="Download Model" FontSize="13" Icon="f0ed" IconSize="14" IconStyle="Light" IconOpacity=".8" IconColor="{StaticResource InfoColour}" Command="{Binding DownloadModelCommand}" Height="40" Alignment="Left" IconMargin="10,0,1,0" Visibility="{Binding SelectedModel.Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Pending}"/>
                             <CommonControls:IconButton Text="Retry Download" FontSize="13" Icon="f01e" IconSize="14" IconStyle="Light" IconOpacity=".8" IconColor="{StaticResource DangerColour}" Command="{Binding DownloadModelCommand}" Height="40" Alignment="Left" IconMargin="10,0,3,0" Visibility="{Binding SelectedModel.Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=DownloadFailed}"/>
                             <CommonControls:IconButton Text="Update Model" FontSize="13" Icon="f01e" IconSize="14" IconStyle="Light" IconOpacity=".8" IconColor="{StaticResource WarningColour}" Command="{Binding DownloadModelCommand}" Height="40" Alignment="Left" IconMargin="10,0,4,0" Visibility="{Binding SelectedModel.Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Installed|Unknown}"/>
-                            <CommonControls:IconButton Text="Cancel Download" FontSize="13" Icon="f05e" IconSize="14" IconStyle="Light" IconOpacity=".8" IconColor="{StaticResource DangerColour}" Command="{Binding DownloadModelCancelCommand}" Height="40" Alignment="Left" IconMargin="10,0,3,0" Visibility="{Binding SelectedModel.Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Downloading|DownloadQueue|Verifying}"/>
+                            <CommonControls:IconButton Text="Cancel Download" FontSize="13" Icon="f05e" IconSize="14" IconStyle="Light" IconOpacity=".8" IconColor="{StaticResource DangerColour}" Command="{Binding DownloadModelCancelCommand}" Height="40" Alignment="Left" IconMargin="10,0,3,0" Visibility="{Binding SelectedModel.Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Downloading|DownloadQueue}"/>
                             <CommonControls:IconButton Text="Open Folder" FontSize="13" Icon="f07c" IconSize="14" IconStyle="Light" IconOpacity=".8" IconColor="{StaticResource InfoColour}" Command="{Binding OpenModelCommand}" Height="40" Alignment="Left" IconMargin="11,0,3,0" Visibility="{Binding SelectedModel.Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Installed|Unknown|DownloadFailed}"/>
                             <CommonControls:IconButton Text="Delete Files" FontSize="13" Icon="f2ed" IconSize="14" IconStyle="Light" IconOpacity=".8" IconColor="{StaticResource DangerColour}" Command="{Binding DeleteModelCommand}" Height="40" Alignment="Left" IconMargin="12,0,3,0" Visibility="{Binding SelectedModel.Status, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Installed|Unknown|DownloadFailed}"/>
                         </StackPanel>
@@ -92,9 +108,6 @@
                             <StackPanel Margin="2,6,2,0">
                                 <TextBlock Text="Model Link" Style="{StaticResource FieldTextBlockStyle}" />
                                 <CommonControls:HyperlinkControl Label="{Binding SelectedModel.Link}" Link="{Binding SelectedModel.Link}" />
-                            </StackPanel>
-                            <StackPanel Margin="2,0,0,0">
-                                <CheckBox Content="Gated Access" IsChecked="{Binding SelectedModel.IsGated}" Margin="0,22,0,2" IsHitTestVisible="False"/>
                             </StackPanel>
                         </UniformGrid>
                     </StackPanel>

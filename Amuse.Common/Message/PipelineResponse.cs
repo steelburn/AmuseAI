@@ -15,12 +15,24 @@ namespace Amuse.Common.Message
         public PipelineResponse(string errorMessage)
         {
             Error = errorMessage;
+            Type = ResponseType.Error;
         }
 
         public PipelineResponse(params IReadOnlyList<Tensor<float>> tensors)
         {
             Tensors = tensors;
+            Type = ResponseType.Tensor;
         }
+
+
+        public PipelineResponse(params PipelineTextResult[] textResults)
+        {
+            Type = ResponseType.Object;
+            TextResponse = new PipelineTextResponse(textResults);
+        }
+
+        public ResponseType Type { get; init; }
+        public PipelineTextResponse TextResponse { get; set; }
 
         public string Error { get; init; }
         public bool IsCanceled { get; init; }
@@ -31,5 +43,24 @@ namespace Amuse.Common.Message
 
         [JsonIgnore]
         public bool IsError => !string.IsNullOrEmpty(Error);
+    }
+
+
+    public record PipelineTextResponse
+    {
+        public PipelineTextResponse() { }
+        public PipelineTextResponse(PipelineTextResult[] results)
+        {
+            Results = results;
+        }
+        public PipelineTextResult[] Results { get; set; }
+    }
+
+    public record PipelineTextResult
+    {
+        public int Beam { get; set; }
+        public float Score { get; set; }
+        public float PenaltyScore { get; set; }
+        public string Text { get; set; }
     }
 }

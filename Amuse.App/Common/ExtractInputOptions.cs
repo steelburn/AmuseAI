@@ -130,5 +130,27 @@ namespace Amuse.App.Common
             get { return isTileSupported; }
             set { SetProperty(ref isTileSupported, value); }
         }
+
+        public ExtractInputOptions DeepClone()
+        {
+            return new ExtractInputOptions
+            {
+                BodyConfidence = BodyConfidence,
+                BoneRadius = BoneRadius,
+                BoneThickness = BoneThickness,
+                ColorAlpha = ColorAlpha,
+                Detections = Detections,
+                IsInverted = IsInverted,
+                IsTransparent = IsTransparent,
+                JointConfidence = JointConfidence,
+                JointRadius = JointRadius,
+                MergeInput = MergeInput,
+                Mode = Mode,
+                IsTileEnabled = IsTileEnabled,
+                TileOverlap = TileOverlap,
+                TileSize = TileSize,
+                IsTileSupported = IsTileSupported
+            };
+        }
     }
 }

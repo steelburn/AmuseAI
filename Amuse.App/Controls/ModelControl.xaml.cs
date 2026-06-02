@@ -1,12 +1,15 @@
 ﻿using Amuse.App.Common;
+using Amuse.App.Services;
 using Amuse.App.Views;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
+using TensorStack.WPF.Services;
 
 namespace Amuse.App.Controls
 {
@@ -18,21 +21,17 @@ namespace Amuse.App.Controls
         private ListCollectionView _deviceCollectionView;
         private ListCollectionView _extractCollectionView;
         private ListCollectionView _upscaleCollectionView;
-        private ListCollectionView _audioCollectionView;
 
         private DeviceModel _selectedDevice;
         private ExtractModel _selectedExtractor;
         private UpscaleModel _selectedUpscaler;
-        private AudioModel _selectedAudioModel;
 
         private bool _isUpscalerEnabled;
         private bool _isExtractorEnabled;
-        private bool _isAudioEnabled;
 
         private DeviceModel _currentDevice;
         private ExtractModel _currentExtractor;
         private UpscaleModel _currentUpscaler;
-        private AudioModel _currentAudioModel;
 
 
         /// <summary>
@@ -48,6 +47,8 @@ namespace Amuse.App.Controls
         public static readonly DependencyProperty SettingsProperty = DependencyProperty.Register(nameof(Settings), typeof(Settings), typeof(ModelControl), new PropertyMetadata<ModelControl>((c) => c.OnSettingsChanged()));
         public static readonly DependencyProperty IsPipelineLoadedProperty = DependencyProperty.Register(nameof(IsPipelineLoaded), typeof(bool), typeof(ModelControl), new PropertyMetadata<ModelControl>((c) => c.OnIsPipelineLoadedChanged()));
         public static readonly DependencyProperty IsSelectionValidProperty = DependencyProperty.Register(nameof(IsSelectionValid), typeof(bool), typeof(ModelControl));
+        public static readonly DependencyProperty DownloadServiceProperty = DependencyProperty.Register(nameof(DownloadService), typeof(IModelDownloadService), typeof(ModelControl));
+        public static readonly DependencyProperty NavigationServiceProperty = DependencyProperty.Register(nameof(NavigationService), typeof(NavigationService), typeof(ModelControl));
 
         public event EventHandler<PipelineModel> SelectionChanged;
         public AsyncRelayCommand LoadCommand { get; }
@@ -72,6 +73,18 @@ namespace Amuse.App.Controls
             set { SetValue(IsSelectionValidProperty, value); }
         }
 
+        public IModelDownloadService DownloadService
+        {
+            get { return (IModelDownloadService)GetValue(DownloadServiceProperty); }
+            set { SetValue(DownloadServiceProperty, value); }
+        }
+
+        public NavigationService NavigationService
+        {
+            get { return (NavigationService)GetValue(NavigationServiceProperty); }
+            set { SetValue(NavigationServiceProperty, value); }
+        }
+
         public DeviceModel SelectedDevice
         {
             get { return _selectedDevice; }
@@ -88,12 +101,6 @@ namespace Amuse.App.Controls
         {
             get { return _selectedUpscaler; }
             set { SetProperty(ref _selectedUpscaler, value); ValidateSelection(); }
-        }
-
-        public AudioModel SelectedAudioModel
-        {
-            get { return _selectedAudioModel; }
-            set { SetProperty(ref _selectedAudioModel, value); ValidateSelection(); }
         }
 
         public ListCollectionView DeviceCollectionView
@@ -114,12 +121,6 @@ namespace Amuse.App.Controls
             set { SetProperty(ref _upscaleCollectionView, value); }
         }
 
-        public ListCollectionView AudioCollectionView
-        {
-            get { return _audioCollectionView; }
-            set { SetProperty(ref _audioCollectionView, value); }
-        }
-
         public bool IsExtractorEnabled
         {
             get { return _isExtractorEnabled; }
@@ -132,31 +133,27 @@ namespace Amuse.App.Controls
             set { SetProperty(ref _isUpscalerEnabled, value); }
         }
 
-        public bool IsAudioEnabled
+        private async Task LoadAsync()
         {
-            get { return _isAudioEnabled; }
-            set { SetProperty(ref _isAudioEnabled, value); }
-        }
+            if (!await IsAccessGrantedAsync())
+                return;
 
+            if (await IsDownloadingAsync())
+                return;
 
-        private Task LoadAsync()
-        {
             _currentDevice = SelectedDevice;
             _currentExtractor = SelectedExtractor;
             _currentUpscaler = SelectedUpscaler;
-            _currentAudioModel = SelectedAudioModel;
 
             var pipeline = new PipelineModel
             {
                 Device = _currentDevice,
                 ExtractModel = _isExtractorEnabled ? _currentExtractor : default,
-                UpscaleModel = _isUpscalerEnabled ? _currentUpscaler : default,
-                AudioModel = _isAudioEnabled ? _currentAudioModel : default,
+                UpscaleModel = _isUpscalerEnabled ? _currentUpscaler : default
             };
 
             ValidateSelection();
             SelectionChanged?.Invoke(this, pipeline);
-            return Task.CompletedTask;
         }
 
 
@@ -170,7 +167,6 @@ namespace Amuse.App.Controls
         {
             _currentExtractor = default;
             _currentUpscaler = default;
-            _currentAudioModel = default;
             SelectionChanged?.Invoke(this, default);
             ValidateSelection();
             return Task.CompletedTask;
@@ -180,8 +176,7 @@ namespace Amuse.App.Controls
         private bool CanUnload()
         {
             return _currentExtractor is not null
-                || _currentUpscaler is not null
-                || _currentAudioModel is not null;
+                || _currentUpscaler is not null;
         }
 
 
@@ -189,8 +184,7 @@ namespace Amuse.App.Controls
         {
             return _currentDevice != SelectedDevice
                 || (IsExtractorEnabled && _currentExtractor != SelectedExtractor)
-                || (IsUpscalerEnabled && _currentUpscaler != SelectedUpscaler)
-                || (IsAudioEnabled && _currentAudioModel != SelectedAudioModel);
+                || (IsUpscalerEnabled && _currentUpscaler != SelectedUpscaler);
         }
 
 
@@ -235,25 +229,6 @@ namespace Amuse.App.Controls
             };
 
 
-            //Audio models
-            AudioCollectionView = new ListCollectionView(Settings.AudioModels);
-            AudioCollectionView.Filter = (obj) =>
-            {
-                if (obj is not AudioModel model)
-                    return false;
-
-                if (_selectedDevice is null)
-                    return false;
-
-                if (ViewType == View.TextToAudio)
-                    return model.Type == AudioModelType.Supertonic;
-
-                if (ViewType == View.AudioToText)
-                    return model.Type == AudioModelType.Whisper;
-
-                return false;
-            };
-
             SelectedDevice = Settings.GetDefaultDevice();
             return Task.CompletedTask;
         }
@@ -274,13 +249,6 @@ namespace Amuse.App.Controls
                 SelectedUpscaler = UpscaleCollectionView.Cast<UpscaleModel>().FirstOrDefault(x => x == _currentUpscaler)
                                 ?? UpscaleCollectionView.Cast<UpscaleModel>().OrderByDescending(x => x.IsDefault).FirstOrDefault();
             }
-
-            if (AudioCollectionView is not null)
-            {
-                AudioCollectionView.Refresh();
-                SelectedAudioModel = AudioCollectionView.Cast<AudioModel>().FirstOrDefault(x => x == _currentAudioModel)
-                                  ?? AudioCollectionView.Cast<AudioModel>().OrderByDescending(x => x.IsDefault).FirstOrDefault();
-            }
         }
 
 
@@ -295,9 +263,8 @@ namespace Amuse.App.Controls
         {
             var isExtractValid = !IsExtractorEnabled || ExtractCollectionView?.IsEmpty == false;
             var isUpscaleValid = !IsUpscalerEnabled || UpscaleCollectionView?.IsEmpty == false;
-            var isAudioValid = !IsAudioEnabled || AudioCollectionView?.IsEmpty == false;
             var isCurrentValid = !HasCurrentChanged();
-            IsSelectionValid = isCurrentValid && isExtractValid && isAudioValid && IsPipelineLoaded;
+            IsSelectionValid = isCurrentValid && isExtractValid && isUpscaleValid && IsPipelineLoaded;
             LoadCommand.RaiseCanExecuteChanged();
         }
 
@@ -314,10 +281,62 @@ namespace Amuse.App.Controls
             if (IsExtractorEnabled && pipeline.ExtractModel is not null && _extractCollectionView.Contains(pipeline.ExtractModel))
                 SelectedExtractor = pipeline.ExtractModel;
 
-            if (IsAudioEnabled && pipeline.AudioModel is not null && _audioCollectionView.Contains(pipeline.AudioModel))
-                SelectedAudioModel = pipeline.AudioModel;
-
             ValidateSelection();
+        }
+
+
+        private async Task<bool> IsDownloadingAsync()
+        {
+            var status = GetModelStatus();
+            if (status.Contains(ModelStatusType.Downloading) || status.Contains(ModelStatusType.DownloadQueue) || status.Contains(ModelStatusType.DownloadFailed))
+            {
+                await DialogService.ShowMessageAsync("Model Downloading", "This model is downloading or queued for download", TensorStack.WPF.Dialogs.MessageDialogType.Ok, TensorStack.WPF.Dialogs.MessageBoxIconType.Info, TensorStack.WPF.Dialogs.MessageBoxStyleType.Info);
+                return true;
+            }
+            else if (status.Contains(ModelStatusType.Pending) || status.Contains(ModelStatusType.Unknown))
+            {
+                var queueDownload = await DialogService.ShowMessageAsync("Queue Download", "Would you like to queue this model for download?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Question, TensorStack.WPF.Dialogs.MessageBoxStyleType.Info);
+                if (queueDownload)
+                {
+                    // Extract
+                    if (_isExtractorEnabled && _selectedExtractor != null && _selectedExtractor.Status != ModelStatusType.Installed)
+                    {
+                        await DownloadService.QueueAsync(_selectedExtractor);
+                    }
+
+                    // Upscale
+                    if (_isUpscalerEnabled && _selectedUpscaler != null && _selectedUpscaler.Status != ModelStatusType.Installed)
+                    {
+                        await DownloadService.QueueAsync(_selectedUpscaler);
+                    }
+                    await NavigationService.NavigateAsync((int)View.Downloads);
+                }
+                return true;
+            }
+            return false;
+        }
+
+
+        private List<ModelStatusType> GetModelStatus()
+        {
+            var statuses = new List<ModelStatusType>();
+            if (_isExtractorEnabled && _selectedExtractor != null)
+            {
+                statuses.Add(_selectedExtractor.Status);
+            }
+
+            if (_isUpscalerEnabled && _selectedUpscaler != null)
+            {
+                statuses.Add(_selectedUpscaler.Status);
+            }
+
+            return statuses;
+        }
+
+
+        private Task<bool> IsAccessGrantedAsync()
+        {
+            return Task.FromResult(true);
         }
     }
 }

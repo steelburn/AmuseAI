@@ -1,6 +1,7 @@
 ﻿using Amuse.App.Views;
 using System.Linq;
 using System.Text.Json.Serialization;
+using TensorStack.Common;
 using TensorStack.Common.Common;
 using TensorStack.WPF;
 
@@ -8,51 +9,144 @@ namespace Amuse.App.Common
 {
     public class LoraAdapterModel : BaseModel, IDownloadModel
     {
-        private string _weights;
+        private BackendType _backend;
+        private string _name;
+        private PipelineType _pipeline;
+        private string _key;
+        private string[] _triggers;
+        private View[] _viewFilter;
+        private CheckpointComponent _checkpoint;
         private ModelStatusType _status;
+        private string _accessToken;
+        private bool _isDefault;
+        private string _link;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Id { get; set; }
-        public BackendType Backend { get; set; }
-        public string Name { get; set; }
-        public string Key { get; set; }
-        public string Path { get; set; }
-        public string Weights
+
+        public BackendType Backend
         {
-            get { return _weights; }
-            set { SetProperty(ref _weights, value); }
+            get { return _backend; }
+            set { SetProperty(ref _backend, value); }
         }
-        public string Pipeline { get; set; }
-        public ModelSourceType Source { get; set; }
-        public string[] Triggers { get; set; }
-        public bool IsDefault { get; set; }
+
+        public string Name
+        {
+            get { return _name; }
+            set { SetProperty(ref _name, value); }
+        }
+
+        public PipelineType Pipeline
+        {
+            get { return _pipeline; }
+            set { SetProperty(ref _pipeline, value); }
+        }
+
+        public string Key
+        {
+            get { return _key; }
+            set { SetProperty(ref _key, value); }
+        }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public View[] ViewFilter { get; set; }
-        public bool IsGated { get; set; }
+        public string[] Triggers
+        {
+            get { return _triggers; }
+            set { SetProperty(ref _triggers, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public View[] ViewFilter
+        {
+            get { return _viewFilter; }
+            set { SetProperty(ref _viewFilter, value); }
+        }
+
+        public CheckpointComponent Checkpoint
+        {
+            get { return _checkpoint; }
+            set { SetProperty(ref _checkpoint, value); }
+        }
+
         public ModelStatusType Status
         {
             get { return _status; }
             set { SetProperty(ref _status, value); }
         }
-        public string Link { get; set; }
 
-
-        public void Initialize(string modelDirectory)
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string AccessToken
         {
-            Status = HuggingFace.ModelStatus(this, modelDirectory);
+            get { return _accessToken; }
+            set { SetProperty(ref _accessToken, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool IsDefault
+        {
+            get { return _isDefault; }
+            set { SetProperty(ref _isDefault, value); }
+        }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string Link
+        {
+            get { return _link; }
+            set { SetProperty(ref _link, value); }
         }
 
 
-        public void Delete(string modelDirectory)
+        public void Initialize(Settings settings)
         {
-            HuggingFace.ModelDelete(this, modelDirectory);
+            Status = GetModelStatus(settings);
         }
 
 
-        public string GetDirectory(string modelDirectory)
+        public void Delete(Settings settings)
         {
-            return HuggingFace.ModelDirectory(this, modelDirectory);
+            var resolvedCheckpoint = Checkpoint.Resolve(settings.DirectoryUpscale, settings.Components);
+            if (string.IsNullOrEmpty(resolvedCheckpoint))
+                return;
+
+            if (System.IO.File.Exists(resolvedCheckpoint))
+            {
+                FileHelper.DeleteFile(resolvedCheckpoint);
+                FileHelper.DeleteDirectory(System.IO.Path.GetDirectoryName(resolvedCheckpoint), false);
+            }
+            else if (System.IO.Directory.Exists(resolvedCheckpoint))
+            {
+                FileHelper.DeleteDirectory(resolvedCheckpoint);
+            }
+        }
+
+
+        public string GetDirectory(Settings settings)
+        {
+            var resolvedCheckpoint = Checkpoint.Resolve(settings.DirectoryUpscale, settings.Components);
+            if (string.IsNullOrEmpty(resolvedCheckpoint))
+                return null;
+
+            if (System.IO.Directory.Exists(resolvedCheckpoint))
+                return resolvedCheckpoint;
+
+            return System.IO.Path.GetDirectoryName(resolvedCheckpoint);
+        }
+
+
+        private ModelStatusType GetModelStatus(Settings settings)
+        {
+            if (Checkpoint == null)
+                return ModelStatusType.Pending;
+
+            var isValid = Checkpoint.IsInstalled(settings.DirectoryLoraAdapter, settings.Components);
+            if (Status == ModelStatusType.Pending && isValid)
+                return ModelStatusType.Installed;
+            else if (Status == ModelStatusType.Installed && !isValid)
+                return ModelStatusType.Pending;
+            else if (Status == ModelStatusType.Downloading || Status == ModelStatusType.DownloadQueue || Status == ModelStatusType.DownloadFailed)
+                return ModelStatusType.Pending;
+
+            return Status;
         }
 
 
@@ -61,17 +155,15 @@ namespace Amuse.App.Common
             return new LoraAdapterModel
             {
                 Id = id,
-                Name = Name,
-                Key = Key,
-                Path = Path,
-                Pipeline = Pipeline,
-                Weights = Weights,
-                Triggers = Triggers?.ToArray(),
-                Source = Source,
                 Backend = Backend,
-                IsGated = IsGated,
-                Link = Link,
+                Name = Name,
+                Pipeline = Pipeline,
+                Key = Key,
+                Triggers = Triggers?.ToArray(),
                 ViewFilter = ViewFilter?.ToArray(),
+                Checkpoint = Checkpoint.DeepClone(),
+                AccessToken = AccessToken,
+                Link = Link
             };
         }
     }

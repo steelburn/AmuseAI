@@ -59,6 +59,9 @@
                         <Grid Width="100" Height="100" Visibility="{Binding MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Audio}">
                             <CommonControls:FontAwesome Icon="f001" IconStyle="Solid" Size="70" Color="{StaticResource DefaultForeground}" Opacity=".2" />
                         </Grid>
+                        <Grid Width="100" Height="100" Visibility="{Binding MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Text}">
+                            <CommonControls:FontAwesome Icon="f894" IconStyle="Solid" Size="70" Color="{StaticResource DefaultForeground}" Opacity=".2" />
+                        </Grid>
                         <CommonControls:TransparentImageElement 
                             Height="100" 
                             Stretch="Uniform" 
@@ -81,7 +84,7 @@
                         </UniformGrid>
                     </Grid>
                     <Grid Margin="0,3,0,0">
-                        <StackPanel Visibility="{Binding MediaType, Converter={StaticResource InverseEnumToVisibilityConverter}, ConverterParameter=Audio}">
+                        <StackPanel Visibility="{Binding MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Image|Video}">
                             <TextBlock TextAlignment="Center" LineHeight="14" LineStackingStrategy="BlockLineHeight">
                                 <Run Text="{Binding Width}" />
                                 <Run Text="x" />
@@ -93,6 +96,13 @@
                         <StackPanel Visibility="{Binding MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Audio}">
                             <TextBlock TextAlignment="Center" LineHeight="14" LineStackingStrategy="BlockLineHeight">
                                 <Run Text="{Binding Duration, FallbackValue=00:00:00, StringFormat={}mm\\:ss\\.ff}" />
+                                <LineBreak/>
+                                <Run Text="{Binding Source}" />
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Visibility="{Binding MediaType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Text}">
+                            <TextBlock TextAlignment="Center" LineHeight="14" LineStackingStrategy="BlockLineHeight">
+                                <Run Text="{Binding Options.Task}" />
                                 <LineBreak/>
                                 <Run Text="{Binding Source}" />
                             </TextBlock>
