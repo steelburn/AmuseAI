@@ -1,5 +1,8 @@
 ﻿using Amuse.App.Services;
 using Microsoft.Extensions.Logging;
+using System.Threading;
+using System.Threading.Tasks;
+using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 using TensorStack.WPF.Services;
 
@@ -21,6 +24,7 @@ namespace Amuse.App.Views
             DownloadService = downloadService;
             Progress = new ProgressInfo();
             ViewName = View.ToString();
+            CancelCommand = new AsyncRelayCommand(CancelAsync, CanCancel);
         }
 
         /// <summary>
@@ -64,6 +68,16 @@ namespace Amuse.App.Views
         public IModelDownloadService DownloadService { get; }
 
         /// <summary>
+        /// Gets or sets the cancel command.
+        /// </summary>
+        public AsyncRelayCommand CancelCommand { get; set; }
+
+        /// <summary>
+        /// Gets or sets the cancellation token source.
+        /// </summary>
+        public CancellationTokenSource CancellationTokenSource { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this view busy.
         /// </summary>
         /// <value><c>true</c> if this i view busy; otherwise, <c>false</c>.</value>
@@ -73,5 +87,23 @@ namespace Amuse.App.Views
             set { SetProperty(ref _isViewBusy, value); }
         }
 
+
+        /// <summary>
+        /// Cancel as an asynchronous operation.
+        /// </summary>
+        protected virtual async Task CancelAsync()
+        {
+            if (CancellationTokenSource != null && !CancellationTokenSource.IsCancellationRequested)
+                await CancellationTokenSource.CancelAsync();
+        }
+
+
+        /// <summary>
+        /// Determines whether this process can cancel.
+        /// </summary>
+        protected virtual bool CanCancel()
+        {
+            return CancellationTokenSource != null && !CancellationTokenSource.IsCancellationRequested;
+        }
     }
 }

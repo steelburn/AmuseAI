@@ -14,7 +14,7 @@ using TensorStack.Video;
 
 namespace Amuse.App.Services
 {
-    public class ExtractService : ServiceBase, IExtractService
+    public sealed class ExtractService : ServiceBase, IExtractService
     {
         private readonly Settings _settings;
         private readonly IMediaService _mediaService;

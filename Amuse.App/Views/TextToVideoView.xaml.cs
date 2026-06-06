@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TensorStack.Common;
 using TensorStack.Video;
@@ -112,10 +113,14 @@ namespace Amuse.App.Views
                 ResultImage = default;
                 CompareImage = default;
                 Statistics.Start();
+                CancellationTokenSource = new CancellationTokenSource();
 
                 AutomationProgress.Indeterminate($"Automation Started");
+                var cancellationToken = CancellationTokenSource.Token;
                 await foreach (var automationJob in AutomationManager.CreateJobsAsync(AutomationOptions, Options, MediaType.Video, MediaType.Text))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     // Diffusion
                     var resultTensor = await ExecuteVideoDiffusionAsync(automationJob.DiffusionOptions);
 
@@ -151,6 +156,8 @@ namespace Amuse.App.Views
                 Progress.Clear();
                 AutomationProgress.Clear();
                 IsAutomating = false;
+                CancellationTokenSource?.Dispose();
+                CancellationTokenSource = null;
             }
         }
 

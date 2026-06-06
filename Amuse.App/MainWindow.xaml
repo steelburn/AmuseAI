@@ -311,7 +311,7 @@
                     <Grid Visibility="{Binding ViewCategory, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Image}">
                         <UniformGrid Columns="1" VerticalAlignment="Top" >
                             <CommonControls:IconButton 
-                                Text="Text To Image" 
+                                Text="Text &#10132; Image" 
                                 Icon="f894"
                                 Style="{StaticResource SubmenuIconButton}"
                                 Command="{Binding NavigateCommand}" 
@@ -319,7 +319,7 @@
                                 IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=TextToImage}">
                             </CommonControls:IconButton>
                             <CommonControls:IconButton 
-                                Text="Image To Image" 
+                                Text="Image &#10132; Image" 
                                 Icon="f03e"
                                 Style="{StaticResource SubmenuIconButton}"
                                 Command="{Binding NavigateCommand}" 
@@ -343,7 +343,7 @@
                                 IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=ImageInpaint}">
                             </CommonControls:IconButton>
                             <CommonControls:IconButton 
-                                Text="Paint To Image" 
+                                Text="Paint &#10132; Image" 
                                 Icon="f1fc"
                                 Style="{StaticResource SubmenuIconButton}"
                                 Command="{Binding NavigateCommand}" 
@@ -381,7 +381,7 @@
                     <Grid Visibility="{Binding ViewCategory, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Video}">
                         <UniformGrid Columns="1" VerticalAlignment="Top" >
                             <CommonControls:IconButton 
-                                Text="Text To Video" 
+                                Text="Text &#10132; Video" 
                                 Icon="f894"
                                 Style="{StaticResource SubmenuIconButton}"
                                 Command="{Binding NavigateCommand}" 
@@ -389,7 +389,7 @@
                                 IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=TextToVideo}">
                             </CommonControls:IconButton>
                             <CommonControls:IconButton 
-                                Text="Image To Video" 
+                                Text="Image &#10132; Video" 
                                 Icon="f03e"
                                 Style="{StaticResource SubmenuIconButton}"
                                 Command="{Binding NavigateCommand}" 
@@ -397,7 +397,7 @@
                                 IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=ImageToVideo}">
                             </CommonControls:IconButton>
                             <CommonControls:IconButton 
-                                Text="Video To Video" 
+                                Text="Video &#10132; Video" 
                                 Icon="f008"
                                 Style="{StaticResource SubmenuIconButton}"
                                 Command="{Binding NavigateCommand}" 
@@ -405,7 +405,7 @@
                                 IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=VideoToVideo}">
                             </CommonControls:IconButton>
                             <CommonControls:IconButton 
-                                Text="Frame To Frame" 
+                                Text="Frame &#10132; Frame" 
                                 Icon="e17a"
                                 Style="{StaticResource SubmenuIconButton}"
                                 Command="{Binding NavigateCommand}" 
@@ -452,7 +452,7 @@
                     <Grid Visibility="{Binding ViewCategory, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Audio}">
                         <UniformGrid Columns="1" VerticalAlignment="Top" >
                             <CommonControls:IconButton 
-                                Text="Text To Music" 
+                                Text="Text &#10132; Music" 
                                 Icon="f8c9"
                                 Style="{StaticResource SubmenuIconButton}"
                                 Command="{Binding NavigateCommand}" 
@@ -460,7 +460,7 @@
                                 IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=TextToMusic}">
                             </CommonControls:IconButton>
                             <CommonControls:IconButton 
-                                Text="Text To Audio" 
+                                Text="Text &#10132; Audio" 
                                 Icon="f894"
                                 Style="{StaticResource SubmenuIconButton}"
                                 Command="{Binding NavigateCommand}" 
@@ -468,7 +468,7 @@
                                 IsSelected="{Binding View, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=TextToAudio}">
                             </CommonControls:IconButton>
                             <CommonControls:IconButton 
-                                Text="Audio To Text" 
+                                Text="Audio &#10132; Text" 
                                 Icon="f001"
                                 Style="{StaticResource SubmenuIconButton}"
                                 Command="{Binding NavigateCommand}" 

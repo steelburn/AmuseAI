@@ -38,7 +38,7 @@ namespace Amuse.App.Views
             AddModelCommand = new AsyncRelayCommand(AddModelAsync);
             AddModelWizardCommand = new AsyncRelayCommand(AddModelWizardAsync);
             CopyModelCommand = new AsyncRelayCommand(CopyModelAsync, () => SelectedModel is not null);
-            UpdateModelCommand = new AsyncRelayCommand(UpdateModelAsync);
+            UpdateModelCommand = new AsyncRelayCommand(UpdateModelAsync, () => SelectedModel?.Id > Utils.FixedIdRange);
             RemoveModelCommand = new AsyncRelayCommand(RemoveModelAsync, () => SelectedModel?.Id > Utils.FixedIdRange);
             ImportModelCommand = new AsyncRelayCommand(ImportModelAsync);
             ExportModelCommand = new AsyncRelayCommand(ExportModelAsync, () => SelectedModel is not null);
@@ -51,7 +51,8 @@ namespace Amuse.App.Views
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(LoraAdapterModel.Backend), ListSortDirection.Descending));
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(LoraAdapterModel.Pipeline), ListSortDirection.Ascending));
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(LoraAdapterModel.Name), ListSortDirection.Ascending));
-            SelectedModel = settings.LoraAdapterModels.FirstOrDefault();
+            ModelCollection.MoveCurrentToFirst();
+            SelectedModel = ModelCollection.CurrentItem as LoraAdapterModel;
             InitializeComponent();
         }
 
@@ -265,7 +266,7 @@ namespace Amuse.App.Views
             if (await DialogService.ShowMessageAsync("Delete Model", $"Are you sure you want to delete this model?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Warning, TensorStack.WPF.Dialogs.MessageBoxStyleType.Danger))
             {
                 await Task.Run(() => _selectedModel.Delete(Settings));
-                _selectedModel.Status = ModelStatusType.Pending;
+                _selectedModel.Status = ModelStatusType.Available;
                 await SaveAsync();
             }
         }

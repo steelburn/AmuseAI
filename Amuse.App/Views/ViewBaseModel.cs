@@ -25,7 +25,6 @@ namespace Amuse.App.Views
         {
             Statistics = new StatisticsModel(Dispatcher);
             ProgressCallback = new Progress<RunProgress>(OnProgress);
-            CancelCommand = new AsyncRelayCommand(CancelAsync, CanCancel);
             ExecuteCommand = new AsyncRelayCommand(ExecuteAsync, CanExecute);
             ExecuteAutomationCommand = new AsyncRelayCommand(ExecuteAutomationAsync, CanExecuteAutomation);
             AutomationProgress = new ProgressInfo();
@@ -44,11 +43,6 @@ namespace Amuse.App.Views
         /// <summary>
         /// Gets or sets the execute automation command.
         public AsyncRelayCommand ExecuteAutomationCommand { get; set; }
-
-        /// <summary>
-        /// Gets or sets the cancel command.
-        /// </summary>
-        public AsyncRelayCommand CancelCommand { get; set; }
 
         /// <summary>
         /// Gets the progress callback.
@@ -138,24 +132,6 @@ namespace Amuse.App.Views
         protected virtual bool CanExecuteAutomation()
         {
             return CanExecute();
-        }
-
-
-        /// <summary>
-        /// Cancels the LoadPipeline or Execute processes.
-        /// </summary>
-        protected virtual Task CancelAsync()
-        {
-            return Task.CompletedTask;
-        }
-
-
-        /// <summary>
-        /// Determines whether the process can cancel.
-        /// </summary>
-        protected virtual bool CanCancel()
-        {
-            return true;
         }
 
 

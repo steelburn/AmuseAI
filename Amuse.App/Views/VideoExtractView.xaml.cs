@@ -3,6 +3,7 @@ using Amuse.App.Services;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using TensorStack.Common;
 using TensorStack.Common.Pipeline;
@@ -225,10 +226,14 @@ namespace Amuse.App.Views
                 ResultVideo = default;
                 CompareVideo = default;
                 Statistics.Start();
+                CancellationTokenSource = new CancellationTokenSource();
 
                 AutomationProgress.Indeterminate($"Automation Started");
+                var cancellationToken = CancellationTokenSource.Token;
                 await foreach (var automationJob in AutomationManager.CreateJobsAsync(AutomationOptions, Options, MediaType.Video, MediaType.Video))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     // Source
                     SourceVideo = automationJob.VideoStreams[0];
 
@@ -276,6 +281,8 @@ namespace Amuse.App.Views
                 Progress.Clear();
                 AutomationProgress.Clear();
                 IsAutomating = false;
+                CancellationTokenSource?.Dispose();
+                CancellationTokenSource = null;
             }
         }
 
@@ -303,6 +310,7 @@ namespace Amuse.App.Views
         /// </summary>
         protected override async Task CancelAsync()
         {
+            await base.CancelAsync();
             await ExtractService.CancelAsync();
         }
 
@@ -312,7 +320,7 @@ namespace Amuse.App.Views
         /// </summary>
         protected override bool CanCancel()
         {
-            return ExtractService.CanCancel;
+            return base.CanCancel() || ExtractService.CanCancel;
         }
 
 

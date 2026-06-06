@@ -11,7 +11,7 @@
                 <UniformGrid Rows="1" DockPanel.Dock="Left" Width="250">
                     <StackPanel>
                         <TextBlock Text="Type" Style="{StaticResource FieldTextBlockStyle}"/>
-                        <ComboBox ItemsSource="{Binding SupportedTypes}" SelectedItem="{Binding Checkpoint.Type}" Height="25"/>
+                        <ComboBox ItemsSource="{Binding SupportedTypes}" SelectedItem="{Binding Checkpoint.Type}" Height="25" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
                 <Grid>

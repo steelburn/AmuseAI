@@ -37,11 +37,11 @@
                     <UniformGrid  Rows="1">
                         <StackPanel Margin="0,0,2,0">
                             <TextBlock Text="Backend" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <ComboBox ItemsSource="{Binding Source={StaticResource BackendType}}" SelectedItem="{Binding UpscaleModel.Backend}" IsEnabled="False" />
+                            <ComboBox ItemsSource="{Binding Source={StaticResource BackendType}}" SelectedItem="{Binding UpscaleModel.Backend}" IsEnabled="False" Style="{StaticResource EnumComboBox}"/>
                         </StackPanel>
                         <StackPanel Margin="2,0,2,0">
                             <TextBlock Text="Pipeline" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <ComboBox ItemsSource="{Binding Settings.Pipelines}" SelectedItem="{Binding UpscaleModel.Pipeline}"  IsEnabled="False"/>
+                            <ComboBox ItemsSource="{Binding Settings.Pipelines}" SelectedItem="{Binding UpscaleModel.Pipeline}"  IsEnabled="False" Style="{StaticResource EnumComboBox}"/>
                         </StackPanel>
                         <StackPanel Margin="2,0,2,0">
                             <TextBlock Text="Name" Style="{StaticResource FieldTextBlockStyle}"/>
@@ -59,11 +59,11 @@
                         </StackPanel>
                         <StackPanel Margin="2,0,2,0">
                             <TextBlock Text="Input Normalization" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <ComboBox ItemsSource="{Binding Source={StaticResource NormalizationType}}" SelectedItem="{Binding UpscaleModel.Normalization}" SelectedIndex="0" />
+                            <ComboBox ItemsSource="{Binding Source={StaticResource NormalizationType}}" SelectedItem="{Binding UpscaleModel.Normalization}" SelectedIndex="0" Style="{StaticResource EnumComboBox}"/>
                         </StackPanel>
                         <StackPanel Margin="2,0,0,0">
                             <TextBlock Text="Output Normalization" Style="{StaticResource FieldTextBlockStyle}"/>
-                            <ComboBox ItemsSource="{Binding Source={StaticResource NormalizationType}}" SelectedItem="{Binding UpscaleModel.OutputNormalization}" SelectedIndex="0" />
+                            <ComboBox ItemsSource="{Binding Source={StaticResource NormalizationType}}" SelectedItem="{Binding UpscaleModel.OutputNormalization}" SelectedIndex="0" Style="{StaticResource EnumComboBox}"/>
                         </StackPanel>
                         <StackPanel Margin="0,0,2,0">
                             <TextBlock Text="MemorySize" Style="{StaticResource FieldTextBlockStyle}"/>

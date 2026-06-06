@@ -43,7 +43,6 @@ namespace Amuse.App.Views
             UpscaleService = upscaleService;
             Statistics = new StatisticsModel(Dispatcher);
             ProgressCallback = new Progress<RunProgress>(OnProgress);
-            CancelCommand = new AsyncRelayCommand(CancelAsync, CanCancel);
             ExecuteCommand = new AsyncRelayCommand(ExecuteAsync, CanExecute);
             ExecuteAutomationCommand = new AsyncRelayCommand(ExecuteAutomationAsync, CanExecuteAutomation);
             StopCommand = new AsyncRelayCommand(DiffusionService.StopAsync);
@@ -79,11 +78,6 @@ namespace Amuse.App.Views
         /// <summary>
         /// Gets or sets the execute automation command.
         public AsyncRelayCommand ExecuteAutomationCommand { get; set; }
-
-        /// <summary>
-        /// Gets or sets the cancel command.
-        /// </summary>
-        public AsyncRelayCommand CancelCommand { get; set; }
 
         /// <summary>
         /// Gets or sets the stop command.
@@ -345,8 +339,10 @@ namespace Amuse.App.Views
         /// <summary>
         /// Cancels the LoadPipeline or Execute processes.
         /// </summary>
-        protected virtual async Task CancelAsync()
+        protected override async Task CancelAsync()
         {
+            await base.CancelAsync();
+
             var timestamp = Stopwatch.GetTimestamp();
             if (UpscaleService.CanCancel)
             {
@@ -374,9 +370,10 @@ namespace Amuse.App.Views
         /// <summary>
         /// Determines whether this process can cancel.
         /// </summary>
-        protected virtual bool CanCancel()
+        protected override bool CanCancel()
         {
-            return DiffusionService.CanCancel
+            return base.CanCancel()
+                || DiffusionService.CanCancel
                 || UpscaleService.CanCancel
                 || ExtractService.CanCancel;
         }

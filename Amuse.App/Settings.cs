@@ -12,7 +12,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App
 {
-    public class Settings : BaseModel, IUIConfiguration
+    public sealed class Settings : BaseModel, IUIConfiguration
     {
         private Orientation _historyOrientation;
         private int _historyItems = 500;
@@ -32,11 +32,16 @@ namespace Amuse.App
 
         [AppDefault]
         public int Version { get; set; }
+        [AppDefault]
+        public bool RunMigrations { get; set; }
         public VendorType[] Vendors { get; set; }
         public int DefaultDeviceId { get; set; }
         public string DirectoryTemp { get; private set; }
         public string DirectoryHistory { get; private set; }
         public string DirectoryModel { get; private set; }
+
+        [JsonIgnore]
+        public string DirectoryDiffusion { get; private set; }
 
         [JsonIgnore]
         public string DirectoryLoraAdapter { get; private set; }
@@ -173,7 +178,7 @@ namespace Amuse.App
         public void InitializeDevices(IReadOnlyList<DeviceModel> devices)
         {
             Devices = devices
-                .Where(x => x.Type == DeviceType.GPU && !string.IsNullOrEmpty(x.HardwareVendor) && Vendors.Contains(x.Vendor))
+                .Where(x => x.Type == DeviceType.GPU && Vendors.Contains(x.Vendor))
                 .ToList();
         }
 
@@ -257,6 +262,7 @@ namespace Amuse.App
         public void SetModelDirectory(string directory)
         {
             DirectoryModel = directory;
+            DirectoryDiffusion = Path.Combine(directory, "Diffusion");
             DirectoryUpscale = Path.Combine(directory, "Upscale");
             DirectoryExtract = Path.Combine(directory, "Extract");
             DirectoryControlNet = Path.Combine(directory, "ControlNet");
@@ -277,6 +283,7 @@ namespace Amuse.App
         private void CreateModelDirectories()
         {
             Directory.CreateDirectory(DirectoryModel);
+            Directory.CreateDirectory(DirectoryDiffusion);
             Directory.CreateDirectory(DirectoryUpscale);
             Directory.CreateDirectory(DirectoryExtract);
             Directory.CreateDirectory(DirectoryControlNet);

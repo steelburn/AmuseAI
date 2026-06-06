@@ -70,18 +70,20 @@ namespace Amuse.App.Services
 
         public AdapterInfo[] Adapters => _adapters ?? [];
 
-
         public IReadOnlyList<DeviceModel> GetGPUDevices()
         {
             var outputDevices = new List<DeviceModel>();
             var providerDevices = Provider.GetDevices();
-            foreach (var device in GPUDevices)
+            foreach (var gpuDevice in GPUDevices)
             {
-                var providerDevice = providerDevices.FirstOrDefault(x => x.HardwareID == device.AdapterInfo.DeviceId && x.HardwareVendorId == device.AdapterInfo.VendorId);
+                if (gpuDevice.HardwareLUID > uint.MaxValue)
+                    continue;
+
+                var providerDevice = providerDevices.FirstOrDefault(x => x.HardwareID == gpuDevice.AdapterInfo.DeviceId && x.HardwareVendorId == gpuDevice.AdapterInfo.VendorId);
                 if (providerDevice == null)
                     continue;
 
-                outputDevices.Add(new DeviceModel(providerDevice, device));
+                outputDevices.Add(new DeviceModel(providerDevice, gpuDevice));
             }
             return outputDevices;
         }
@@ -495,40 +497,91 @@ namespace Amuse.App.Services
         }
 
 
-        static string GetDeviceType(string device, string deviceId)
+        public static string GetDeviceType(string device, string deviceId)
         {
-            if (device.Contains("VEN_1002"))
+            if (string.IsNullOrEmpty(deviceId) || string.IsNullOrEmpty(device))
+                return "Unknown";
+
+            // Immediate exit if the card is Nvidia, Intel, or virtualized
+            if (!device.Contains("VEN_1002"))
+                return deviceId;
+
+            // Convert to hex integer for math-based boundary checking
+            if (!int.TryParse(deviceId, System.Globalization.NumberStyles.HexNumber, null, out int id))
+                return deviceId;
+
+            // =================================================================
+            // 1. RDNA 4 GENERATION (Navi 4x - RX 9000 / AI PRO Series)
+            // =================================================================
+            if (id >= 0x7480 && id <= 0x749F)
             {
-                return deviceId switch
-                {
-                    // -------------------------------------------------------------
-                    // RDNA 4 (Navi 4x / Radeon RX 9000 Series)
-                    // -------------------------------------------------------------
-                    "7483" or "7489" or "749F" => "gfx1200", // (Navi 44 / RDNA4)
-                    "7480" or "7481" or "7490" => "gfx1201", // (Navi 48 / RDNA4)
-
-                    // -------------------------------------------------------------
-                    // RDNA 3 (Navi 3x / Radeon RX 7000 Series)
-                    // -------------------------------------------------------------
-                    "744C" or "7440" or "744E" => "gfx1100",// (Navi 31 / RDNA3)
-                    "7460" or "7461" => "gfx1101",          // (Navi 32 / RDNA3)
-                    "747E" => "gfx1102",                    // (Navi 33 / RDNA3)
-                    "7487" => "gfx1103",                    // (Phoenix/Strix APU)
-
-                    // -------------------------------------------------------------
-                    // RDNA 2 (Navi 2x / Radeon RX 6000 Series)
-                    // -------------------------------------------------------------
-                    "73BF" or "73C0" or "73C1" => "gfx1030",// (Navi 21 / RDNA2)
-                    "73DF" or "73E0" => "gfx1031",          // (Navi 22 / RDNA2)
-                    "741F" or "740C" => "gfx1032",          // (Navi 23 / RDNA2)
-                    "73FF" => "gfx1034",                    // (Navi 24 / RDNA2)
-
-                    // Default fallback
-                    _ => "Unknown"
-                };
+                // Deterministic hardware line division: Lower range is Navi 48, Upper is Navi 44
+                return (id >= 0x7480 && id <= 0x748F) ? "gfx1201" : "gfx1200";
             }
+            if (id == 0x7551) return "gfx1201"; // Dedicated AI PRO Workstation Block
+
+            // =================================================================
+            // 2. RDNA 3 / 3.5 GENERATION (RX 7000 / Pro W7000 / Ryzen AI)
+            // =================================================================
+            if (id >= 0x7440 && id <= 0x745F) return "gfx1100"; // Navi 31 Silicon Family
+            if (id >= 0x7460 && id <= 0x746F) return "gfx1101"; // Navi 32 Silicon Family
+            if (id >= 0x7470 && id <= 0x747F) return "gfx1102"; // Navi 33 Silicon Family
+            if (id == 0x7483) return "gfx1102";                 // Specific Navi 33 Mobile Routing
+
+            if (id == 0x7487 || id == 0x15BF || id == 0x195E) return "gfx1103"; // Phoenix/Hawk Point
+
+            // RDNA 3.5 Mobile APUs (Strix Point - Radeon 890M/880M)
+            if (id >= 0x74A0 && id <= 0x74A2) return "gfx1150";
+            if (id == 0x150E) return "gfx1150";
+
+            // RDNA 3.5 Heavy Workstation APUs (Strix Halo - Radeon 8000S)
+            if (id == 0x74A3) return "gfx1151";
+            if (id >= 0x74B0 && id <= 0x74BF) return "gfx1151";
+
+            // =================================================================
+            // 3. RDNA 2 GENERATION (RX 6000 / Pro W6000 / Desktop Zen iGPUs)
+            // =================================================================
+            if (id >= 0x73A0 && id <= 0x73C2) return "gfx1030"; // Navi 21 Silicon Family
+            if (id == 0x73C3) return "gfx1031";                 // Specific Server/Mac Routing
+            if (id >= 0x73D0 && id <= 0x73EF) return "gfx1031"; // Navi 22 Silicon Family
+
+            if (id >= 0x7400 && id <= 0x741F)
+            {
+                // 0x7401 and 0x7408 are Rembrandt laptop APUs (Radeon 680M)
+                return (id == 0x7401 || id == 0x7408) ? "gfx1035" : "gfx1032";
+            }
+
+            if (id >= 0x7420 && id <= 0x743F) return "gfx1034"; // Navi 24 Silicon Family
+            if (id == 0x73FF) return "gfx1034";                 // Standalone Navi 24 Exception
+            if (id == 0x164E || id == 0x13C0) return "gfx1036"; // Ryzen Desktop Core iGPUs (Zen 4/5)
+
+            // =================================================================
+            // 4. RDNA 1 GENERATION (RX 5000 Series / Base Navi)
+            // =================================================================
+            if (id >= 0x7310 && id <= 0x731F) return "gfx1010"; // Navi 10 Family
+            if (id >= 0x7340 && id <= 0x735F) return "gfx1012"; // Navi 14 Family
+
+            // =================================================================
+            // 5. CDNA ACCELERATOR TIER (Data Center Instinct Servers)
+            // =================================================================
+            if (id >= 0x7380 && id <= 0x738F) return "gfx908"; // Instinct MI100
+            if (id == 0x740C || id == 0x740F) return "gfx90a"; // Instinct MI200 Series
+            if (id == 0x7410) return "gfx90a";
+            if (id == 0x7400 || id == 0x740A) return "gfx942"; // Instinct MI300 Series
+            if (id == 0x74A5 || id == 0x74A8) return "gfx950"; // Instinct MI350/MI355 Series
+
+            // =================================================================
+            // 6. LEGACY GCN & VEGA ARCHITECTURES
+            // =================================================================
+            if (id >= 0x6860 && id <= 0x687F) return "gfx900"; // Vega 10 
+            if (id >= 0x66A0 && id <= 0x66AF) return "gfx906"; // Vega 20
+            if (id >= 0x67DF && id <= 0x67FF) return "gfx803"; // Polaris 10/11/20
+            if (id == 0x6FDF) return "gfx803";                 // Polaris Embedded
+
+            // IUnknown AMD device
             return deviceId;
         }
+
 
         private record struct GPUUtilization(string AdapterId, string Instance, ulong Utilization, int ProcessId);
         private record struct GPUMemory(string AdapterId, ulong SharedUsage, ulong DedicatedUsage, ulong TotalCommitted, int ProcessId);
@@ -597,6 +650,7 @@ namespace Amuse.App.Services
             DeviceType = deviceInfo.DeviceType;
             Location = deviceInfo.Location;
             PCIBusId = GetBusId(deviceInfo.Location);
+            HardwareLUID = GetLuid(adapter);
             DriverVersion = deviceInfo.DriverVersion;
             MemoryTotal = adapter.DedicatedVideoMemory / 1024f / 1024f;
             SharedMemoryTotal = adapter.SharedSystemMemory / 1024f / 1024f;
@@ -608,6 +662,7 @@ namespace Amuse.App.Services
         public string DeviceType { get; }
         public string Location { get; }
         public int PCIBusId { get; }
+        public long HardwareLUID { get; }
         public string AdapterId { get; }
         public string DriverVersion { get; }
         public float MemoryTotal { get; }
@@ -624,6 +679,20 @@ namespace Amuse.App.Services
                 return 0;
 
             return pciid;
+        }
+
+        private static long GetLuid(AdapterInfo adapter)
+        {
+            try
+            {
+                uint high = Convert.ToUInt32(adapter.AdapterLuid.HighPart);
+                uint low = Convert.ToUInt32(adapter.AdapterLuid.LowPart);
+                return ((long)high << 32) | low;
+            }
+            catch
+            {
+                return 0;
+            }
         }
     }
 

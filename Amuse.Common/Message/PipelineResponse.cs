@@ -5,7 +5,7 @@ using TensorStack.Common.Tensor;
 
 namespace Amuse.Common.Message
 {
-    public class PipelineResponse : IPipelineMessage
+    public sealed class PipelineResponse : IPipelineMessage
     {
         public PipelineResponse() { }
         public PipelineResponse(Exception ex) : this(ex.Message)
@@ -46,7 +46,7 @@ namespace Amuse.Common.Message
     }
 
 
-    public record PipelineTextResponse
+    public sealed record PipelineTextResponse
     {
         public PipelineTextResponse() { }
         public PipelineTextResponse(PipelineTextResult[] results)
@@ -56,7 +56,7 @@ namespace Amuse.Common.Message
         public PipelineTextResult[] Results { get; set; }
     }
 
-    public record PipelineTextResult
+    public sealed record PipelineTextResult
     {
         public int Beam { get; set; }
         public float Score { get; set; }

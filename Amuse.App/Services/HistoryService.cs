@@ -14,7 +14,7 @@ using TensorStack.WPF.Controls;
 
 namespace Amuse.App.Services
 {
-    public class HistoryService : IHistoryService
+    public sealed class HistoryService : IHistoryService
     {
         private const int HistoryVersion = 3;
         private readonly Settings _settings;

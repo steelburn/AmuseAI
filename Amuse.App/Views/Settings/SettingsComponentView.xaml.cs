@@ -3,7 +3,6 @@ using Amuse.App.Services;
 using Microsoft.Extensions.Logging;
 using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using TensorStack.WPF;
@@ -34,7 +33,8 @@ namespace Amuse.App.Views
             ModelCollection = new ListCollectionView(settings.Components) { Filter = CollectionFilter(), IsLiveSorting = true };
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(ComponentModel.Backend), ListSortDirection.Ascending));
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(ComponentModel.Name), ListSortDirection.Ascending));
-            SelectedModel = settings.Components.FirstOrDefault();
+            ModelCollection.MoveCurrentToFirst();
+            SelectedModel = ModelCollection.CurrentItem as ComponentModel;
             InitializeComponent();
         }
 
@@ -123,7 +123,7 @@ namespace Amuse.App.Views
             if (await DialogService.ShowMessageAsync("Delete Model", $"Are you sure you want to delete this model?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Warning, TensorStack.WPF.Dialogs.MessageBoxStyleType.Danger))
             {
                 await Task.Run(() => _selectedModel.Delete(Settings));
-                _selectedModel.Status = ModelStatusType.Pending;
+                _selectedModel.Status = ModelStatusType.Available;
                 await SaveAsync(); 
             }
         }

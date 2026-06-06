@@ -15,7 +15,7 @@ using TensorStack.WPF.Services;
 
 namespace Amuse.App.Services
 {
-    public class ModelDownloadService : ServiceBase, IModelDownloadService
+    public sealed class ModelDownloadService : ServiceBase, IModelDownloadService
     {
         private readonly ILogger _logger;
         private readonly Settings _settings;
@@ -51,7 +51,7 @@ namespace Amuse.App.Services
         {
             queueItem.Cancel();
             RemoveQueueItem(queueItem);
-            await UpdateStatus(queueItem, ModelStatusType.Pending);
+            await UpdateStatus(queueItem, ModelStatusType.Available);
         }
 
 
@@ -113,6 +113,7 @@ namespace Amuse.App.Services
 
             if (model is DiffusionModel diffusionModel)
             {
+                var componentsQueued = false;
                 foreach (var checkpointComponent in diffusionModel.Checkpoint.GetComponents())
                 {
                     if (checkpointComponent.Type != CheckpointType.Component)
@@ -120,7 +121,7 @@ namespace Amuse.App.Services
 
                     var component = _settings.Components.FirstOrDefault(x => x.Key == checkpointComponent.Path);
                     if (component == null)
-                        continue; // throw?
+                        continue; // TODO: throw?
 
                     if (component.Status == ModelStatusType.Installed)
                         continue;
@@ -129,8 +130,14 @@ namespace Amuse.App.Services
                         continue;
 
                     if (!await CreateQueueItem(component))
-                        continue; // throw?
+                        continue; // TODO: throw?
+
+                    componentsQueued = true;
                 }
+
+                // If diffusion model is already installed exit here
+                if (diffusionModel.Status == ModelStatusType.Installed)
+                    return componentsQueued;
             }
 
             return await CreateQueueItem(model);
@@ -196,7 +203,7 @@ namespace Amuse.App.Services
                 {
                     foreach (var checkpointComponent in diffusionModel.Checkpoint.GetComponents())
                     {
-                        await DownloadCheckpointAsync(queueItem, _settings.DirectoryModel, checkpointComponent, components);
+                        await DownloadCheckpointAsync(queueItem, _settings.DirectoryDiffusion, checkpointComponent, components);
                     }
                 }
 
@@ -205,7 +212,7 @@ namespace Amuse.App.Services
             }
             catch (OperationCanceledException)
             {
-                await UpdateStatus(queueItem, ModelStatusType.Pending);
+                await UpdateStatus(queueItem, ModelStatusType.Available);
             }
             catch (Exception ex)
             {

@@ -6,7 +6,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public record SchedulerInputOptions : BaseRecord
+    public sealed record SchedulerInputOptions : BaseRecord
     {
         private SchedulerType _scheduler;
         private int _numTrainTimesteps = 0;
@@ -29,8 +29,8 @@ namespace Amuse.App.Common
         private bool _useBetaSigmas;
         private bool _useExponentialSigmas;
         private bool _useFlowSigmas;
-        private float? _sigmaMin;
-        private float? _sigmaMax;
+        private float _sigmaMin;
+        private float _sigmaMax;
         private FinalSigmasType _finalSigmasType;
         private InterpolationType _interpolationType;
         private TimestepType _timestepType;
@@ -40,7 +40,7 @@ namespace Amuse.App.Common
         private float _shift = 0f;
         private float _baseShift = 0f;
         private float _maxShift = 0f;
-        private float? _shiftTerminal;
+        private float _shiftTerminal;
         private bool _useDynamicShifting;
         private float _flowShift = 0;
         private float _sNRShiftScale;
@@ -58,7 +58,7 @@ namespace Amuse.App.Common
         private bool _predictX0;
         private bool _eulerAtFinal;
         private bool _useLuLambdas;
-        private int? _noiseSamplerSeed;
+        private int _noiseSamplerSeed;
         private float _sigmaData;
         private SigmaScheduleType _sigmaScheduleType;
         private UpscaleModeType _upscaleMode;
@@ -219,14 +219,14 @@ namespace Amuse.App.Common
         }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public float? SigmaMin
+        public float SigmaMin
         {
             get { return _sigmaMin; }
             set { SetProperty(ref _sigmaMin, value); }
         }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public float? SigmaMax
+        public float SigmaMax
         {
             get { return _sigmaMax; }
             set { SetProperty(ref _sigmaMax, value); }
@@ -296,7 +296,7 @@ namespace Amuse.App.Common
         }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public float? ShiftTerminal
+        public float ShiftTerminal
         {
             get { return _shiftTerminal; }
             set { SetProperty(ref _shiftTerminal, value); }
@@ -422,7 +422,7 @@ namespace Amuse.App.Common
         }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int? NoiseSamplerSeed
+        public int NoiseSamplerSeed
         {
             get { return _noiseSamplerSeed; }
             set { SetProperty(ref _noiseSamplerSeed, value); }
@@ -541,7 +541,7 @@ namespace Amuse.App.Common
                 LowerOrderFinal = LowerOrderFinal,
                 MaxImageSeqLen = MaxImageSeqLen,
                 MaxShift = MaxShift,
-                NoiseSamplerSeed = NoiseSamplerSeed,
+                NoiseSamplerSeed = NoiseSamplerSeed == 0 ? null : NoiseSamplerSeed,
                 OriginalInferenceSteps = OriginalInferenceSteps,
                 PredictionType = PredictionType,
                 PredictorOrder = PredictorOrder,
@@ -553,10 +553,10 @@ namespace Amuse.App.Common
                 Scaler = Scaler,
                 SetAlphaToOne = SetAlphaToOne,
                 Shift = Shift,
-                ShiftTerminal = ShiftTerminal,
+                ShiftTerminal = ShiftTerminal == 0 ? null : ShiftTerminal,
                 SigmaData = SigmaData,
-                SigmaMax = SigmaMax,
-                SigmaMin = SigmaMin,
+                SigmaMax = SigmaMax == 0 ? null : SigmaMax,
+                SigmaMin = SigmaMin == 0 ? null : SigmaMin,
                 SigmaScheduleType = SigmaScheduleType,
                 SkipPrkSteps = SkipPrkSteps,
                 SNRShiftScale = SNRShiftScale,
@@ -587,7 +587,8 @@ namespace Amuse.App.Common
         {
             return _scheduler.GetDisplayName();
         }
-        public virtual bool Equals(SchedulerInputOptions other) => ReferenceEquals(this, other);
+
+        public bool Equals(SchedulerInputOptions other) => ReferenceEquals(this, other);
         public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
     }
 }

@@ -38,10 +38,11 @@ namespace Amuse.App.Views
             EnvironmentServiceRebuildCommand = new AsyncRelayCommand(EnvironmentRebuildAsync, CanEnvironmentUpdate);
             EnvironmentServiceDeleteCommand = new AsyncRelayCommand(EnvironmentDeleteAsync, CanEnvironmentUpdate);
             FilterClearCommand = new AsyncRelayCommand(FilterClearAsync, CanClearFilter);
-            ModelCollection = new ListCollectionView(settings.Environments) { Filter = CollectionFilter(), IsLiveSorting = true };
+            ModelCollection = new ListCollectionView(settings.Environments) { Filter = CollectionFilter(), IsLiveSorting = true, IsLiveFiltering= true };
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(EnvironmentModel.Vendor), ListSortDirection.Ascending));
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(EnvironmentModel.Name), ListSortDirection.Ascending));
-            SelectedEnvironment = settings.Environments.FirstOrDefault();
+            ModelCollection.MoveCurrentToFirst();
+            SelectedEnvironment = ModelCollection.CurrentItem as EnvironmentModel;
             InitializeComponent();
         }
 

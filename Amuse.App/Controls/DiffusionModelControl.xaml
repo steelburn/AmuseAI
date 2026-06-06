@@ -94,7 +94,7 @@
                         <ComboBox 
                             SelectedItem="{Binding SelectedModel, Mode=TwoWay}"
                             ItemsSource="{Binding ModelCollectionView}"
-                            ItemTemplate="{StaticResource ComboBoxDataTemplateModel}"
+                            ItemTemplate="{StaticResource ComboBoxDataDiffusionTemplateModel}"
                             HorizontalContentAlignment="Stretch"
                             SelectionChanged="Model_SelectionChanged"/>
                         <TextBlock Text="No models found." FontStyle="Italic" Opacity=".4" Margin="5,2,0,0" IsHitTestVisible="False" Visibility="{Binding ModelCollectionView.IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"/>

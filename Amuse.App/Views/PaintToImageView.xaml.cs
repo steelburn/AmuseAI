@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TensorStack.Common;
 using TensorStack.Image;
@@ -116,12 +117,16 @@ namespace Amuse.App.Views
                 ResultImage = default;
                 CompareImage = default;
                 Statistics.Start();
+                CancellationTokenSource = new CancellationTokenSource();
 
                 var inputImage = PaintSurface.GetInputImage();
 
                 AutomationProgress.Indeterminate($"Automation Started");
+                var cancellationToken = CancellationTokenSource.Token;
                 await foreach (var automationJob in AutomationManager.CreateJobsAsync(AutomationOptions, Options, MediaType.Image, MediaType.Image))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     // Images
                     if (CurrentPipeline.ProcessType == ProcessType.ImageToImage)
                         automationJob.DiffusionOptions.InputImages = [inputImage];
@@ -168,6 +173,8 @@ namespace Amuse.App.Views
                 Progress.Clear();
                 AutomationProgress.Clear();
                 IsAutomating = false;
+                CancellationTokenSource?.Dispose();
+                CancellationTokenSource = null;
             }
         }
 

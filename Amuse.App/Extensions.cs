@@ -77,7 +77,7 @@ namespace Amuse.App
         public static CheckpointConfig ToConfig(this CheckpointModel checkpoint, Settings settings)
         {
             var components = settings.Components;
-            var modelDirectory = settings.DirectoryModel;
+            var modelDirectory = settings.DirectoryDiffusion;
             var checkpointConfig = new CheckpointConfig
             {
                 Compute = checkpoint.Compute?.Resolve(modelDirectory, components),
@@ -204,7 +204,7 @@ namespace Amuse.App
             return new PipelineLoadOptions
             {
                 Variant = model.Variant,
-                ModelPath = Path.GetFullPath(settings.DirectoryModel),
+                ModelPath = Path.GetFullPath(settings.DirectoryDiffusion),
                 Template = model.Template,
                 Pipeline = model.Pipeline.ToString(),
                 ModelType = model.ModelType,
@@ -277,7 +277,7 @@ namespace Amuse.App
             };
 
             environmentConfig.Variables.Add("HF_HUB_OFFLINE", "1");
-            environmentConfig.Variables.Add("HF_HUB_CACHE", settings.DirectoryModel);
+            environmentConfig.Variables.Add("HF_HUB_CACHE", settings.DirectoryDiffusion);
             return environmentConfig;
         }
 

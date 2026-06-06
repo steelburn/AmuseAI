@@ -6,7 +6,6 @@ using Serilog;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -31,7 +30,6 @@ namespace Amuse.App
         public static readonly string AppVersionTag = GetAppVersionTag();           // v0.3.0
         public static readonly string AppVersionDisplay = GetAppVersionDisplay();   // v0.3.0-dev
         public static readonly string AppDisplayName = GetAppDisplayName();         // Amuse v0.3.0-dev
-        private static readonly HttpClient _httpClient = new HttpClient();
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly Splashscreen _splashscreen = new();
         private static IHost _appHost;
@@ -40,12 +38,12 @@ namespace Amuse.App
         private static string _directoryData;
         private static string _directoryLogs;
         private static string _directoryPython;
+        private static IHttpService _httpService;
         private readonly Settings _settings;
 
         public App()
         {
             _cancellationTokenSource = new CancellationTokenSource();
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", "AmuseApp");
             _appMutex = new Mutex(false, "Global\\TensorStack_Amuse", out bool isNewInstance);
             if (!isNewInstance)
             {
@@ -72,6 +70,7 @@ namespace Amuse.App
 
             // Add TensorStack.WPF
             _settings = LoadSettingsFile();
+            _settings.PropertyChanged += async (s, e) => await OnSettingsChanged(e.PropertyName);
             builder.Services.AddWPFCommon<MainWindow, Settings>(_settings);
 
             // Add sService
@@ -85,6 +84,7 @@ namespace Amuse.App
             builder.Services.AddSingleton<IInterpolationService, InterpolationService>();
             builder.Services.AddSingleton<IModelDownloadService, ModelDownloadService>();
             builder.Services.AddSingleton<IHttpService, HttpService>();
+            builder.Services.AddSingleton<IMigrationService, MigrationService>();
 
             // Build
             _appHost = builder.Build();
@@ -153,21 +153,32 @@ namespace Amuse.App
         /// <returns>Task.</returns>
         private async Task AppStartup()
         {
+            Log.Logger.Information($"[AppStartup] Starting application...");
+            _httpService = _appHost.Services.GetService<IHttpService>();
             var historyService = _appHost.Services.GetService<IHistoryService>();
             var hardwareService = _appHost.Services.GetService<IHardwareService>();
+            var migrationService = _appHost.Services.GetService<IMigrationService>();
 
             // Load History
             await historyService.InitializeAsync();
 
             // Load Devices
+            Log.Logger.Information($"[AppStartup] Loading devices...");
             var devices = hardwareService.GetGPUDevices();
             _settings.InitializeDevices(devices);
-            _settings.PropertyChanged += async (s, e) => await OnSettingsChanged(e.PropertyName);
+            foreach (var device in devices)
+            {
+                Log.Logger.Information($"[AppStartup] Device found, Vendor: {device.Vendor}, Name: {device.Name}, DeviceId: {device.DeviceId}, PCIBusId: {device.PCIBusId}, DeviceType: {device.DeviceType}, HardwareLUID: {device.HardwareLUID}, Memory: {device.Memory}MB");
+            }
 
             // Open Main Window
             MainWindow = _appHost.Services.GetMainWindow();
             MainWindow.Show();
             _splashscreen.Close();
+
+            // Run Migrations
+            await migrationService.RunAutoMigrationsAsync();
+            Log.Logger.Information($"[AppStartup] Application started.");
         }
 
 
@@ -176,6 +187,7 @@ namespace Amuse.App
         /// </summary>
         private async Task AppShutdown()
         {
+            Log.Logger.Information($"[AppShutdown] Shutting down application...");
             using (_appHost)
             {
                 await _cancellationTokenSource.CancelAsync();
@@ -322,7 +334,7 @@ namespace Amuse.App
         /// </summary>
         private static string GetAppVersionDisplay()
         {
-            return $"{AppVersionTag}-dev";
+            return $"{AppVersionTag}";
         }
 
 
@@ -380,7 +392,7 @@ namespace Amuse.App
             try
             {
                 Log.Logger.Information("[GetUpdateInfo] - Check for update...");
-                using (var response = await _httpClient.GetAsync("https://api.github.com/repos/TensorStack-AI/AmuseAI/releases/latest"))
+                using (var response = await _httpService.Client.GetAsync("https://api.github.com/repos/TensorStack-AI/AmuseAI/releases/latest"))
                 {
                     response.EnsureSuccessStatusCode();
                     var versionResponse = await response.Content.ReadFromJsonAsync<AppVersion>();

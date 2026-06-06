@@ -100,7 +100,7 @@
                     <x:Type TypeName="Common:CheckpointType"/>
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
-            
+
             <ObjectDataProvider x:Key="QuantizationType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
                 <ObjectDataProvider.MethodParameters>
                     <x:Type TypeName="AmuseCommon:QuantizationType"/>
@@ -485,6 +485,46 @@
             </Style>
 
 
+            <DataTemplate x:Key="ComboBoxDataDiffusionTemplateModel">
+                <StackPanel>
+                    <DockPanel>
+                        <UniformGrid DockPanel.Dock="Right"  Columns="2">
+
+                            <!--AccessToken-->
+                            <CommonControls:FontAwesome Icon="f084" Size="10" IconStyle="Solid" Opacity=".6"  Width="15" ToolTipService.InitialShowDelay="200">
+                                <CommonControls:FontAwesome.Style>
+                                    <Style TargetType="{x:Type CommonControls:FontAwesome}" BasedOn="{StaticResource {x:Type CommonControls:FontAwesome}}">
+                                        <Setter Property="ToolTip" Value="{x:Null}"/>
+                                        <Setter Property="Color" Value="#10FFFFFF"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding AccessToken}" Value="HuggingFace">
+                                                <Setter Property="Color" Value="{StaticResource WarningColour}"/>
+                                                <Setter Property="ToolTip" Value="Gated Model - HuggingFace Authentication Required."/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding AccessToken}" Value="Civitai">
+                                                <Setter Property="Color" Value="{StaticResource WarningColour}"/>
+                                                <Setter Property="ToolTip" Value="Gated Model - Civitai Authentication Required."/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </CommonControls:FontAwesome.Style>
+                            </CommonControls:FontAwesome>
+
+                            <!--Installed | Downloading-->
+                            <CommonControls:FontAwesome Size="10" IconStyle="Solid" Opacity=".6"  ToolTipService.InitialShowDelay="200" Style="{StaticResource ModelStatusFontAwesome}" Tag="{Binding Status}" />
+                        </UniformGrid>
+
+                        <TextBlock Text="{Binding Name}" />
+                    </DockPanel>
+
+                    <DockPanel Margin="0,-1,0,1">
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding Pipeline, Converter={StaticResource EnumShortNameConverter}}" FontSize="10" Opacity=".7" />
+                        <TextBlock Text="{Binding Backend, Converter={StaticResource EnumDisplayNameConverter}}" FontSize="10"  Opacity=".7" FontStyle="Italic"/>
+                    </DockPanel>
+                </StackPanel>
+            </DataTemplate>
+
+
             <DataTemplate x:Key="ComboBoxDataTemplateModel">
                 <DockPanel>
                     <UniformGrid DockPanel.Dock="Right"  Columns="2">
@@ -611,7 +651,7 @@
                                 <TextBox Text="{Binding Options.Prompt2}" Style="{StaticResource TextBlockStyle}" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MaxHeight="200"/>
                             </StackPanel>
                         </StackPanel>
-                   
+
 
                         <!--Scheduler Settings-->
                         <UniformGrid Columns="3" Margin="0,4,0,0" Visibility="{Binding MediaType, Converter={StaticResource InverseEnumToVisibilityConverter}, ConverterParameter=Text}">

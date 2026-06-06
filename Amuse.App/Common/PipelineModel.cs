@@ -4,7 +4,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public class PipelineModel : BaseModel
+    public sealed class PipelineModel : BaseModel
     {
         private DeviceModel _device;
         private DiffusionModel _diffusionModel;

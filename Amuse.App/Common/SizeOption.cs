@@ -3,7 +3,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public class SizeOption : BaseModel
+    public sealed class SizeOption : BaseModel
     {
         private bool _isDefault;
 

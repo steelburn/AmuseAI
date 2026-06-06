@@ -38,11 +38,11 @@
             </StackPanel>
             <StackPanel Margin="0,0,2,0" IsEnabled="{Binding IsFixedEnvironment, Converter={StaticResource InverseBoolConverter}}">
                 <TextBlock Text="Vendor" Style="{StaticResource FieldTextBlockStyle}"/>
-                <ComboBox ItemsSource="{Binding Settings.Vendors}" SelectedItem="{Binding EnvironmentModel.Vendor}" SelectedIndex="0" />
+                <ComboBox ItemsSource="{Binding Settings.Vendors}" SelectedItem="{Binding EnvironmentModel.Vendor}" SelectedIndex="0" Style="{StaticResource EnumComboBox}"/>
             </StackPanel>
             <StackPanel Margin="2,0,2,0" IsEnabled="{Binding IsFixedEnvironment, Converter={StaticResource InverseBoolConverter}}">
                 <TextBlock Text="Type" Style="{StaticResource FieldTextBlockStyle}" IsEnabled="{Binding IsFixedEnvironment, Converter={StaticResource InverseBoolConverter}}"/>
-                <ComboBox ItemsSource="{Binding Source={StaticResource EnvironmentType}}" SelectedItem="{Binding EnvironmentModel.Type}" SelectedIndex="0" />
+                <ComboBox ItemsSource="{Binding Source={StaticResource EnvironmentType}}" SelectedItem="{Binding EnvironmentModel.Type}" SelectedIndex="0" Style="{StaticResource EnumComboBox}"/>
             </StackPanel>
             <Grid Margin="2,0,0,0" IsEnabled="{Binding IsFixedEnvironment, Converter={StaticResource InverseBoolConverter}}">
                 <StackPanel Visibility="{Binding  EnvironmentModel.Type, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Device}">
@@ -51,7 +51,7 @@
                 </StackPanel>
                 <StackPanel Visibility="{Binding  EnvironmentModel.Type, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Pipeline}">
                     <TextBlock Text="Pipeline" Style="{StaticResource FieldTextBlockStyle}"/>
-                    <ComboBox ItemsSource="{Binding Settings.DiffusionPipelines}" SelectedItem="{Binding EnvironmentModel.Pipeline}" SelectedIndex="0" />
+                    <ComboBox ItemsSource="{Binding Settings.DiffusionPipelines}" SelectedItem="{Binding EnvironmentModel.Pipeline}" SelectedIndex="0" Style="{StaticResource EnumComboBox}"/>
                 </StackPanel>
             </Grid>
         </UniformGrid>

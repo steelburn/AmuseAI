@@ -2,7 +2,7 @@
 
 namespace Amuse.App.Common
 {
-    public class LoraOptionModel : BaseModel
+    public sealed class LoraOptionModel : BaseModel
     {
         private string _key;
         private string _name;

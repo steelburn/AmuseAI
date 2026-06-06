@@ -1,6 +1,6 @@
 ﻿namespace Amuse.Common
 {
-    public class ControlNetConfig
+    public sealed class ControlNetConfig
     {
         public string Path { get; set; }
         public string Name { get; set; }
@@ -9,6 +9,5 @@
         public bool Invert { get; set; }
         public int LayerCount { get; set; }
         public bool DisableProjections { get; set; }
-
     }
 }

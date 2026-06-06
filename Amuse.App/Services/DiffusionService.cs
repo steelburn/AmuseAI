@@ -12,7 +12,7 @@ using TensorStack.Video;
 namespace Amuse.App.Services
 {
 
-    public class DiffusionService : ServiceBase, IDiffusionService
+    public sealed class DiffusionService : ServiceBase, IDiffusionService
     {
         private readonly ILogger _logger;
         private readonly Settings _settings;
@@ -284,27 +284,21 @@ namespace Amuse.App.Services
             _diffusionRuntime?.Dispose();
             _diffusionRuntime = null;
         }
+
+
+        public void Dispose()
+        {
+            DisposeRuntime();
+        }
     }
 
 
-    public interface IDiffusionService
+    public interface IDiffusionService : IDiffusionRuntime
     {
-        PipelineModel Pipeline { get; }
-        DiffusionDefaultOptions DefaultOptions { get; }
         bool IsLoaded { get; }
         bool IsLoading { get; }
         bool IsExecuting { get; }
         bool IsCanceling { get; }
         bool CanCancel { get; }
-        Task LoadAsync(PipelineModel pipeline, IProgress<PipelineProgress> progressCallback);
-        Task ReloadAsync(PipelineModel pipeline, IProgress<PipelineProgress> progressCallback);
-        Task UpdateAsync(PipelineModel pipeline);
-        Task UnloadAsync();
-        Task CancelAsync();
-        Task StopAsync();
-        Task<ImageTensor> GenerateImageAsync(DiffusionInputOptions options);
-        Task<VideoInputStream> GenerateVideoAsync(DiffusionInputOptions options);
-        Task<AudioInputStream> GenerateAudioAsync(DiffusionInputOptions options);
-        Task<TextResult> GenerateTextAsync(DiffusionInputOptions options);
     }
 }

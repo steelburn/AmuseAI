@@ -8,7 +8,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public class DiffusionModel : BaseModel, IDownloadModel
+    public sealed class DiffusionModel : BaseModel, IDownloadModel
     {
         private BackendType _backend;
         private string _name;
@@ -183,7 +183,7 @@ namespace Amuse.App.Common
                 if (component.Type == CheckpointType.Component)
                     continue;
 
-                var resolvedPath = component.Resolve(settings.DirectoryModel, settings.Components);
+                var resolvedPath = component.Resolve(settings.DirectoryDiffusion, settings.Components);
                 if (component.Type == CheckpointType.LocalFile || component.Type == CheckpointType.OnlineFile)
                     FileHelper.DeleteFile(resolvedPath);
                 else if (component.Type == CheckpointType.LocalFolder || component.Type == CheckpointType.LocalFolder)
@@ -194,22 +194,22 @@ namespace Amuse.App.Common
 
         public string GetDirectory(Settings settings)
         {
-            return System.IO.Path.Combine(settings.DirectoryModel);
+            return System.IO.Path.Combine(settings.DirectoryDiffusion);
         }
 
 
         private ModelStatusType GetModelStatus(Settings settings)
         {
             if (Checkpoint == null)
-                return ModelStatusType.Pending;
+                return ModelStatusType.Available;
 
-            var isValid = Checkpoint.IsInstalled(settings.DirectoryModel, settings.Components);
-            if (Status == ModelStatusType.Pending && isValid)
+            var isValid = Checkpoint.IsInstalled(settings.DirectoryDiffusion, settings.Components);
+            if (Status == ModelStatusType.Available && isValid)
                 return ModelStatusType.Installed;
             else if (Status == ModelStatusType.Installed && !isValid)
-                return ModelStatusType.Pending;
+                return ModelStatusType.Available;
             else if (Status == ModelStatusType.Downloading || Status == ModelStatusType.DownloadQueue || Status == ModelStatusType.DownloadFailed)
-                return ModelStatusType.Pending;
+                return ModelStatusType.Available;
 
             return Status;
         }

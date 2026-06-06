@@ -2,7 +2,7 @@
 
 namespace Amuse.App.Common
 {
-    public class AccessTokenModel : BaseModel
+    public sealed class AccessTokenModel : BaseModel
     {
         public string Name { get; set; }
         public string Token { get; set; }

@@ -2,7 +2,7 @@
 
 namespace Amuse.App.Common
 {
-    public class MemoryProfileModel : BaseModel
+    public sealed class MemoryProfileModel : BaseModel
     {
         private int _memoryGB;
         private MemoryMode _memoryMode;

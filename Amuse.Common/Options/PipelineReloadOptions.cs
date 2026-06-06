@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 
-
 namespace Amuse.Common
 {
     public sealed record PipelineReloadOptions
@@ -9,7 +8,4 @@ namespace Amuse.Common
         public ControlNetConfig ControlNet { get; set; }
         public List<LoraConfig> LoraAdapters { get; set; }
     }
-
-
-
 }

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using TensorStack.Common.Common;
 
-namespace Amuse.App.Backend
+namespace Amuse.App
 {
-    public static partial class PyTorchBackend
+    public static partial class HuggingFace
     {
         public static string GetCacheId(string repositoryUrl)
         {

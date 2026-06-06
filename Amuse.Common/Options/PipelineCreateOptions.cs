@@ -3,7 +3,7 @@
 
 namespace Amuse.Common
 {
-    public record PipelineCreateOptions
+    public sealed record PipelineCreateOptions
     {
         public bool IsDebug { get; set; }
         public string Directory { get; set; }

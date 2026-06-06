@@ -1,8 +1,9 @@
-﻿using TensorStack.WPF;
+﻿using System.Runtime.CompilerServices;
+using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public record InterpolateInputOptions : BaseRecord
+    public sealed record InterpolateInputOptions : BaseRecord
     {
         private int _multiplier;
 
@@ -11,5 +12,8 @@ namespace Amuse.App.Common
             get { return _multiplier; }
             set { SetProperty(ref _multiplier, value); }
         }
+
+        public bool Equals(InterpolateInputOptions other) => ReferenceEquals(this, other);
+        public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
     }
 }

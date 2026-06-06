@@ -6,7 +6,7 @@ using TensorStack.TextGeneration.Common;
 
 namespace Amuse.App.Common
 {
-    public record DiffusionDefaultOptions
+    public sealed record DiffusionDefaultOptions
     {
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public float GuidanceScale { get; set; }
@@ -122,9 +122,6 @@ namespace Amuse.App.Common
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string[] Tasks { get; set; }
 
-        public virtual bool Equals(DiffusionDefaultOptions other) => ReferenceEquals(this, other);
-        public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
-
         public DiffusionDefaultOptions DeepClone()
         {
             return new DiffusionDefaultOptions
@@ -169,5 +166,8 @@ namespace Amuse.App.Common
                 TopP = TopP
             };
         }
+
+        public bool Equals(DiffusionDefaultOptions other) => ReferenceEquals(this, other);
+        public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
     }
 }

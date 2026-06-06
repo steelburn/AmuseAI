@@ -7,7 +7,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public class EnvironmentModel : BaseModel
+    public sealed class EnvironmentModel : BaseModel
     {
         private string _name;
         private EnvironmentType _type;

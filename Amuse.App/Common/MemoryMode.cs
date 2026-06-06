@@ -20,7 +20,6 @@ namespace Amuse.App.Common
         High = 4
     }
 
-
     public enum QualityMode
     {
         [Display(Description = "Uses 4-bit quantization (int4). Maximum memory savings with a noticeable loss in fine detail and texture clarity.")]

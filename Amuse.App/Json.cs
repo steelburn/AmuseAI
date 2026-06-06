@@ -33,7 +33,7 @@ namespace Amuse.App
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex, "[Json] [Load] An exception occurred loading JSON file: {filePath}", filePath);
+                Log.Logger.Error("[Json] [Load] An exception occurred loading JSON file.\n\tFile: {filePath}\n\tError: {message}", filePath, ex.Message);
                 return default;
             }
         }
@@ -50,7 +50,7 @@ namespace Amuse.App
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex, "[Json] [LoadAsync] An exception occurred loading JSON file: {filePath}", filePath);
+                Log.Logger.Error("[Json] [LoadAsync] An exception occurred loading JSON file.\n\tFile: {filePath}\n\tError: {message}", filePath, ex.Message);
                 return default;
             }
         }
@@ -67,7 +67,7 @@ namespace Amuse.App
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex, "[Json] [Save] An exception occurred saving JSON file: {filePath}", filePath);
+                Log.Logger.Error("[Json] [Save] An exception occurred saving JSON file.\n\tFile: {filePath}\n\tError: {message}", filePath, ex.Message);
             }
         }
 
@@ -85,7 +85,7 @@ namespace Amuse.App
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex, "[Json] [SaveAsync] An exception occurred saving JSON file: {filePath}", filePath);
+                Log.Logger.Error("[Json] [SaveAsync] An exception occurred saving JSON file.\n\tFile: {filePath}\n\tError: {message}", filePath, ex.Message);
             }
             finally
             {

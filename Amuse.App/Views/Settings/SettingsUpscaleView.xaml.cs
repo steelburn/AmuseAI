@@ -31,8 +31,8 @@ namespace Amuse.App.Views
             AddModelCommand = new AsyncRelayCommand(AddModelAsync);
             AddModelWizardCommand = new AsyncRelayCommand(AddModelWizardAsync);
             CopyModelCommand = new AsyncRelayCommand(CopyModelAsync, () => SelectedModel is not null);
-            UpdateModelCommand = new AsyncRelayCommand(UpdateModelAsync);
-            RemoveModelCommand = new AsyncRelayCommand(RemoveModelAsync);
+            UpdateModelCommand = new AsyncRelayCommand(UpdateModelAsync, () => SelectedModel?.Id > Utils.FixedIdRange);
+            RemoveModelCommand = new AsyncRelayCommand(RemoveModelAsync, () => SelectedModel?.Id > Utils.FixedIdRange);
             ImportModelCommand = new AsyncRelayCommand(ImportModelAsync);
             ExportModelCommand = new AsyncRelayCommand(ExportModelAsync, () => SelectedModel is not null);
             DeleteModelCommand = new AsyncRelayCommand(DeleteModelAsync, () => SelectedModel is not null);
@@ -43,7 +43,8 @@ namespace Amuse.App.Views
             ModelCollection = new ListCollectionView(settings.UpscaleModels) { Filter = CollectionFilter(), IsLiveSorting = true };
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(UpscaleModel.Pipeline), ListSortDirection.Ascending));
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(UpscaleModel.Name), ListSortDirection.Ascending));
-            SelectedModel = settings.UpscaleModels.FirstOrDefault();
+            ModelCollection.MoveCurrentToFirst();
+            SelectedModel = ModelCollection.CurrentItem as UpscaleModel;
             InitializeComponent();
         }
 
@@ -230,7 +231,7 @@ namespace Amuse.App.Views
             if (await DialogService.ShowMessageAsync("Delete Model", $"Are you sure you want to delete this model?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Warning, TensorStack.WPF.Dialogs.MessageBoxStyleType.Danger))
             {
                 await Task.Run(() => _selectedModel.Delete(Settings));
-                _selectedModel.Status = ModelStatusType.Pending;
+                _selectedModel.Status = ModelStatusType.Available;
                 await SaveAsync();
             }
         }

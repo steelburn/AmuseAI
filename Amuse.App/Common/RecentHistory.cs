@@ -6,32 +6,7 @@ using TensorStack.Common;
 
 namespace Amuse.App.Common
 {
-    public interface IHistoryItem
-    {
-        string Id { get; init; }
-        int Version { get; init; }
-        View Source { get; init; }
-        MediaType MediaType { get; init; }
-        DateTime Timestamp { get; init; }
-        string Extension { get; init; }
-
-        int Width { get; init; }
-        int Height { get; init; }
-        float FrameRate { get; init; }
-        int FrameCount { get; init; }
-        int SampleRate { get; init; }
-        TimeSpan Duration { get; init; }
-
-        string Model { get; init; }
-
-        string FilePath { get; set; }
-        string MediaPath { get; set; }
-        string ThumbPath { get; set; }
-        DateTime LastAccess { get; set; }
-    }
-
-
-    public record RecentHistory : IHistoryItem
+    public sealed record RecentHistory : IHistoryItem
     {
         public string Id { get; init; }
         public int Version { get; init; }
@@ -73,7 +48,7 @@ namespace Amuse.App.Common
         [JsonIgnore]
         public string ThumbPath { get; set; }
 
-        public virtual bool Equals(RecentHistory other) => ReferenceEquals(this, other);
+        public bool Equals(RecentHistory other) => ReferenceEquals(this, other);
         public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
     }
 }

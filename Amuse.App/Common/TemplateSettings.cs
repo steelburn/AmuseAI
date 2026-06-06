@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Amuse.App.Common
 {
-    public class TemplateSettings
+    public sealed class TemplateSettings
     {
         public List<DiffusionModel> DiffusionTemplates { get; set; }
         public List<WizardItemModel> DiffusionTemplateMap { get; set; }

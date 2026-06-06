@@ -8,7 +8,7 @@ using TensorStack.WPF.Services;
 
 namespace Amuse.App.Services
 {
-    public class HttpService : IHttpService
+    public sealed class HttpService : IHttpService
     {
         private readonly Settings _settings;
 

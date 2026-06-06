@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using TensorStack.Audio;
 using TensorStack.Common.Tensor;
@@ -7,7 +8,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public record DiffusionInputOptions : BaseRecord
+    public sealed record DiffusionInputOptions : BaseRecord
     {
         private int _width;
         private int _height;
@@ -383,5 +384,8 @@ namespace Amuse.App.Common
 
         [JsonIgnore]
         public List<AudioInputStream> InputAudios { get; set; } = [];
+
+        public bool Equals(DiffusionInputOptions other) => ReferenceEquals(this, other);
+        public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
     }
 }

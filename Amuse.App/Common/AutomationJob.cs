@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using TensorStack.Audio;
 using TensorStack.Common;
@@ -7,7 +8,7 @@ using TensorStack.Video;
 
 namespace Amuse.App.Common
 {
-    public record AutomationJob
+    public sealed record AutomationJob
     {
         public int Id { get; init; }
         public int Count { get; init; }
@@ -56,5 +57,8 @@ namespace Amuse.App.Common
             File.Copy(audioInput.SourceFile, OutputFile, true);
             return Task.CompletedTask;
         }
+
+        public bool Equals(AutomationJob other) => ReferenceEquals(this, other);
+        public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
     }
 }

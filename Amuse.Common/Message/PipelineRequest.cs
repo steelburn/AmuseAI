@@ -6,7 +6,7 @@ using TensorStack.Common.Tensor;
 
 namespace Amuse.Common.Message
 {
-    public class PipelineRequest : IPipelineMessage
+    public sealed class PipelineRequest : IPipelineMessage
     {
         public PipelineRequest() { }
         public PipelineRequest(RequestType type)

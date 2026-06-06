@@ -29,23 +29,34 @@ namespace Amuse.App.Controls
             if (!DesignerProperties.GetIsInDesignMode(this))
             {
                 _hardwareService = App.GetService<IHardwareService>();
+                DeviceCollection = new List<DeviceInfo>();
 
-                var devices = Provider.GetDevices()
-                    .Where(x => !string.IsNullOrEmpty(x.HardwareVendor))
-                    .Select(x => new DeviceInfo
-                    {
-                        Id = x.Id,
-                        DeviceId = x.Id,
-                        Name = x.Name,
-                        HardwareLUID = x.HardwareLUID,
-                        HardwareID = x.HardwareID,
-                        HardwareVendor = x.HardwareVendor,
-                        HardwareVendorId = x.HardwareVendorId,
-                        Memory = x.Memory,
-                        Type = x.Type
-                    });
+                var cpuDevice = Provider.GetDevice(DeviceType.CPU);
+                var gpuDevices = _hardwareService.GetGPUDevices();
+                DeviceCollection.Add(new DeviceInfo
+                {
+                    Id = cpuDevice.Id,
+                    DeviceId = cpuDevice.Id,
+                    Name = cpuDevice.Name,
+                    HardwareLUID = cpuDevice.HardwareLUID,
+                    HardwareID = cpuDevice.HardwareID,
+                    HardwareVendorId = cpuDevice.HardwareVendorId,
+                    Memory = cpuDevice.Memory,
+                    Type = cpuDevice.Type
+                });
 
-                DeviceCollection = [.. devices];
+                DeviceCollection.AddRange(gpuDevices.Select(x => new DeviceInfo
+                {
+                    Id = x.Id,
+                    DeviceId = x.Id,
+                    Name = x.Name,
+                    HardwareLUID = x.HardwareLUID,
+                    HardwareID = x.HardwareID,
+                    HardwareVendorId = x.HardwareVendorId,
+                    Memory = x.Memory,
+                    Type = x.Type
+                }));
+
                 _updateTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(300), DispatcherPriority.Normal, UpdateDevices, Dispatcher);
                 _updateTimer.Start();
                 _ = Task.Run(UpdateDevices);
@@ -144,7 +155,6 @@ namespace Amuse.App.Controls
         public int HardwareID { get; init; }
         public int HardwareLUID { get; init; }
         public int HardwareVendorId { get; init; }
-        public string HardwareVendor { get; init; }
         public int Usage { get; set; }
         public double MemoryUsage { get; set; }
         public double ProcessMemoryUsage { get; set; }

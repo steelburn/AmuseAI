@@ -1,10 +1,11 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using TensorStack.Extractors.Common;
 using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public record ExtractInputOptions : BaseRecord
+    public sealed record ExtractInputOptions : BaseRecord
     {
         private bool _isTileEnabled;
         private int tileSize;
@@ -152,5 +153,8 @@ namespace Amuse.App.Common
                 IsTileSupported = IsTileSupported
             };
         }
+
+        public bool Equals(ExtractInputOptions other) => ReferenceEquals(this, other);
+        public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
     }
 }

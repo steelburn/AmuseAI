@@ -2,7 +2,7 @@
 
 namespace Amuse.Common.Config
 {
-    public record ServerConfig
+    public sealed record ServerConfig
     {
         public int ChunkSize { get; } = 32 * 1024 * 1024; // 32 MB
         public string Name { get; init; }

@@ -7,5 +7,4 @@ namespace Amuse.Common.Message
     {
         IReadOnlyList<Tensor<float>> Tensors { get; set; }
     }
-
 }

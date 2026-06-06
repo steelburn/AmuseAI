@@ -82,7 +82,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -174,7 +174,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -241,7 +241,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -274,9 +274,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": true,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -921,7 +921,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -954,9 +954,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": true,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -1096,7 +1096,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -1129,9 +1129,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": true,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -1271,7 +1271,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -1304,9 +1304,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": true,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -1440,7 +1440,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -1473,9 +1473,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": true,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -1609,7 +1609,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -1642,9 +1642,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": true,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -1778,7 +1778,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -1811,9 +1811,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": true,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -1947,7 +1947,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -1980,9 +1980,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": true,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -2550,7 +2550,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -2653,7 +2653,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -2760,7 +2760,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -2851,7 +2851,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -2942,7 +2942,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -3033,7 +3033,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -3124,7 +3124,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -3215,7 +3215,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -3304,7 +3304,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -3393,7 +3393,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -3482,7 +3482,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -3571,7 +3571,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -3657,7 +3657,7 @@
             "BaseImageSeqLen": 1024,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -3783,7 +3783,7 @@
             "BaseImageSeqLen": 1024,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -3909,7 +3909,7 @@
             "BaseImageSeqLen": 1024,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -4035,7 +4035,7 @@
             "BaseImageSeqLen": 1024,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -4177,7 +4177,7 @@
             "BaseImageSeqLen": 1024,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -4210,9 +4210,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ],
         "FrameOptions": [
@@ -4373,7 +4373,7 @@
             "BaseImageSeqLen": 1024,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -4406,9 +4406,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ],
         "FrameOptions": [
@@ -4602,9 +4602,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ],
         "FrameOptions": [
@@ -4798,9 +4798,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ],
         "FrameOptions": [
@@ -4942,7 +4942,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 8192,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -4975,9 +4975,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": true,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ]
       },
@@ -5083,7 +5083,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 8192,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -5116,9 +5116,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": true,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ]
       },
@@ -5228,7 +5228,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -5261,9 +5261,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ],
         "FrameChunk": 97,
@@ -5352,7 +5352,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -5385,9 +5385,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ],
         "FrameChunk": 97,
@@ -5491,8 +5491,8 @@
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
             "PredictionType": "Epsilon",
-            "SigmaMin": null,
-            "SigmaMax": null,
+            "SigmaMin": 0,
+            "SigmaMax": 0,
             "TimestepSpacing": "Linspace",
             "TimestepType": "Discrete",
             "StepsOffset": 0,
@@ -5640,7 +5640,7 @@
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
-            "NoiseSamplerSeed": null,
+            "NoiseSamplerSeed": 0,
             "TimestepSpacing": "Linspace",
             "StepsOffset": 0
           },
@@ -5724,9 +5724,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "TCD",
@@ -5895,8 +5895,8 @@
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
             "PredictionType": "Epsilon",
-            "SigmaMin": null,
-            "SigmaMax": null,
+            "SigmaMin": 0,
+            "SigmaMax": 0,
             "TimestepSpacing": "Linspace",
             "TimestepType": "Discrete",
             "StepsOffset": 0,
@@ -6044,7 +6044,7 @@
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
-            "NoiseSamplerSeed": null,
+            "NoiseSamplerSeed": 0,
             "TimestepSpacing": "Linspace",
             "StepsOffset": 0
           },
@@ -6128,9 +6128,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "TCD",
@@ -6299,8 +6299,8 @@
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
             "PredictionType": "Epsilon",
-            "SigmaMin": null,
-            "SigmaMax": null,
+            "SigmaMin": 0,
+            "SigmaMax": 0,
             "TimestepSpacing": "Linspace",
             "TimestepType": "Discrete",
             "StepsOffset": 0,
@@ -6448,7 +6448,7 @@
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
-            "NoiseSamplerSeed": null,
+            "NoiseSamplerSeed": 0,
             "TimestepSpacing": "Linspace",
             "StepsOffset": 0
           },
@@ -6532,9 +6532,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "TCD",
@@ -6693,7 +6693,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -6726,9 +6726,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -6872,7 +6872,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -6905,9 +6905,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -7051,7 +7051,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -7084,9 +7084,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -7230,7 +7230,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -7263,9 +7263,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -7385,6 +7385,7 @@
       "DefaultOptions": {
         "Steps": 30,
         "Frames": 81,
+        "FrameRate": 24,
         "Width": 720,
         "Height": 480,
         "GuidanceScale": 5,
@@ -7402,7 +7403,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -7435,9 +7436,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -7529,6 +7530,7 @@
       "DefaultOptions": {
         "Steps": 30,
         "Frames": 81,
+        "FrameRate": 24,
         "Width": 720,
         "Height": 480,
         "GuidanceScale": 5,
@@ -7546,7 +7548,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -7579,9 +7581,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ],
         "FrameOptions": [
@@ -7648,6 +7650,7 @@
       "DefaultOptions": {
         "Steps": 30,
         "Frames": 81,
+        "FrameRate": 24,
         "Width": 832,
         "Height": 480,
         "GuidanceScale": 5,
@@ -7666,7 +7669,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -7699,9 +7702,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ],
         "FrameOptions": [
@@ -7763,6 +7766,7 @@
       "DefaultOptions": {
         "Steps": 30,
         "Frames": 81,
+        "FrameRate": 24,
         "Width": 720,
         "Height": 1280,
         "GuidanceScale": 5,
@@ -7781,7 +7785,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -7814,9 +7818,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ],
         "FrameOptions": [
@@ -7878,6 +7882,7 @@
       "DefaultOptions": {
         "Steps": 50,
         "Frames": 121,
+        "FrameRate": 24,
         "Width": 1280,
         "Height": 704,
         "GuidanceScale": 5,
@@ -7896,7 +7901,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -7929,9 +7934,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ],
         "Strength": 0.7,
@@ -8000,6 +8005,7 @@
       "DefaultOptions": {
         "Steps": 40,
         "Frames": 81,
+        "FrameRate": 24,
         "Width": 1280,
         "Height": 720,
         "GuidanceScale": 4,
@@ -8018,7 +8024,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -8051,9 +8057,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ],
         "Strength": 0.7,
@@ -8117,6 +8123,7 @@
       "DefaultOptions": {
         "Steps": 40,
         "Frames": 81,
+        "FrameRate": 24,
         "Width": 1280,
         "Height": 720,
         "GuidanceScale": 4,
@@ -8135,7 +8142,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -8168,9 +8175,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           }
         ],
         "Strength": 0.7,
@@ -8243,7 +8250,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -8276,9 +8283,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": false,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -8412,7 +8419,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -8445,9 +8452,9 @@
             "RescaleBetasZeroSNR": false,
             "UseDynamicShifting": true,
             "TimeShiftType": "Exponential",
-            "SigmaMin": null,
-            "SigmaMax": null,
-            "ShiftTerminal": null
+            "SigmaMin": 0,
+            "SigmaMax": 0,
+            "ShiftTerminal": 0
           },
           {
             "Scheduler": "DPMSolverMultistep",
@@ -8583,7 +8590,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": true,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -8769,8 +8776,8 @@
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
             "PredictionType": "Epsilon",
-            "SigmaMin": null,
-            "SigmaMax": null,
+            "SigmaMin": 0,
+            "SigmaMax": 0,
             "TimestepSpacing": "Linspace",
             "TimestepType": "Discrete",
             "StepsOffset": 0,
@@ -8961,8 +8968,8 @@
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
             "PredictionType": "Epsilon",
-            "SigmaMin": null,
-            "SigmaMax": null,
+            "SigmaMin": 0,
+            "SigmaMax": 0,
             "TimestepSpacing": "Linspace",
             "TimestepType": "Discrete",
             "StepsOffset": 0,
@@ -9153,8 +9160,8 @@
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
             "PredictionType": "Epsilon",
-            "SigmaMin": null,
-            "SigmaMax": null,
+            "SigmaMin": 0,
+            "SigmaMax": 0,
             "TimestepSpacing": "Linspace",
             "TimestepType": "Discrete",
             "StepsOffset": 0,
@@ -9345,8 +9352,8 @@
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
             "PredictionType": "Epsilon",
-            "SigmaMin": null,
-            "SigmaMax": null,
+            "SigmaMin": 0,
+            "SigmaMax": 0,
             "TimestepSpacing": "Linspace",
             "TimestepType": "Discrete",
             "StepsOffset": 0,
@@ -9521,7 +9528,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -9620,7 +9627,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -9719,7 +9726,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -9819,7 +9826,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -9919,7 +9926,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -10019,7 +10026,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,
@@ -10119,7 +10126,7 @@
             "BaseImageSeqLen": 256,
             "MaxImageSeqLen": 4096,
             "InvertSigmas": false,
-            "ShiftTerminal": null,
+            "ShiftTerminal": 0,
             "UseKarrasSigmas": false,
             "UseExponentialSigmas": false,
             "UseBetaSigmas": false,

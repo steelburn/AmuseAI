@@ -6,7 +6,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public class StatisticsModel : BaseModel
+    public sealed class StatisticsModel : BaseModel
     {
         private readonly DispatcherTimer _dispatcherTimer;
         private float _iterationsPerSecond;

@@ -71,7 +71,7 @@
                             <UniformGrid Columns="2">
                                 <StackPanel>
                                     <TextBlock Text="Background Mode" Style="{StaticResource FieldTextBlockStyle}" />
-                                    <ComboBox SelectedItem="{Binding Options.Mode}" ItemsSource="{Binding Source={StaticResource BackgroundMode}}" />
+                                    <ComboBox SelectedItem="{Binding Options.Mode}" ItemsSource="{Binding Source={StaticResource BackgroundMode}}" Style="{StaticResource EnumComboBox}"/>
                                 </StackPanel>
                             </UniformGrid>
                         </StackPanel>

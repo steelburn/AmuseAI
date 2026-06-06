@@ -6,7 +6,7 @@ using TensorStack.Common;
 
 namespace Amuse.App.Common
 {
-    public record UpscaleHistory : IHistoryItem
+    public sealed record UpscaleHistory : IHistoryItem
     {
         public string Id { get; init; }
         public int Version { get; init; }
@@ -52,7 +52,7 @@ namespace Amuse.App.Common
         [JsonIgnore]
         public string ThumbPath { get; set; }
 
-        public virtual bool Equals(UpscaleHistory other) => ReferenceEquals(this, other);
+        public bool Equals(UpscaleHistory other) => ReferenceEquals(this, other);
         public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
     }
 }

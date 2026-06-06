@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Amuse.Common.Message
 {
-    public class CommandResponse
+    public sealed class CommandResponse
     {
         public CommandResponse() { }
         public CommandResponse(Exception ex) : this(ex.Message)

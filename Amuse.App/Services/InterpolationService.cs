@@ -12,7 +12,7 @@ using TensorStack.Video.Pipelines;
 
 namespace Amuse.App.Services
 {
-    public class InterpolationService : ServiceBase, IInterpolationService
+    public sealed class InterpolationService : ServiceBase, IInterpolationService
     {
         private readonly Settings _settings;
         private readonly IMediaService _mediaService;

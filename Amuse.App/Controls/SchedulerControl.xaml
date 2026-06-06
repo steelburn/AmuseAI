@@ -27,7 +27,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -43,11 +43,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -76,7 +76,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -92,11 +92,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -116,18 +116,18 @@
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Final Sigmas Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource FinalSigmasType}}" SelectedItem="{Binding FinalSigmasType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource FinalSigmasType}}" SelectedItem="{Binding FinalSigmasType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
 
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Interpolation Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource InterpolationType}}" SelectedItem="{Binding InterpolationType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource InterpolationType}}" SelectedItem="{Binding InterpolationType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepType}}" SelectedItem="{Binding TimestepType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepType}}" SelectedItem="{Binding TimestepType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <CheckBox Content="Rescale Betas SNR" IsChecked="{Binding RescaleBetasZeroSNR}" Margin="4,20,0,0"/>
@@ -154,7 +154,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -170,11 +170,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -198,7 +198,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -214,11 +214,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -252,7 +252,7 @@
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Variance" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource VarianceType}}" SelectedItem="{Binding VarianceType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource VarianceType}}" SelectedItem="{Binding VarianceType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
 
@@ -272,7 +272,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -288,11 +288,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -360,7 +360,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -376,11 +376,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -453,7 +453,7 @@
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="TimeShift" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <CheckBox Content="Dynamic Shifting" IsChecked="{Binding UseDynamicShifting}" Margin="0,20,0,0"/>
@@ -507,7 +507,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -523,11 +523,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -549,7 +549,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -565,11 +565,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -606,7 +606,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -622,11 +622,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -661,7 +661,7 @@
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Final Sigmas Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource FinalSigmasType}}" SelectedItem="{Binding FinalSigmasType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource FinalSigmasType}}" SelectedItem="{Binding FinalSigmasType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
 
@@ -669,7 +669,7 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Solver" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource SolverType}}" SelectedItem="{Binding SolverType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource SolverType}}" SelectedItem="{Binding SolverType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Solver Order" Style="{StaticResource FieldTextBlockStyle}" />
@@ -687,7 +687,7 @@
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="TimeShift" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <CheckBox Content="Dynamic Shifting" IsChecked="{Binding UseDynamicShifting}" Margin="0,20,0,0"/>
@@ -730,7 +730,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -746,11 +746,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -777,7 +777,7 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Solver" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource SolverType}}" SelectedItem="{Binding SolverType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource SolverType}}" SelectedItem="{Binding SolverType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Solver Order" Style="{StaticResource FieldTextBlockStyle}" />
@@ -795,11 +795,11 @@
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="TimeShift" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Final Sigmas Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource FinalSigmasType}}" SelectedItem="{Binding FinalSigmasType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource FinalSigmasType}}" SelectedItem="{Binding FinalSigmasType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
 
@@ -812,7 +812,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Algorithm Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource AlgorithmType}}" SelectedItem="{Binding AlgorithmType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource AlgorithmType}}" SelectedItem="{Binding AlgorithmType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                   
                     <StackPanel Margin="0,0,0,0">
@@ -842,7 +842,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -857,11 +857,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -886,7 +886,7 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Solver" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource SolverType}}" SelectedItem="{Binding SolverType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource SolverType}}" SelectedItem="{Binding SolverType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Solver Order" Style="{StaticResource FieldTextBlockStyle}" />
@@ -904,11 +904,11 @@
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Variance Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource VarianceType}}" SelectedItem="{Binding VarianceType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource VarianceType}}" SelectedItem="{Binding VarianceType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Algorithm Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource AlgorithmType}}" SelectedItem="{Binding AlgorithmType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource AlgorithmType}}" SelectedItem="{Binding AlgorithmType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
 
@@ -916,7 +916,7 @@
 
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Final Sigmas Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource FinalSigmasType}}" SelectedItem="{Binding FinalSigmasType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource FinalSigmasType}}" SelectedItem="{Binding FinalSigmasType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <CheckBox Content="Flow Sigmas" IsChecked="{Binding UseFlowSigmas}" Margin="0,20,0,0"/>
@@ -941,7 +941,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -956,11 +956,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -997,7 +997,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1012,11 +1012,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1041,7 +1041,7 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Solver" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource SolverType}}" SelectedItem="{Binding SolverType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource SolverType}}" SelectedItem="{Binding SolverType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Solver Order" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1059,11 +1059,11 @@
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="TimeShift" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Algorithm Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource AlgorithmType}}" SelectedItem="{Binding AlgorithmType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource AlgorithmType}}" SelectedItem="{Binding AlgorithmType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
 
@@ -1090,7 +1090,7 @@
             <StackPanel>
                 <StackPanel Margin="0,0,0,0">
                     <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                    <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                    <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                 </StackPanel>
 
                 <UniformGrid  Columns="3">
@@ -1104,7 +1104,7 @@
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Final Sigmas Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource FinalSigmasType}}" SelectedItem="{Binding FinalSigmasType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource FinalSigmasType}}" SelectedItem="{Binding FinalSigmasType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
 
@@ -1119,7 +1119,7 @@
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Sigma Schedule Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource SigmaScheduleType}}" SelectedItem="{Binding SigmaScheduleType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource SigmaScheduleType}}" SelectedItem="{Binding SigmaScheduleType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
             </StackPanel>
@@ -1130,11 +1130,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Algorithm Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource AlgorithmType}}" SelectedItem="{Binding AlgorithmType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource AlgorithmType}}" SelectedItem="{Binding AlgorithmType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <CheckBox Content="Euler At Final" IsChecked="{Binding EulerAtFinal}" Margin="0,20,0,0"/>
@@ -1152,7 +1152,7 @@
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Final Sigmas Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource FinalSigmasType}}" SelectedItem="{Binding FinalSigmasType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource FinalSigmasType}}" SelectedItem="{Binding FinalSigmasType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
 
@@ -1167,7 +1167,7 @@
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Sigma Schedule Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource SigmaScheduleType}}" SelectedItem="{Binding SigmaScheduleType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource SigmaScheduleType}}" SelectedItem="{Binding SigmaScheduleType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
 
@@ -1188,7 +1188,7 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Solver" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource SolverType}}" SelectedItem="{Binding SolverType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource SolverType}}" SelectedItem="{Binding SolverType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Solver Order" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1225,11 +1225,11 @@
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="TimeShift" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Upscale Mode" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource UpscaleModeType}}" SelectedItem="{Binding UpscaleMode}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource UpscaleModeType}}" SelectedItem="{Binding UpscaleMode}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
 
@@ -1271,7 +1271,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1286,11 +1286,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1325,7 +1325,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1340,11 +1340,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1379,7 +1379,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Shift" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1394,7 +1394,7 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Solver" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource SolverType}}" SelectedItem="{Binding SolverType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource SolverType}}" SelectedItem="{Binding SolverType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Solver Order" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1408,7 +1408,7 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="TimeShiftType" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <CheckBox Content="Dynamic Shifting" IsChecked="{Binding UseDynamicShifting}" Margin="0,20,0,0"/>
@@ -1430,7 +1430,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Shift" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1445,7 +1445,7 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="TimeShiftType" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimeShiftType}}" SelectedItem="{Binding TimeShiftType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <CheckBox Content="Dynamic Shifting" IsChecked="{Binding UseDynamicShifting}" Margin="0,20,0,0"/>
@@ -1463,7 +1463,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1478,11 +1478,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1538,7 +1538,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Sigma Data" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1553,7 +1553,7 @@
                 <UniformGrid Columns="3" Margin="0,4,0,0">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Beta Schedule" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource BetaScheduleType}}" SelectedItem="{Binding BetaSchedule}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Beta Start" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1568,11 +1568,11 @@
                 <UniformGrid  Columns="3">
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Prediction" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource PredictionType}}" SelectedItem="{Binding PredictionType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Timestep Spacing" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource TimestepSpacingType}}" SelectedItem="{Binding TimestepSpacing}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="StepsOffset" Style="{StaticResource FieldTextBlockStyle}" />
@@ -1601,11 +1601,11 @@
                     </StackPanel>
                     <StackPanel Margin="4,0,4,0">
                         <TextBlock Text="Algorithm Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource AlgorithmType}}" SelectedItem="{Binding AlgorithmType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource AlgorithmType}}" SelectedItem="{Binding AlgorithmType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="Variance Type" Style="{StaticResource FieldTextBlockStyle}" />
-                        <ComboBox ItemsSource="{Binding Source={StaticResource VarianceType}}" SelectedItem="{Binding VarianceType}" />
+                        <ComboBox ItemsSource="{Binding Source={StaticResource VarianceType}}" SelectedItem="{Binding VarianceType}" Style="{StaticResource EnumComboBox}"/>
                     </StackPanel>
                 </UniformGrid>
 

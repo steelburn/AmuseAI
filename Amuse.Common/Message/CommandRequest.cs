@@ -1,6 +1,6 @@
 ﻿namespace Amuse.Common.Message
 {
-    public class CommandRequest
+    public sealed class CommandRequest
     {
         public CommandRequest() { }
         public CommandRequest(CommandRequestType type)

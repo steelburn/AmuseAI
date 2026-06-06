@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TensorStack.Audio;
 using TensorStack.Common;
@@ -127,10 +128,14 @@ namespace Amuse.App.Views
                 Statistics.Clear();
                 ResultAudio = default;
                 Statistics.Start();
+                CancellationTokenSource = new CancellationTokenSource();
 
                 AutomationProgress.Indeterminate($"Automation Started");
+                var cancellationToken = CancellationTokenSource.Token;
                 await foreach (var automationJob in AutomationManager.CreateJobsAsync(AutomationOptions, Options, MediaType.Audio, MediaType.Text))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     //// Source
                     //if (!automationJob.InputTexts.IsNullOrEmpty())
                     //    Options.Prompt2 = automationJob.InputTexts[0].Text;
@@ -171,6 +176,8 @@ namespace Amuse.App.Views
                 Progress.Clear();
                 AutomationProgress.Clear();
                 IsAutomating = false;
+                CancellationTokenSource?.Dispose();
+                CancellationTokenSource = null;
             }
         }
 

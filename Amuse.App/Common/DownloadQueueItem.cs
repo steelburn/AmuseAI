@@ -7,7 +7,7 @@ using TensorStack.WPF.Controls;
 
 namespace Amuse.App.Common
 {
-    public class DownloadQueueItem : BaseModel
+    public sealed class DownloadQueueItem : BaseModel
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
         private float _speed;

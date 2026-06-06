@@ -2,7 +2,7 @@
 
 namespace Amuse.Common.Config
 {
-    public record ClientConfig
+    public sealed record ClientConfig
     {
         public bool IsDebugMode { get; set; }
         public string ServerPath { get; set; }

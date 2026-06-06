@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 
-
 namespace Amuse.Common
 {
-    public record SchedulerOptions
+    public sealed record SchedulerOptions
     {
         public SchedulerType Scheduler { get; set; }
         public int NumTrainTimesteps { get; set; }

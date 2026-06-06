@@ -7,7 +7,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public class UpscaleModel : BaseModel, IDownloadModel
+    public sealed class UpscaleModel : BaseModel, IDownloadModel
     {
         private BackendType _backend;
         private string _name;
@@ -171,15 +171,15 @@ namespace Amuse.App.Common
         private ModelStatusType GetModelStatus(Settings settings)
         {
             if (Checkpoint == null)
-                return ModelStatusType.Pending;
+                return ModelStatusType.Available;
 
             var isValid = Checkpoint.IsInstalled(settings.DirectoryUpscale, settings.Components);
-            if (Status == ModelStatusType.Pending && isValid)
+            if (Status == ModelStatusType.Available && isValid)
                 return ModelStatusType.Installed;
             else if (Status == ModelStatusType.Installed && !isValid)
-                return ModelStatusType.Pending;
+                return ModelStatusType.Available;
             else if (Status == ModelStatusType.Downloading || Status == ModelStatusType.DownloadQueue || Status == ModelStatusType.DownloadFailed)
-                return ModelStatusType.Pending;
+                return ModelStatusType.Available;
 
             return Status;
         }

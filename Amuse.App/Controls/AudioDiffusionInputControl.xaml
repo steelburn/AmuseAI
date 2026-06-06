@@ -211,7 +211,7 @@
                         <UniformGrid Columns="2"  Margin="0,4,0,0">
                             <StackPanel>
                                 <TextBlock Text="Early Stopping" Style="{StaticResource FieldTextBlockStyle}" />
-                                <ComboBox ItemsSource="{Binding Source={StaticResource EarlyStopping}}" SelectedItem="{Binding Options.EarlyStopping}" />
+                                <ComboBox ItemsSource="{Binding Source={StaticResource EarlyStopping}}" SelectedItem="{Binding Options.EarlyStopping}" Style="{StaticResource EnumComboBox}"/>
                             </StackPanel>
                             <CheckBox Content="All Beams Results" IsChecked="{Binding IsMultipleResult}" Margin="0,21,0,0" HorizontalAlignment="Right"/>
                         </UniformGrid>

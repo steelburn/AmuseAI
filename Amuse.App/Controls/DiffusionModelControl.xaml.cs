@@ -562,7 +562,7 @@ namespace Amuse.App.Controls
 
             IsLoraSupported = _selectedModel.Backend == BackendType.PyTorch;
             SelectedQualityMode = _selectedModel.UserQualityMode is null
-                ? _selectedDevice.DefaultQualityMode
+                ? _selectedDevice?.DefaultQualityMode ?? QualityMode.Standard
                 : _selectedModel.UserQualityMode.Value;
             SelectedMemoryMode = _selectedModel.UserMemoryMode is null
                 ? MemoryModes.FirstOrDefault(x => x.MemoryMode == MemoryMode.Auto)
@@ -698,7 +698,7 @@ namespace Amuse.App.Controls
                 await DialogService.ShowMessageAsync("Model Downloading", "This model is downloading or queued for download", TensorStack.WPF.Dialogs.MessageDialogType.Ok, TensorStack.WPF.Dialogs.MessageBoxIconType.Info, TensorStack.WPF.Dialogs.MessageBoxStyleType.Info);
                 return true;
             }
-            else if (status.Contains(ModelStatusType.Pending) || status.Contains(ModelStatusType.Unknown))
+            else if (status.Contains(ModelStatusType.Available) || status.Contains(ModelStatusType.Unknown))
             {
                 var queueDownload = await DialogService.ShowMessageAsync("Queue Download", "Would you like to queue this model for download?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Question, TensorStack.WPF.Dialogs.MessageBoxStyleType.Info);
                 if (queueDownload)

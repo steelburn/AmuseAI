@@ -2,10 +2,9 @@
 using System.Text.Json.Serialization;
 using TensorStack.Common.Tensor;
 
-
 namespace Amuse.Common
 {
-    public record PipelineRunOptions
+    public sealed record PipelineRunOptions
     {
         public int Seed { get; set; }
         public string Prompt { get; set; }

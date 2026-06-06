@@ -1,4 +1,6 @@
-﻿namespace Amuse.Common
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Amuse.Common
 {
     public enum ServerType
     {
@@ -8,18 +10,42 @@
 
     public enum ProcessType
     {
+        // Image
+        [Display(Name = "TextToImage", ShortName = "T2I", Description = "Generates a brand new synthetic image completely from scratch based on a text prompt.")]
         TextToImage = 0,
+
+        [Display(Name = "ImageToImage", ShortName = "I2I", Description = "Alters a source image changing its style, textures, or composition based on a guiding text prompt.")]
         ImageToImage = 1,
+
+        [Display(Name = "ImageEdit", ShortName = "IE", Description = "Applies localized or structural modifications to an existing image using instruction-based editing commands.")]
         ImageEdit = 2,
+
+        [Display(Name = "ImageInpaint", ShortName = "INP", Description = "Modifies or restores specific, masked areas within an image while preserving the surrounding context.")]
         ImageInpaint = 3,
+
+        [Display(Name = "ImageControlNet", ShortName = "CN", Description = "Applies rigid spatial conditioning (like edge maps, poses, or depth) onto a text-to-image generation process.")]
         ImageControlNet = 4,
+
+        [Display(Name = "ImageToImageControlNet", ShortName = "I2I+CN", Description = "Combines a source image with an explicit spatial guide map to tightly control composition and style concurrently.")]
         ImageToImageControlNet = 5,
 
+
+        // Video
+        [Display(Name = "TextToVideo", ShortName = "T2V", Description = "Synthesizes fluid, moving video frames from scratch using a conceptual text prompt.")]
         TextToVideo = 300,
+
+        [Display(Name = "ImageToVideo", ShortName = "I2V", Description = "Animates a single, static source image into a moving video clip while maintaining character or object consistency.")]
         ImageToVideo = 301,
+
+        [Display(Name = "VideoToVideo", ShortName = "V2V", Description = "Translates a source video into a different style or texture while tracking the underlying motion structures.")]
         VideoToVideo = 302,
 
+
+        // Audio
+        [Display(Name = "TextToAudio", ShortName = "T2A", Description = "Converts written text into spoken voice synthesis, realistic sound effects, or continuous music tracks.")]
         TextToAudio = 400,
+
+        [Display(Name = "AudioToText", ShortName = "A2T", Description = "Transcribes incoming spoken speech or environmental audio signals into formatted, written text.")]
         AudioToText = 500
     }
 

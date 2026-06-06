@@ -3,7 +3,7 @@
 
 namespace Amuse.Common
 {
-    public class PipelineProgress
+    public sealed class PipelineProgress
     {
         public string Key { get; init; }
         public string Subkey { get; init; }
@@ -21,7 +21,4 @@ namespace Amuse.Common
         public float IterationsPerSecond => Elapsed > 0 ? 1000f / Elapsed : 0;
         public float SecondsPerIteration => Elapsed > 0 ? Elapsed / 1000f : 0;
     }
-
-
-
 }

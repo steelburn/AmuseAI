@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TensorStack.Common;
 using TensorStack.Common.Tensor;
@@ -137,10 +138,14 @@ namespace Amuse.App.Views
                 ResultImage = default;
                 CompareImage = default;
                 Statistics.Start();
+                CancellationTokenSource = new CancellationTokenSource();
 
                 AutomationProgress.Indeterminate($"Automation Started");
+                var cancellationToken = CancellationTokenSource.Token;
                 await foreach (var automationJob in AutomationManager.CreateJobsAsync(AutomationOptions, Options, MediaType.Video, MediaType.Image))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     // Source
                     if (!automationJob.InputImages.IsNullOrEmpty())
                         SourceImage1 = automationJob.InputImages[0];
@@ -184,6 +189,8 @@ namespace Amuse.App.Views
                 Progress.Clear();
                 AutomationProgress.Clear();
                 IsAutomating = false;
+                CancellationTokenSource?.Dispose();
+                CancellationTokenSource = null;
             }
         }
 

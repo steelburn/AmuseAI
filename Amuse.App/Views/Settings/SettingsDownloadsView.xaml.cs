@@ -26,19 +26,20 @@ namespace Amuse.App.Views
         {
             _downloadService = downloadService;
             SaveCommand = new AsyncRelayCommand(SaveAsync);
-            CancelCommand = new AsyncRelayCommand(CancelAsync, CanCancel);
+            RetryCommand = new AsyncRelayCommand(RetryAsync, CanRetry);
             CancelAllCommand = new AsyncRelayCommand(CancelAllAsync, CanCancelAll);
 
             FilterClearCommand = new AsyncRelayCommand(FilterClearAsync, CanClearFilter);
-            ModelCollection = new ListCollectionView(_downloadService.Queue) { Filter = CollectionFilter(), IsLiveSorting = true };
+            ModelCollection = new ListCollectionView(_downloadService.Queue) { Filter = CollectionFilter(), IsLiveSorting = true};
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(DownloadQueueItem.Index), ListSortDirection.Ascending));
-            SelectedModel = _downloadService.Queue.FirstOrDefault();
+            ModelCollection.MoveCurrentToFirst();
+            SelectedModel = ModelCollection.CurrentItem as DownloadQueueItem;
             InitializeComponent();
         }
 
         public override View View => View.Downloads;
         public AsyncRelayCommand SaveCommand { get; }
-        public AsyncRelayCommand CancelCommand { get; }
+        public AsyncRelayCommand RetryCommand { get; }
         public AsyncRelayCommand CancelAllCommand { get; }
         public AsyncRelayCommand FilterClearCommand { get; }
         public ListCollectionView ModelCollection { get; }
@@ -91,16 +92,29 @@ namespace Amuse.App.Views
         }
 
 
-        private async Task CancelAsync()
+        private async Task RetryAsync()
         {
+            await DownloadService.QueueAsync(_selectedModel.DownloadModel);
+        }
+
+
+        private bool CanRetry()
+        {
+            return _selectedModel?.Status == ModelStatusType.DownloadFailed;
+        }
+
+
+        protected override async Task CancelAsync()
+        {
+            await base.CancelAsync();
             await _downloadService.CancelAsync(SelectedModel);
             SelectedModel = _downloadService.Queue.FirstOrDefault();
         }
 
 
-        private bool CanCancel()
+        protected override bool CanCancel()
         {
-            return SelectedModel != null;
+            return base.CanCancel() || SelectedModel != null;
         }
 
 

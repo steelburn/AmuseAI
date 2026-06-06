@@ -23,7 +23,6 @@ namespace Amuse.App.Dialogs
         private DiffusionModel _diffusionModel;
         private DiffusionModel _originalDiffusionModel;
         private CheckpointModel _checkpointModel;
-        private string _frameOptions;
         private SchedulerInputOptions[] _schedulers;
 
         public DiffusionModelDialog(Settings settings)
@@ -75,12 +74,6 @@ namespace Amuse.App.Dialogs
             set { SetProperty(ref _schedulers, value); }
         }
 
-        public string FrameOptions
-        {
-            get { return _frameOptions; }
-            set { SetProperty(ref _frameOptions, value); }
-        }
-
 
         public Task<bool> UpdateAsync(DiffusionModel diffusionModel)
         {
@@ -117,9 +110,12 @@ namespace Amuse.App.Dialogs
             DiffusionModel.ViewFilter = GetViewFilter();
 
             var defaultSize = Sizes.FirstOrDefault(x => x.IsDefault);
-            DiffusionModel.DefaultOptions.Width = defaultSize.Width;
-            DiffusionModel.DefaultOptions.Height = defaultSize.Height; ;
-            DiffusionModel.DefaultOptions.FrameOptions = GetFrameOptions(FrameOptions);
+            if (defaultSize != null)
+            {
+                DiffusionModel.DefaultOptions.Width = defaultSize.Width;
+                DiffusionModel.DefaultOptions.Height = defaultSize.Height;
+            }
+
             DiffusionModel.Initialize(Settings);
 
             var index = Settings.DiffusionModels.Count;
@@ -210,39 +206,17 @@ namespace Amuse.App.Dialogs
 
             SetViewFilters();
             SetProcessTypes();
-            FrameOptions = GetFrameOptions(DiffusionModel.DefaultOptions.FrameOptions);
             SelectedSize = Sizes.FirstOrDefault(x => x.IsDefault) ?? Sizes.FirstOrDefault();
             CheckpointModel = DiffusionModel.Checkpoint;
+            NotifyPropertyChanged(nameof(AccessTokens));
             NotifyPropertyChanged(nameof(IsUpdateMode));
+            DiffusionModel.NotifyPropertyChanged(nameof(DiffusionModel.AccessToken));
         }
 
 
         private int GetNextModelId()
         {
             return Math.Max(Utils.FixedIdRange, Settings.DiffusionModels.Max(x => x.Id)) + 1;
-        }
-
-
-        private static string GetFrameOptions(int[] frameOptions)
-        {
-            return frameOptions.IsNullOrEmpty() ? string.Empty : string.Join(",", frameOptions);
-        }
-
-
-        private static int[] GetFrameOptions(string frameOptions)
-        {
-            if (string.IsNullOrEmpty(frameOptions))
-                return null;
-
-            var frameOptionsArray = frameOptions
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Where(x => int.TryParse(x, out _))
-                .Select(int.Parse)
-                .ToArray();
-
-            if (frameOptionsArray.IsNullOrEmpty())
-                return null;
-            return frameOptionsArray;
         }
 
 
@@ -263,6 +237,8 @@ namespace Amuse.App.Dialogs
                     yield return "Resolutions cannot be empty";
                 if (!Sizes.Any(x => x.IsDefault))
                     yield return "Default resolutions is not set";
+                if (DiffusionModel.DefaultOptions.Steps < 1)
+                    yield return "Steps must be be > 0";
             }
             else if (DiffusionModel.MediaType == MediaType.Video)
             {
@@ -270,20 +246,63 @@ namespace Amuse.App.Dialogs
                     yield return "Resolutions cannot be empty";
                 if (!Sizes.Any(x => x.IsDefault))
                     yield return "Default resolutions is not set";
-
-                if (DiffusionModel.DefaultOptions.Frames < 0)
-                    yield return "Frames must be be >= 0";
-                if (DiffusionModel.DefaultOptions.FrameRate < 0)
-                    yield return "FrameRate must be be >= 0";
+                if (DiffusionModel.DefaultOptions.Steps < 1)
+                    yield return "Steps must be be > 0";
+                if (DiffusionModel.DefaultOptions.Frames < 1)
+                    yield return "Frames must be be > 0";
+                if (DiffusionModel.DefaultOptions.FrameRate < 1)
+                    yield return "FrameRate must be be > 0";
+            }
+            else if (DiffusionModel.MediaType == MediaType.Audio)
+            {
+                if (DiffusionModel.DefaultOptions.SampleRate < 1)
+                    yield return "SampleRate must be be > 0";
+                if (DiffusionModel.Pipeline == PipelineType.WhisperPipeline)
+                {
+                    if (DiffusionModel.DefaultOptions.TopK < 1)
+                        yield return "TopK must be be > 0";
+                }
+                else
+                {
+                    if (DiffusionModel.DefaultOptions.Steps < 1)
+                        yield return "Steps must be be > 0";
+                }
             }
 
-            if (DiffusionModel.DefaultOptions.Steps < 1)
-                yield return "Steps must be be > 0";
+            if (DiffusionModel.DefaultOptions.Steps2 < 0)
+                yield return "Steps2 must be be >= 0";
             if (DiffusionModel.DefaultOptions.GuidanceScale < 0)
                 yield return "GuidanceScale must be be >= 0";
             if (DiffusionModel.DefaultOptions.GuidanceScale2 < 0)
                 yield return "GuidanceScale2 must be be >= 0";
-
+            if (DiffusionModel.DefaultOptions.Strength < 0)
+                yield return "Strength must be be >= 0";
+            if (DiffusionModel.DefaultOptions.Channels < 0)
+                yield return "Channels must be be >= 0";
+            if (DiffusionModel.DefaultOptions.MinLength < 0)
+                yield return "MinLength must be be >= 0";
+            if (DiffusionModel.DefaultOptions.MaxLength < 0)
+                yield return "MaxLength must be be >= 0";
+            if (DiffusionModel.DefaultOptions.MaxLength2 < 0)
+                yield return "MaxLength2 must be be >= 0";
+            if (DiffusionModel.DefaultOptions.Duration < 0)
+                yield return "Duration must be be >= 0";
+            if (DiffusionModel.DefaultOptions.SilenceDuration < 0)
+                yield return "SilenceDuration must be be >= 0";
+            if (DiffusionModel.DefaultOptions.FrameChunkOverlap < 0)
+                yield return "FrameChunkOverlap must be be >= 0";
+            if (DiffusionModel.DefaultOptions.NoiseCondition < 0)
+                yield return "NoiseCondition must be be >= 0";
+            if (DiffusionModel.DefaultOptions.FrameChunk < 0)
+                yield return "FrameChunk must be be >= 0";
+            if (DiffusionModel.DefaultOptions.NoRepeatNgramSize < 0)
+                yield return "NoRepeatNgramSize must be be >= 0";
+            if (DiffusionModel.DefaultOptions.Beams < 0)
+                yield return "Beams must be be >= 0";
+            if (DiffusionModel.DefaultOptions.TopP < 0)
+                yield return "TopP must be be >= 0";
+            if (DiffusionModel.DefaultOptions.ChunkSize < 0)
+                yield return "ChunkSize must be be >= 0";
 
             // MemoryProfile
             foreach (var profile in DiffusionModel.MemoryProfile)
@@ -330,6 +349,8 @@ namespace Amuse.App.Dialogs
                     CheckBoxVideoToVideo.IsChecked = true;
                 if (processType == ProcessType.TextToAudio)
                     CheckBoxTextToAudio.IsChecked = true;
+                if (processType == ProcessType.AudioToText)
+                    CheckBoxAudioToText.IsChecked = true;
             }
         }
 
@@ -358,10 +379,11 @@ namespace Amuse.App.Dialogs
                     yield return ProcessType.VideoToVideo;
                 if (CheckBoxTextToAudio.IsChecked == true)
                     yield return ProcessType.TextToAudio;
+                if (CheckBoxAudioToText.IsChecked == true)
+                    yield return ProcessType.AudioToText;
             }
             return [.. ProcessTypes()];
         }
-
 
 
         private View[] GetViewFilter()
@@ -435,7 +457,6 @@ namespace Amuse.App.Dialogs
                     CheckBoxViewTextToAudio.IsChecked = true;
             }
         }
-
 
         public record AccessToken(string Name, string Value);
     }

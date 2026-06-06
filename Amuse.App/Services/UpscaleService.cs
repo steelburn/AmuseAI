@@ -13,7 +13,7 @@ using TensorStack.Video;
 
 namespace Amuse.App.Services
 {
-    public class UpscaleService : ServiceBase, IUpscaleService
+    public sealed class UpscaleService : ServiceBase, IUpscaleService
     {
         private readonly Settings _settings;
         private readonly IMediaService _mediaService;

@@ -7,7 +7,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public class ExtractModel : BaseModel, IDownloadModel
+    public sealed class ExtractModel : BaseModel, IDownloadModel
     {
         private ExtractorType _type;
         private BackendType _backend;
@@ -186,15 +186,15 @@ namespace Amuse.App.Common
         private ModelStatusType GetModelStatus(Settings settings)
         {
             if (Checkpoint == null)
-                return ModelStatusType.Pending;
+                return ModelStatusType.Available;
 
             var isValid = Checkpoint.IsInstalled(settings.DirectoryExtract, settings.Components);
-            if (Status == ModelStatusType.Pending && isValid)
+            if (Status == ModelStatusType.Available && isValid)
                 return ModelStatusType.Installed;
             else if (Status == ModelStatusType.Installed && !isValid)
-                return ModelStatusType.Pending;
+                return ModelStatusType.Available;
             else if (Status == ModelStatusType.Downloading || Status == ModelStatusType.DownloadQueue || Status == ModelStatusType.DownloadFailed)
-                return ModelStatusType.Pending;
+                return ModelStatusType.Available;
 
             return Status;
         }

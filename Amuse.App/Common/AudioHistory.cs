@@ -7,7 +7,7 @@ using TensorStack.Common;
 
 namespace Amuse.App.Common
 {
-    public record AudioHistory : IHistoryItem
+    public sealed record AudioHistory : IHistoryItem
     {
         public string Id { get; init; }
         public int Version { get; init; }
@@ -52,7 +52,7 @@ namespace Amuse.App.Common
         public string ThumbPath { get; set; }
 
 
-        public virtual bool Equals(AudioHistory other) => ReferenceEquals(this, other);
+        public bool Equals(AudioHistory other) => ReferenceEquals(this, other);
         public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
     }
 }

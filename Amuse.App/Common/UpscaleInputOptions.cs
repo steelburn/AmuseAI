@@ -1,9 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public record UpscaleInputOptions : BaseRecord
+    public sealed record UpscaleInputOptions : BaseRecord
     {
         private bool _isTileEnabled;
         private int _tileSize;
@@ -42,5 +43,8 @@ namespace Amuse.App.Common
                 TileSize = TileSize
             };
         }
+
+        public bool Equals(UpscaleInputOptions other) => ReferenceEquals(this, other);
+        public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
     }
 }

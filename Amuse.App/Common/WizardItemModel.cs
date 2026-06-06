@@ -4,7 +4,7 @@ using TensorStack.Common;
 
 namespace Amuse.App.Common
 {
-    public class WizardItemModel
+    public sealed class WizardItemModel
     {
         public string Name { get; set; }
         public BackendType Backend { get; set; }

@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Amuse.App
 {
-    public record AppUpdate
+    public sealed record AppUpdate
     {
         private readonly AppVersion _version;
         private readonly AppAsset _assetInstaller;
@@ -30,7 +30,7 @@ namespace Amuse.App
         public string LinkStandalone => _assetStandalone?.DownloadLink;
     }
 
-    public record AppVersion
+    public sealed record AppVersion
     {
         [JsonPropertyName("tag_name")]
         public string Version { get; set; }
@@ -42,7 +42,7 @@ namespace Amuse.App
         public AppAsset[] Assets { get; set; }
     }
 
-    public record AppAsset
+    public sealed record AppAsset
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }

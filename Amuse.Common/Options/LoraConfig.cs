@@ -1,6 +1,6 @@
 ﻿namespace Amuse.Common
 {
-    public class LoraConfig
+    public sealed class LoraConfig
     {
         public string Path { get; set; }
         public string Name { get; set; }

@@ -4,7 +4,7 @@ using TensorStack.WPF;
 
 namespace Amuse.App.Common
 {
-    public class AutomationOptions : BaseModel
+    public sealed class AutomationOptions : BaseModel
     {
         private AutomationType _type;
         private AutomationType[] _types;
