@@ -217,7 +217,7 @@ namespace Amuse.App.Runtime
                 }
 
                 var videoTensor = tensorResult.AsVideoTensor(generateOptions.FrameRate);
-                await videoTensor.SaveAync(videoFileName);
+                await videoTensor.SaveAsync(videoFileName);
                 return new VideoInputStream(videoFileName);
             }
             catch (IOException ex)

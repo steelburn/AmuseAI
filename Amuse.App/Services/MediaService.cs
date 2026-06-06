@@ -66,7 +66,7 @@ namespace Amuse.App.Services
         /// <returns>A Task&lt;VideoInputStream&gt; representing the asynchronous operation.</returns>
         public async Task<VideoInputStream> SaveWithAudioAsync(IAsyncEnumerable<VideoFrame> videoStream, string sourceFile, string resultVideoFile, CancellationToken cancellationToken = default)
         {
-            await videoStream.SaveAync(resultVideoFile, cancellationToken: cancellationToken);
+            await videoStream.SaveAsync(resultVideoFile, cancellationToken: cancellationToken);
             await AudioManager.AddAudioAsync(resultVideoFile, sourceFile, cancellationToken);
             return new VideoInputStream(resultVideoFile);
         }

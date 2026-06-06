@@ -36,9 +36,9 @@ namespace Amuse.App
         public bool RunMigrations { get; set; }
         public VendorType[] Vendors { get; set; }
         public int DefaultDeviceId { get; set; }
-        public string DirectoryTemp { get; private set; }
-        public string DirectoryHistory { get; private set; }
-        public string DirectoryModel { get; private set; }
+        public string DirectoryTemp { get; set; }
+        public string DirectoryHistory { get; set; }
+        public string DirectoryModel { get; set; }
 
         [JsonIgnore]
         public string DirectoryDiffusion { get; private set; }
