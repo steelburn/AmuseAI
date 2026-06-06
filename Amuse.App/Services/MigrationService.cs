@@ -285,9 +285,9 @@ namespace Amuse.App.Services
             ];
 
             return RunMigrations(modelDirectory, renameMigrations, isReadOnly)
-                && RunMigrations(modelDirectory, amuseMigrations, isReadOnly)
-                && RunMigrations(modelDirectory, huggingFaceMigrations, isReadOnly)
-                && RunMigrations(modelDirectory, deleteMigrations, isReadOnly);
+                || RunMigrations(modelDirectory, amuseMigrations, isReadOnly)
+                || RunMigrations(modelDirectory, huggingFaceMigrations, isReadOnly)
+                || RunMigrations(modelDirectory, deleteMigrations, isReadOnly);
         }
 
 
