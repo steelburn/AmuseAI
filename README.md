@@ -14,7 +14,7 @@
 
 
 # Amuse
-Amuse is a high-performance local .NET application for AI image and video generation. Create and process media with a streamlined interface designed for ease of use and seamless integration with modern hardware.
+Amuse is the flagship demo application for the [TensorStack SDK](https://github.com/TensorStack-AI/TensorStack), showcasing high-performance local AI image, video, audio and text generation through a modern, extensible .NET architecture.
 
 <p align="center" width="100%">
     <img src="Assets/Screenshots/TextToImage.PNG">
