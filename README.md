@@ -3,18 +3,20 @@
    <img width="30%" src="Assets/Amuse-Logo-512.png">
 </p>
 <div align="center">
-   <h1><a href="https://github.com/TensorStack-AI/AmuseAI/releases/download/v3.5.1/Amuse_v3.5.1.exe">Download Amuse v3.5.1</a></h1>
+   <h1><a href="https://github.com/TensorStack-AI/AmuseAI/releases/download/v3.5.0/Amuse_v3.5.1.exe">Download Amuse v3.5.1</a></h1>
 </div>
 
-
-[![GitHub Release](https://img.shields.io/github/v/release/TensorStack-AI/AmuseAI?include_prereleases&label=version&color=%2344cc11)](https://github.com/TensorStack-AI/AmuseAI/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/TensorStack-AI/AmuseAI?include_prereleases&label=Amuse&color=%2344cc11)](https://github.com/TensorStack-AI/AmuseAI/releases)
+[![Common Badge](https://img.shields.io/nuget/v/TensorStack.Common?color=4bc51e&label=TensorStack)](https://www.nuget.org/packages/TensorStack.Common)
+![Nuget](https://img.shields.io/nuget/dt/TensorStack.Common?label=Nuget%20Downloads)
 [![GitHub last commit](https://img.shields.io/github/last-commit/TensorStack-AI/AmuseAI)](https://github.com/TensorStack-AI/AmuseAI/commits/master/)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/TensorStack-AI/AmuseAI/total)
 [![Discord](https://img.shields.io/discord/1457477275246268451?label=Discord&)]([https://discord.gg/ptgMMv36Xu](https://discord.gg/ptgMMv36Xu))
 
 
 
 # Amuse
-Amuse is a high-performance local .NET application for AI image and video generation. Create and process media with a streamlined interface designed for ease of use and seamless integration with modern hardware.
+Amuse is the flagship demo application for the [TensorStack SDK](https://github.com/TensorStack-AI/TensorStack), showcasing high-performance local AI image, video, audio and text generation through a modern, extensible .NET architecture.
 
 <p align="center" width="100%">
     <img src="Assets/Screenshots/TextToImage.PNG">
@@ -106,26 +108,14 @@ Amuse leverages `CUDA 12.8`, providing native support for the latest generation 
 ---
 
 ### AMD GPU Support
-Amuse leverages `ROCm 7.2`, which introduces a unified software stack for Windows and Linux.<br /> This version is highly optimized for RDNA 3 and the newly released RDNA 4 architectures, offering significant performance gains in local AI inference.
+Amuse currently only supports the `7000 series` GPU's (7900XTX & W7900)<br/>
+For `AMD` devices I recommend `ComfyUI` or `AMD Lemonade Server`, these will have way better support for AMD.
 
-<table>
-  <thead>
-    <tr>
-      <th>Architecture</th>
-      <th>Platform Support</th>
-      <th>GPU Models</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><b>gfx110X</b> (RDNA3)</td>
-      <td>Windows 10, 11, Server 22</td>
-      <td>Radeon PRO W7900/W7800/W7700/V710, RX 7900 XTX/XT/GRE, RX 7800 XT, RX 7700 XT</td>
-    </tr>
-  </tbody>
-</table>
+ComfyUI for AMD:
+https://www.amd.com/en/blogs/2026/amd-comfyui-advancing-professional-quality-generative-ai-ryzen-radeon.html
 
-> Note: Minimum Driver (AMD): `Version 26.1.1` or later is required for `ROCM 7.2` compatibility.
+Lemonade Server for AMD
+https://lemonade-server.ai/
 
 ---
 
