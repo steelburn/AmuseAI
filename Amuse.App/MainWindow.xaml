@@ -301,7 +301,7 @@
                                 <TextBlock DockPanel.Dock="Top" Text="Made in New Zealand" />
                                 <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom"  UseLayoutRounding="True" Orientation="Horizontal">
                                     <TextBlock Text="Created By: " FontStyle="Italic"  FontSize="10" VerticalAlignment="Center" Margin="0,2,0,0" />
-                                    <CommonControls:HyperlinkControl Label="TensorStack Ltd" Link="https://www.tensorstack.ai" Foreground="{StaticResource AccentColour2}"/>
+                                    <TextBlock Text="sa_ddam213" Foreground="{StaticResource AccentColour2}"/>
                                 </StackPanel>
                             </DockPanel>
                         </Grid>

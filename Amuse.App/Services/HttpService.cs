@@ -22,7 +22,7 @@ namespace Amuse.App.Services
                     AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
                 }
             });
-            Client.DefaultRequestHeaders.UserAgent.ParseAdd($"Amuse/{App.AppVersionDisplay} (contact@tensorstack.ai)");
+            Client.DefaultRequestHeaders.UserAgent.ParseAdd($"Amuse/{App.AppVersionDisplay}");
         }
 
         public HttpClient Client { get; }
