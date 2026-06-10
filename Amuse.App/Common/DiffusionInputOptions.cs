@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Amuse.Common;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using TensorStack.Audio;
@@ -42,7 +43,7 @@ namespace Amuse.App.Common
         private string _timeSignature;
         private string _trackName;
         private float _duration;
-        private string _language;
+        private LanguageType _language;
         private float _speed;
         private float _silenceDuration;
         private int _minLength;
@@ -278,7 +279,7 @@ namespace Amuse.App.Common
         }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string Language
+        public LanguageType Language
         {
             get { return _language; }
             set { SetProperty(ref _language, value); }

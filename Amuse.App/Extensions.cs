@@ -304,7 +304,6 @@ namespace Amuse.App
                 Task = options.Task,
                 TimeSignature = options.TimeSignature,
                 TrackName = options.TrackName,
-                VocalLanguage = options.Language,
                 TempFileName = tempFileName,
                 EnableVaeSlicing = options.IsVaeSlicingEnabled,
                 EnableVaeTiling = options.IsVaeTilingEnabled,

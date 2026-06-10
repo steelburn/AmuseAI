@@ -122,6 +122,12 @@ namespace Amuse.App.Common
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string[] Tasks { get; set; }
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public LanguageType Language { get; set; } = LanguageType.English;
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public LanguageType[] Languages { get; set; }
+
         public DiffusionDefaultOptions DeepClone()
         {
             return new DiffusionDefaultOptions
@@ -163,7 +169,9 @@ namespace Amuse.App.Common
                 Tasks = Tasks?.ToArray(),
                 Temperature = Temperature,
                 TopK = TopK,
-                TopP = TopP
+                TopP = TopP,
+                Language = Language,
+                Languages = Languages?.ToArray(),
             };
         }
 

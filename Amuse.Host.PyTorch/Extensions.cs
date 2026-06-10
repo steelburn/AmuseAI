@@ -98,9 +98,8 @@ namespace Amuse.Host.PyTorch
                 TempFileName = options.TempFileName,
                 TimeSignature = options.TimeSignature,
                 TrackName = options.TrackName,
-                VocalLanguage = options.VocalLanguage,
+                Language = options.Language.GetShortName(),
                 Width = options.Width,
-
                 LoraOptions = options.LoraOptions?.Select(x => x.ToPythonOptions()).ToList(),
                 SchedulerOptions = options.SchedulerOptions?.ToPythonOptions()
             };

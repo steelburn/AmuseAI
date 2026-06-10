@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using TensorStack.Common;
 using TensorStack.StableDiffusion.Common;
-using TensorStack.TextGeneration.Pipelines.Whisper;
 
 namespace Amuse.Host.Onnx
 {
@@ -36,12 +35,12 @@ namespace Amuse.Host.Onnx
         }
 
 
-        public static LanguageType GetLanguageType(this PipelineRunOptions options)
+        public static TensorStack.TextGeneration.Pipelines.Whisper.LanguageType GetLanguageType(this PipelineRunOptions options)
         {
-            if (Enum.TryParse<LanguageType>(options.Language, true, out var languageType))
+            if (Enum.TryParse<TensorStack.TextGeneration.Pipelines.Whisper.LanguageType>(options.Language.GetShortName(), true, out var languageType))
                 return languageType;
 
-            return LanguageType.EN;
+            return TensorStack.TextGeneration.Pipelines.Whisper.LanguageType.EN;
         }
 
 

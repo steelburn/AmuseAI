@@ -27,7 +27,6 @@ namespace Amuse.App.Controls
         {
             Durations = GetDurations();
             KeyScales = GetKeyScales();
-            Languages = GetLanguages();
             TimeSignatures = GetTimeSignatures();
             SeedCommand = new RelayCommand<bool>(GenerateSeed);
             AddTriggerWordCommand = new AsyncRelayCommand<string>(AddTriggerWordAsync);
@@ -158,7 +157,7 @@ namespace Amuse.App.Controls
                 IsVaeSlicingEnabled = newOptions.IsVaeSlicingEnabled,
                 IsVaeTilingEnabled = newOptions.IsVaeTilingEnabled,
 
-                Language = "en",
+                Language = newOptions.Language,
                 Task = newOptions.Task,
 
                 // AceStep
@@ -286,65 +285,6 @@ namespace Amuse.App.Controls
                     }
 
             return results;
-        }
-
-
-        private List<ComboBoxOption> GetLanguages()
-        {
-            return
-        [
-            new ComboBoxOption { Label = "Auto", Value = "unknown" },
-            new ComboBoxOption { Label = "English", Value = "en" },
-            new ComboBoxOption { Label = "Korean (한국어)", Value = "ko" },
-            new ComboBoxOption { Label = "Japanese (日本語)", Value = "ja" },
-            new ComboBoxOption { Label = "Chinese (中文)", Value = "zh" },
-            new ComboBoxOption { Label = "Cantonese (粵語)", Value = "yue" },
-            new ComboBoxOption { Label = "Arabic", Value = "ar" },
-            new ComboBoxOption { Label = "Azerbaijani", Value = "az" },
-            new ComboBoxOption { Label = "Bulgarian", Value = "bg" },
-            new ComboBoxOption { Label = "Bengali", Value = "bn" },
-            new ComboBoxOption { Label = "Catalan", Value = "ca" },
-            new ComboBoxOption { Label = "Czech", Value = "cs" },
-            new ComboBoxOption { Label = "Danish", Value = "da" },
-            new ComboBoxOption { Label = "German", Value = "de" },
-            new ComboBoxOption { Label = "Greek", Value = "el" },
-            new ComboBoxOption { Label = "Spanish", Value = "es" },
-            new ComboBoxOption { Label = "Persian", Value = "fa" },
-            new ComboBoxOption { Label = "Finnish", Value = "fi" },
-            new ComboBoxOption { Label = "French", Value = "fr" },
-            new ComboBoxOption { Label = "Hebrew", Value = "he" },
-            new ComboBoxOption { Label = "Hindi", Value = "hi" },
-            new ComboBoxOption { Label = "Croatian", Value = "hr" },
-            new ComboBoxOption { Label = "Haitian Creole", Value = "ht" },
-            new ComboBoxOption { Label = "Hungarian", Value = "hu" },
-            new ComboBoxOption { Label = "Indonesian", Value = "id" },
-            new ComboBoxOption { Label = "Icelandic", Value = "is" },
-            new ComboBoxOption { Label = "Italian", Value = "it" },
-            new ComboBoxOption { Label = "Latin", Value = "la" },
-            new ComboBoxOption { Label = "Lithuanian", Value = "lt" },
-            new ComboBoxOption { Label = "Malay", Value = "ms" },
-            new ComboBoxOption { Label = "Nepali", Value = "ne" },
-            new ComboBoxOption { Label = "Dutch", Value = "nl" },
-            new ComboBoxOption { Label = "Norwegian", Value = "no" },
-            new ComboBoxOption { Label = "Punjabi", Value = "pa" },
-            new ComboBoxOption { Label = "Polish", Value = "pl" },
-            new ComboBoxOption { Label = "Portuguese", Value = "pt" },
-            new ComboBoxOption { Label = "Romanian", Value = "ro" },
-            new ComboBoxOption { Label = "Russian", Value = "ru" },
-            new ComboBoxOption { Label = "Sanskrit", Value = "sa" },
-            new ComboBoxOption { Label = "Slovak", Value = "sk" },
-            new ComboBoxOption { Label = "Serbian", Value = "sr" },
-            new ComboBoxOption { Label = "Swedish", Value = "sv" },
-            new ComboBoxOption { Label = "Swahili", Value = "sw" },
-            new ComboBoxOption { Label = "Tamil", Value = "ta" },
-            new ComboBoxOption { Label = "Telugu", Value = "te" },
-            new ComboBoxOption { Label = "Thai", Value = "th" },
-            new ComboBoxOption { Label = "Tagalog", Value = "tl" },
-            new ComboBoxOption { Label = "Turkish", Value = "tr" },
-            new ComboBoxOption { Label = "Ukrainian", Value = "uk" },
-            new ComboBoxOption { Label = "Urdu", Value = "ur" },
-            new ComboBoxOption { Label = "Vietnamese", Value = "vi" }
-        ];
         }
 
     }

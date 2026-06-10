@@ -27,7 +27,6 @@ namespace Amuse.Common
         public bool EnableVaeTiling { get; set; }
         public bool EnableVaeSlicing { get; set; }
         public float Duration { get; set; } = 5f;
-        public string VocalLanguage { get; set; }
         public string Instruction { get; set; }
         public int MaxLength { get; set; }
         public int MaxLength2 { get; set; }
@@ -49,7 +48,7 @@ namespace Amuse.Common
         public int DiversityLength { get; set; } = 20;
         public bool OutputLastHiddenStates { get; set; }
         public int ChunkSize { get; set; }
-        public string Language { get; set; }
+        public LanguageType Language { get; set; }
         public int SampleRate { get; set; }
 
         public SchedulerOptions SchedulerOptions { get; set; }
