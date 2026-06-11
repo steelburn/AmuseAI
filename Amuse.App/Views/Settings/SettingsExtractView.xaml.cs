@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using TensorStack.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 using TensorStack.WPF.Services;
@@ -184,15 +185,15 @@ namespace Amuse.App.Views
             var importPath = await DialogService.OpenFileAsync("Import Model", filter: "JSON |*.json;", defualtExt: "json");
             if (!string.IsNullOrEmpty(importPath))
             {
-                var modelJson = await Json.LoadAsync<ExtractModel>(importPath);
-                if (modelJson == null)
+                var modelImports = await Json.LoadArrayAsync<ExtractModel>(importPath);
+                if (modelImports.IsNullOrEmpty())
                 {
                     await DialogService.ShowMessageAsync("Import Error", "Failed to import model file.");
                     return;
                 }
 
                 var dialog = DialogService.GetDialog<ExtractModelDialog>();
-                if (await dialog.ImportAsync(modelJson))
+                if (await dialog.ImportAsync(modelImports))
                 {
                     await SaveAsync();
                     SelectedModel = dialog.ExtractModel;
@@ -203,19 +204,10 @@ namespace Amuse.App.Views
 
         private async Task ExportModelAsync()
         {
-            var existingId = _selectedModel.Id;
-            try
+            var exportPath = await DialogService.SaveFileAsync("Export Model", $"{_selectedModel.Name}.json", filter: "JSON |*.json;", defualtExt: "json");
+            if (!string.IsNullOrEmpty(exportPath))
             {
-                _selectedModel.Id = 0;
-                var exportPath = await DialogService.SaveFileAsync("Export Model", $"{_selectedModel.Name}.json", filter: "JSON |*.json;", defualtExt: "json");
-                if (!string.IsNullOrEmpty(exportPath))
-                {
-                    await Json.SaveAsync<ExtractModel>(exportPath, _selectedModel);
-                }
-            }
-            finally
-            {
-                _selectedModel.Id = existingId;
+                await Json.SaveAsync<ExtractModel>(exportPath, _selectedModel.DeepClone(0));
             }
         }
 
@@ -233,7 +225,7 @@ namespace Amuse.App.Views
             {
                 await Task.Run(() => _selectedModel.Delete(Settings));
                 _selectedModel.Status = ModelStatusType.Available;
-                await SaveAsync(); 
+                await SaveAsync();
             }
         }
 

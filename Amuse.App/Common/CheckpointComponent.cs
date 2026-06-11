@@ -120,15 +120,16 @@ namespace Amuse.App.Common
         }
 
 
-        public string Resolve(string modelDirectory, IReadOnlyCollection<ComponentModel> components = default)
+        public string Resolve(Settings settings, string modelDirectory)
         {
+            var directory = modelDirectory ?? settings.DirectoryModel;
             if (_type == CheckpointType.OnlineFolder)
             {
-                return GetSafePath(modelDirectory, _folder, _path);
+                return GetSafePath(directory, _folder, _path);
             }
             if (_type == CheckpointType.OnlineFile)
             {
-                var path = GetSafePath(modelDirectory, _folder, _path);
+                var path = GetSafePath(directory, _folder, _path);
                 var modelFiles = FileHelper.GetFileMapping(DownloadFiles, path);
                 if (modelFiles.IsNullOrEmpty())
                     throw new System.Exception($"Checkpoint could not resolve online file '{_path}'");
@@ -137,11 +138,11 @@ namespace Amuse.App.Common
             }
             if (_type == CheckpointType.Component)
             {
-                var component = components?.FirstOrDefault(x => x.Key == _path);
+                var component = settings.Components?.FirstOrDefault(x => x.Key == _path);
                 if (component == null)
                     throw new System.Exception($"Checkpoint could not resolve component '{_path}'");
 
-                return component.Path;
+                return component.Checkpoint.Resolve(settings, null);
             }
             return _path;
         }

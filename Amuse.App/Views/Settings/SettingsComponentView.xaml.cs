@@ -1,10 +1,12 @@
 ﻿using Amuse.App.Common;
+using Amuse.App.Dialogs;
 using Amuse.App.Services;
 using Microsoft.Extensions.Logging;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using TensorStack.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 using TensorStack.WPF.Services;
@@ -25,6 +27,12 @@ namespace Amuse.App.Views
         {
             FilterStatuses = ["Show All", .. Enum.GetNames<ModelStatusType>()];
             FilterStatus = FilterStatuses[0];
+            AddModelCommand = new AsyncRelayCommand(AddModelAsync);
+            CopyModelCommand = new AsyncRelayCommand(CopyModelAsync, () => SelectedModel is not null);
+            UpdateModelCommand = new AsyncRelayCommand(UpdateModelAsync);
+            RemoveModelCommand = new AsyncRelayCommand(RemoveModelAsync);
+            ImportModelCommand = new AsyncRelayCommand(ImportModelAsync);
+            ExportModelCommand = new AsyncRelayCommand(ExportModelAsync, () => SelectedModel is not null);
             DeleteModelCommand = new AsyncRelayCommand(DeleteModelAsync, () => SelectedModel is not null);
             OpenModelCommand = new AsyncRelayCommand(OpenModelAsync, () => SelectedModel is not null);
             DownloadModelCommand = new AsyncRelayCommand(DownloadModelAsync);
@@ -39,6 +47,12 @@ namespace Amuse.App.Views
         }
 
         public override View View => View.Component;
+        public AsyncRelayCommand AddModelCommand { get; }
+        public AsyncRelayCommand CopyModelCommand { get; }
+        public AsyncRelayCommand UpdateModelCommand { get; }
+        public AsyncRelayCommand RemoveModelCommand { get; }
+        public AsyncRelayCommand ImportModelCommand { get; }
+        public AsyncRelayCommand ExportModelCommand { get; }
         public AsyncRelayCommand DeleteModelCommand { get; }
         public AsyncRelayCommand OpenModelCommand { get; }
         public AsyncRelayCommand DownloadModelCommand { get; }
@@ -111,6 +125,78 @@ namespace Amuse.App.Views
         }
 
 
+        private async Task AddModelAsync()
+        {
+            var dialog = DialogService.GetDialog<ComponentModelDialog>();
+            if (await dialog.AddAsync())
+            {
+                await SaveAsync();
+            }
+        }
+
+
+        private async Task CopyModelAsync()
+        {
+            var dialog = DialogService.GetDialog<ComponentModelDialog>();
+            if (await dialog.CopyAsync(SelectedModel))
+            {
+                await SaveAsync();
+            }
+        }
+
+
+        private async Task UpdateModelAsync()
+        {
+            var dialog = DialogService.GetDialog<ComponentModelDialog>();
+            if (await dialog.UpdateAsync(SelectedModel))
+            {
+                await SaveAsync();
+            }
+        }
+
+
+        private async Task RemoveModelAsync()
+        {
+            if (await DialogService.ShowMessageAsync("Remove Component", $"Are you sure you want to remove this component?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Warning, TensorStack.WPF.Dialogs.MessageBoxStyleType.Danger))
+            {
+                Settings.Components.Remove(SelectedModel);
+                SelectedModel = default;
+                await SaveAsync();
+            }
+        }
+
+
+        private async Task ImportModelAsync()
+        {
+            var importPath = await DialogService.OpenFileAsync("Import Component", filter: "JSON |*.json;", defualtExt: "json");
+            if (!string.IsNullOrEmpty(importPath))
+            {
+                var modelImports = await Json.LoadArrayAsync<ComponentModel>(importPath);
+                if (modelImports.IsNullOrEmpty())
+                {
+                    await DialogService.ShowMessageAsync("Import Error", "Failed to import component file.");
+                    return;
+                }
+
+                var dialog = DialogService.GetDialog<ComponentModelDialog>();
+                if (await dialog.ImportAsync(modelImports))
+                {
+                    await SaveAsync();
+                }
+            }
+        }
+
+
+        private async Task ExportModelAsync()
+        {
+            var exportPath = await DialogService.SaveFileAsync("Export Component", $"{_selectedModel.Name}.json", filter: "JSON |*.json;", defualtExt: "json");
+            if (!string.IsNullOrEmpty(exportPath))
+            {
+                await Json.SaveAsync<ComponentModel>(exportPath, _selectedModel.DeepClone(0));
+            }
+        }
+
+
         private Task OpenModelAsync()
         {
             URL.NavigateToUrl(_selectedModel.GetDirectory(Settings));
@@ -120,11 +206,11 @@ namespace Amuse.App.Views
 
         private async Task DeleteModelAsync()
         {
-            if (await DialogService.ShowMessageAsync("Delete Model", $"Are you sure you want to delete this model?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Warning, TensorStack.WPF.Dialogs.MessageBoxStyleType.Danger))
+            if (await DialogService.ShowMessageAsync("Delete Component", $"Are you sure you want to delete this component?", TensorStack.WPF.Dialogs.MessageDialogType.YesNo, TensorStack.WPF.Dialogs.MessageBoxIconType.Warning, TensorStack.WPF.Dialogs.MessageBoxStyleType.Danger))
             {
                 await Task.Run(() => _selectedModel.Delete(Settings));
                 _selectedModel.Status = ModelStatusType.Available;
-                await SaveAsync(); 
+                await SaveAsync();
             }
         }
 

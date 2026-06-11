@@ -76,26 +76,25 @@ namespace Amuse.App
 
         public static CheckpointConfig ToConfig(this CheckpointModel checkpoint, Settings settings)
         {
-            var components = settings.Components;
             var modelDirectory = settings.DirectoryDiffusion;
             var checkpointConfig = new CheckpointConfig
             {
-                Compute = checkpoint.Compute?.Resolve(modelDirectory, components),
-                TextEncoder = checkpoint.TextEncoder?.Resolve(modelDirectory, components),
-                TextEncoder2 = checkpoint.TextEncoder2?.Resolve(modelDirectory, components),
-                TextEncoder3 = checkpoint.TextEncoder3?.Resolve(modelDirectory, components),
-                Unet = checkpoint.Unet?.Resolve(modelDirectory, components),
-                Transformer = checkpoint.Transformer?.Resolve(modelDirectory, components),
-                Transformer2 = checkpoint.Transformer2?.Resolve(modelDirectory, components),
-                Vae = checkpoint.Vae?.Resolve(modelDirectory, components),
-                AudioVae = checkpoint.AudioVae?.Resolve(modelDirectory, components),
-                Vocoder = checkpoint.Vocoder?.Resolve(modelDirectory, components),
-                Connectors = checkpoint.Connectors?.Resolve(modelDirectory, components),
-                LatentUpsampler = checkpoint.LatentUpsampler?.Resolve(modelDirectory, components),
-                LatentUpsamplerTemporal = checkpoint.LatentUpsamplerTemporal?.Resolve(modelDirectory, components),
-                ConditionEncoder = checkpoint.ConditionEncoder?.Resolve(modelDirectory, components),
-                AudioTokenizer = checkpoint.AudioTokenizer?.Resolve(modelDirectory, components),
-                AudioDetokenizer = checkpoint.AudioDetokenizer?.Resolve(modelDirectory, components),
+                Compute = checkpoint.Compute?.Resolve(settings, modelDirectory),
+                TextEncoder = checkpoint.TextEncoder?.Resolve(settings, modelDirectory),
+                TextEncoder2 = checkpoint.TextEncoder2?.Resolve(settings, modelDirectory),
+                TextEncoder3 = checkpoint.TextEncoder3?.Resolve(settings, modelDirectory),
+                Unet = checkpoint.Unet?.Resolve(settings, modelDirectory),
+                Transformer = checkpoint.Transformer?.Resolve(settings, modelDirectory),
+                Transformer2 = checkpoint.Transformer2?.Resolve(settings, modelDirectory),
+                Vae = checkpoint.Vae?.Resolve(settings, modelDirectory),
+                AudioVae = checkpoint.AudioVae?.Resolve(settings, modelDirectory),
+                Vocoder = checkpoint.Vocoder?.Resolve(settings, modelDirectory),
+                Connectors = checkpoint.Connectors?.Resolve(settings, modelDirectory),
+                LatentUpsampler = checkpoint.LatentUpsampler?.Resolve(settings, modelDirectory),
+                LatentUpsamplerTemporal = checkpoint.LatentUpsamplerTemporal?.Resolve(settings, modelDirectory),
+                ConditionEncoder = checkpoint.ConditionEncoder?.Resolve(settings, modelDirectory),
+                AudioTokenizer = checkpoint.AudioTokenizer?.Resolve(settings, modelDirectory),
+                AudioDetokenizer = checkpoint.AudioDetokenizer?.Resolve(settings, modelDirectory),
             };
             return checkpointConfig;
         }
@@ -151,7 +150,7 @@ namespace Amuse.App
             var modelDirectory = settings.DirectoryLoraAdapter;
             foreach (var loraAdapter in loraAdapterModel)
             {
-                var resolvedCheckpoint = loraAdapter.Checkpoint?.Resolve(modelDirectory);
+                var resolvedCheckpoint = loraAdapter.Checkpoint?.Resolve(settings, modelDirectory);
                 var loraPath = Path.GetDirectoryName(resolvedCheckpoint);
                 var loraWeights = Path.GetFileName(resolvedCheckpoint);
                 loraConfigs.Add(new LoraConfig
@@ -184,7 +183,7 @@ namespace Amuse.App
             if (model is null)
                 return null;
 
-            var resolvedCheckpoint = model.Checkpoint.Resolve(settings.DirectoryControlNet);
+            var resolvedCheckpoint = model.Checkpoint.Resolve(settings, settings.DirectoryControlNet);
             return new ControlNetConfig
             {
                 Name = model.Name,

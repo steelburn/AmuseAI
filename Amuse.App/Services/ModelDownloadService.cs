@@ -180,7 +180,7 @@ namespace Amuse.App.Services
                 var components = _settings.Components;
                 if (queueItem.DownloadModel is ComponentModel componentModel)
                 {
-                    await DownloadComponentAsync(queueItem, componentModel);
+                    await DownloadComponentAsync(queueItem, _settings.DirectoryModel, componentModel);
                 }
                 else if (queueItem.DownloadModel is UpscaleModel upscaleModel)
                 {
@@ -238,10 +238,14 @@ namespace Amuse.App.Services
         }
 
 
-        private async Task DownloadComponentAsync(DownloadQueueItem queueItem, ComponentModel component)
+        private async Task DownloadComponentAsync(DownloadQueueItem queueItem, string directory, ComponentModel component)
         {
-            var output = Path.Combine(_settings.DirectoryModel, component.Type, component.Folder);
-            await _downloadService.DownloadAsync([.. component.DownloadFiles], output, queueItem.ProgressCallback, queueItem.CancellationToken);
+            var checkpoint = component.Checkpoint;
+            if (checkpoint.Type == CheckpointType.OnlineFolder || checkpoint.Type == CheckpointType.OnlineFile)
+            {
+                var output = CheckpointComponent.GetSafePath(directory, checkpoint.Folder, checkpoint.Path);
+                await _downloadService.DownloadAsync([.. checkpoint.DownloadFiles], output, queueItem.ProgressCallback, queueItem.CancellationToken);
+            }
         }
 
 

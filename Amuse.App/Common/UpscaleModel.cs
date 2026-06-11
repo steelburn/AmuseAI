@@ -139,7 +139,7 @@ namespace Amuse.App.Common
 
         public void Delete(Settings settings)
         {
-            var resolvedCheckpoint = Checkpoint.Resolve(settings.DirectoryUpscale, settings.Components);
+            var resolvedCheckpoint = Checkpoint.Resolve(settings, settings.DirectoryUpscale);
             if (string.IsNullOrEmpty(resolvedCheckpoint))
                 return;
 
@@ -157,7 +157,7 @@ namespace Amuse.App.Common
 
         public string GetDirectory(Settings settings)
         {
-            var resolvedCheckpoint = Checkpoint.Resolve(settings.DirectoryUpscale, settings.Components);
+            var resolvedCheckpoint = Checkpoint.Resolve(settings, settings.DirectoryUpscale);
             if (string.IsNullOrEmpty(resolvedCheckpoint))
                 return null;
 

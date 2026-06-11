@@ -108,7 +108,7 @@ namespace Amuse.App.Services
                         OutputNormalization = model.OutputNormalization,
                         SampleSize = model.SampleSize,
                         ScaleFactor = model.ScaleFactor,
-                        Path = model.Checkpoint.Resolve(_settings.DirectoryUpscale)
+                        Path = model.Checkpoint.Resolve(_settings, _settings.DirectoryUpscale)
                     };
                     _currentConfig.SetProvider(device.GetProvider());
                     _upscalePipeline = UpscalePipeline.Create(_currentConfig);

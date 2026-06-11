@@ -10,10 +10,7 @@ namespace Amuse.App.Common
     {
         private BackendType _backend;
         private string _name;
-        private string _folder;
-        private string _type;
         private string _key;
-        private string[] _downloadFiles;
         private string _link;
         private string _accessToken;
         private ModelStatusType _status;
@@ -33,29 +30,13 @@ namespace Amuse.App.Common
             set { SetProperty(ref _name, value); }
         }
 
-        public string Folder
-        {
-            get { return _folder; }
-            set { SetProperty(ref _folder, value); }
-        }
-
-        public string Type
-        {
-            get { return _type; }
-            set { SetProperty(ref _type, value); }
-        }
-
         public string Key
         {
             get { return _key; }
             set { SetProperty(ref _key, value); }
         }
 
-        public string[] DownloadFiles
-        {
-            get { return _downloadFiles; }
-            set { SetProperty(ref _downloadFiles, value); }
-        }
+        public CheckpointComponent Checkpoint { get; set; }
 
         public ModelStatusType Status
         {
@@ -76,41 +57,47 @@ namespace Amuse.App.Common
             set { SetProperty(ref _link, value); }
         }
 
-        [JsonIgnore]
-        public string Path { get; private set; }
-
 
         public void Initialize(Settings settings)
         {
-            Path = System.IO.Path.Combine(settings.DirectoryModel, _type, _folder);
             Status = GetModelStatus(settings);
         }
 
 
         public void Delete(Settings settings)
         {
-            var directory = GetDirectory(settings);
-            if (System.IO.Directory.Exists(directory))
-                FileHelper.DeleteDirectory(directory);
+            var resolvedCheckpoint = GetDirectory(settings);
+            if (System.IO.File.Exists(resolvedCheckpoint))
+            {
+                FileHelper.DeleteFile(resolvedCheckpoint);
+                FileHelper.DeleteDirectory(System.IO.Path.GetDirectoryName(resolvedCheckpoint), false);
+            }
+            else if (System.IO.Directory.Exists(resolvedCheckpoint))
+            {
+                FileHelper.DeleteDirectory(resolvedCheckpoint);
+            }
         }
 
 
         public string GetDirectory(Settings settings)
         {
-            return Path;
+            var resolvedCheckpoint = Checkpoint.Resolve(settings, null);
+            if (string.IsNullOrEmpty(resolvedCheckpoint))
+                return null;
+
+            if (System.IO.Directory.Exists(resolvedCheckpoint))
+                return resolvedCheckpoint;
+
+            return System.IO.Path.GetDirectoryName(resolvedCheckpoint);
         }
 
 
         private ModelStatusType GetModelStatus(Settings settings)
         {
-            var isValid = false;
-            var path = GetDirectory(settings);
-            var modelFiles = FileHelper.GetUrlFileMapping(DownloadFiles, path);
-            if (modelFiles.Values.All(System.IO.File.Exists))
-            {
-                isValid = true;
-            }
+            if (Checkpoint == null)
+                return ModelStatusType.Available;
 
+            var isValid = Checkpoint.IsInstalled(settings.DirectoryModel);
             if (Status == ModelStatusType.Available && isValid)
                 return ModelStatusType.Installed;
             else if (Status == ModelStatusType.Installed && !isValid)
@@ -130,12 +117,9 @@ namespace Amuse.App.Common
                 Backend = Backend,
                 Name = Name,
                 Key = Key,
-                Type = Type,
-                Folder = Folder,
-                Path = Path,
                 Link = Link,
-                DownloadFiles = DownloadFiles?.ToArray(),
-                Status = Status
+                Checkpoint = Checkpoint.DeepClone(),
+                AccessToken = AccessToken
             };
         }
     }

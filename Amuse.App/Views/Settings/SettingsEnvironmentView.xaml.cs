@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using TensorStack.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
 using TensorStack.WPF.Services;
@@ -38,7 +39,7 @@ namespace Amuse.App.Views
             EnvironmentServiceRebuildCommand = new AsyncRelayCommand(EnvironmentRebuildAsync, CanEnvironmentUpdate);
             EnvironmentServiceDeleteCommand = new AsyncRelayCommand(EnvironmentDeleteAsync, CanEnvironmentUpdate);
             FilterClearCommand = new AsyncRelayCommand(FilterClearAsync, CanClearFilter);
-            ModelCollection = new ListCollectionView(settings.Environments) { Filter = CollectionFilter(), IsLiveSorting = true, IsLiveFiltering= true };
+            ModelCollection = new ListCollectionView(settings.Environments) { Filter = CollectionFilter(), IsLiveSorting = true, IsLiveFiltering = true };
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(EnvironmentModel.Vendor), ListSortDirection.Ascending));
             ModelCollection.SortDescriptions.Add(new SortDescription(nameof(EnvironmentModel.Name), ListSortDirection.Ascending));
             ModelCollection.MoveCurrentToFirst();
@@ -170,15 +171,15 @@ namespace Amuse.App.Views
             var importPath = await DialogService.OpenFileAsync("Import Environment", filter: "JSON |*.json;", defualtExt: "json");
             if (!string.IsNullOrEmpty(importPath))
             {
-                var environmentJson = await Json.LoadAsync<EnvironmentModel>(importPath);
-                if (environmentJson == null)
+                var environmentImports = await Json.LoadArrayAsync<EnvironmentModel>(importPath);
+                if (environmentImports.IsNullOrEmpty())
                 {
                     await DialogService.ShowMessageAsync("Import Error", "Failed to import Environment file.");
                     return;
                 }
 
                 var dialog = DialogService.GetDialog<EnvironmentModelDialog>();
-                if (await dialog.ImportAsync(environmentJson))
+                if (await dialog.ImportAsync(environmentImports))
                 {
                     await SaveAsync();
                 }
@@ -188,19 +189,10 @@ namespace Amuse.App.Views
 
         private async Task ExportEnvironmentAsync()
         {
-            var existingId = _selectedEnvironment.Id;
-            try
+            var exportPath = await DialogService.SaveFileAsync("Export Environment", $"{_selectedEnvironment.Name}.json", filter: "JSON |*.json;", defualtExt: "json");
+            if (!string.IsNullOrEmpty(exportPath))
             {
-                _selectedEnvironment.Id = 0;
-                var exportPath = await DialogService.SaveFileAsync("Export Environment", $"{_selectedEnvironment.Name}.json", filter: "JSON |*.json;", defualtExt: "json");
-                if (!string.IsNullOrEmpty(exportPath))
-                {
-                    await Json.SaveAsync<EnvironmentModel>(exportPath, _selectedEnvironment);
-                }
-            }
-            finally
-            {
-                _selectedEnvironment.Id = existingId;
+                await Json.SaveAsync<EnvironmentModel>(exportPath, _selectedEnvironment.DeepClone(0));
             }
         }
 

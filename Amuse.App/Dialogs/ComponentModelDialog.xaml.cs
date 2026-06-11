@@ -1,6 +1,7 @@
 ﻿// Copyright (c) TensorStack. All rights reserved.
 // Licensed under the Apache 2.0 License.
 using Amuse.App.Common;
+using CSnakes.Runtime.Python;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,14 +15,14 @@ using TensorStack.WPF.Services;
 namespace Amuse.App.Dialogs
 {
     /// <summary>
-    /// Interaction logic for ControlNetModelDialog.xaml
+    /// Interaction logic for ComponentModelDialog.xaml
     /// </summary>
-    public partial class ControlNetModelDialog : DialogControl
+    public partial class ComponentModelDialog : DialogControl
     {
-        private ControlNetModel _controlNetModel;
-        private ControlNetModel _originalControlNetModel;
+        private ComponentModel _componentModel;
+        private ComponentModel _originalComponentModel;
 
-        public ControlNetModelDialog(Settings settings)
+        public ComponentModelDialog(Settings settings)
         {
             Settings = settings;
             SaveCommand = new AsyncRelayCommand(SaveAsync, CanExecuteSave);
@@ -35,27 +36,28 @@ namespace Amuse.App.Dialogs
         public AsyncRelayCommand CancelCommand { get; }
         public ObservableCollection<string> Errors { get; }
         public CheckpointType[] CheckpointTypes { get; } = [CheckpointType.OnlineFolder, CheckpointType.LocalFolder];
-        public bool IsUpdateMode => _originalControlNetModel is not null;
+        public bool IsUpdateMode => _originalComponentModel is not null;
 
-        public ControlNetModel ControlNetModel
+        public ComponentModel ComponentModel
         {
-            get { return _controlNetModel; }
-            set { SetProperty(ref _controlNetModel, value); }
+            get { return _componentModel; }
+            set { SetProperty(ref _componentModel, value); }
         }
 
 
         public Task<bool> AddAsync()
         {
             var modelId = GetNextModelId();
-            ControlNetModel = new ControlNetModel
+            ComponentModel = new ComponentModel
             {
                 Id = modelId,
                 Backend = BackendType.PyTorch,
-                Pipeline = Settings.DiffusionPipelines.First(),
-                Name = "New ControlNet",
+                Name = "New Component",
+                Key = "NEW_COMP",
                 Checkpoint = new CheckpointComponent
                 {
-                    Name = "ControlNet",
+                    Name = "Component",
+                    Folder = "Components",
                     Type = CheckpointType.LocalFolder
                 }
             };
@@ -63,32 +65,32 @@ namespace Amuse.App.Dialogs
         }
 
 
-        public Task<bool> UpdateAsync(ControlNetModel controlNetModel)
+        public Task<bool> UpdateAsync(ComponentModel componentModel)
         {
-            var modelId = controlNetModel.Id;
-            _originalControlNetModel = controlNetModel;
-            ControlNetModel = controlNetModel.DeepClone(modelId);
+            var modelId = componentModel.Id;
+            _originalComponentModel = componentModel;
+            ComponentModel = componentModel.DeepClone(modelId);
             return base.ShowDialogAsync();
         }
 
 
-        public Task<bool> CopyAsync(ControlNetModel controlNetModel)
+        public Task<bool> CopyAsync(ComponentModel componentModel)
         {
             var modelId = GetNextModelId();
-            ControlNetModel = controlNetModel.DeepClone(modelId);
-            ControlNetModel.Name += " copy";
+            ComponentModel = componentModel.DeepClone(modelId);
+            ComponentModel.Name += " copy";
             return base.ShowDialogAsync();
         }
 
 
-        public async Task<bool> ImportAsync(ControlNetModel[] modelImports)
+        public async Task<bool> ImportAsync(ComponentModel[] modelImports)
         {
             var modelId = GetNextModelId();
             if (modelImports.Length == 1)
             {
                 var modelImport = modelImports[0];
                 modelImport.Id = modelId;
-                ControlNetModel = modelImport;
+                ComponentModel = modelImport;
                 return await base.ShowDialogAsync();
             }
             else
@@ -96,15 +98,15 @@ namespace Amuse.App.Dialogs
                 var imported = 0;
                 foreach (var modelImport in modelImports)
                 {
-                    if (Settings.ControlNetModels.Any(x => x.Backend == modelImport.Backend && x.Name == modelImport.Name && x.Pipeline == modelImport.Pipeline))
+                    if (Settings.Components.Any(x => x.Backend == modelImport.Backend && x.Name == modelImport.Name))
                         continue;
 
                     imported++;
                     modelImport.Id = modelId++;
-                    Settings.ControlNetModels.Add(modelImport);
+                    Settings.Components.Add(modelImport);
                 }
 
-                await DialogService.ShowMessageAsync("Import Complete", $"{imported}/{modelImports.Length} Models Imported.");
+                await DialogService.ShowMessageAsync("Import Complete", $"{imported}/{modelImports.Length} Components Imported.");
                 return true;
             }
         }
@@ -112,20 +114,20 @@ namespace Amuse.App.Dialogs
 
         protected override Task SaveAsync()
         {
-            var index = Settings.ControlNetModels.Count;
+            var index = Settings.Components.Count;
             if (IsUpdateMode)
             {
-                index = Settings.ControlNetModels.IndexOf(_originalControlNetModel);
-                Settings.ControlNetModels.Remove(_originalControlNetModel);
+                index = Settings.Components.IndexOf(_originalComponentModel);
+                Settings.Components.Remove(_originalComponentModel);
             }
-            Settings.ControlNetModels.Insert(index, ControlNetModel);
+            Settings.Components.Insert(index, ComponentModel);
             return base.SaveAsync();
         }
 
 
         protected override bool CanExecuteSave()
         {
-            if (ControlNetModel == null)
+            if (ComponentModel == null)
                 return false;
 
             Errors.Clear();
@@ -138,8 +140,8 @@ namespace Amuse.App.Dialogs
 
         protected override Task CancelAsync()
         {
-            ControlNetModel = default;
-            _originalControlNetModel = null;
+            ComponentModel = default;
+            _originalComponentModel = null;
             return base.CancelAsync();
         }
 
@@ -152,25 +154,24 @@ namespace Amuse.App.Dialogs
 
         private int GetNextModelId()
         {
-            return Math.Max(Utils.FixedIdRange, Settings.ControlNetModels.Max(x => x.Id)) + 1;
+            return Math.Max(Utils.FixedIdRange, Settings.Components.Max(x => x.Id)) + 1;
         }
 
 
         private IEnumerable<string> GetValidationErrors()
         {
             // Name
-            if (string.IsNullOrWhiteSpace(ControlNetModel.Name))
+            if (string.IsNullOrWhiteSpace(ComponentModel.Name))
                 yield return "Name cannot be empty";
             if (!IsUpdateMode)
             {
-                if (Settings.ControlNetModels.Any(x => x.Name.Equals(ControlNetModel.Name, StringComparison.OrdinalIgnoreCase)))
-                    yield return $"Model with Name '{ControlNetModel.Name}' already exists";
+                if (Settings.Components.Any(x => x.Name.Equals(ComponentModel.Name, StringComparison.OrdinalIgnoreCase)))
+                    yield return $"Model with Name '{ComponentModel.Name}' already exists";
             }
 
             // Checkpoint
-            if (!ControlNetModel.Checkpoint.IsValid(out var checkpointValidation))
+            if (!ComponentModel.Checkpoint.IsValid(out var checkpointValidation))
                 yield return checkpointValidation;
-
         }
     }
 }

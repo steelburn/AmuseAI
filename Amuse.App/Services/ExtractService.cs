@@ -111,7 +111,7 @@ namespace Amuse.App.Services
                         OutputNormalization = model.OutputNormalization,
                         IsDynamicOutput = model.IsDynamicOutput,
                         SampleSize = model.SampleSize,
-                        Path = model.Checkpoint.Resolve(_settings.DirectoryExtract)
+                        Path = model.Checkpoint.Resolve(_settings, _settings.DirectoryExtract)
                     };
 
                     _currentConfig.SetProvider(device.GetProvider(Microsoft.ML.OnnxRuntime.GraphOptimizationLevel.ORT_DISABLE_ALL));

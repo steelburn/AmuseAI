@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using TensorStack.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
+using TensorStack.WPF.Services;
 
 namespace Amuse.App.Dialogs
 {
@@ -94,12 +95,33 @@ namespace Amuse.App.Dialogs
         }
 
 
-        public Task<bool> ImportAsync(LoraAdapterModel loraModel)
+        public async Task<bool> ImportAsync(LoraAdapterModel[] modelImports)
         {
-            loraModel.Id = GetNextModelId();
-            LoraModel = loraModel;
-            Populate();
-            return base.ShowDialogAsync();
+            var modelId = GetNextModelId();
+            if (modelImports.Length == 1)
+            {
+                var modelImport = modelImports[0];
+                modelImport.Id = modelId;
+                LoraModel = modelImport;
+                Populate();
+                return await base.ShowDialogAsync();
+            }
+            else
+            {
+                var imported = 0;
+                foreach (var modelImport in modelImports)
+                {
+                    if (Settings.LoraAdapterModels.Any(x => x.Backend == modelImport.Backend && x.Name == modelImport.Name && x.Pipeline == modelImport.Pipeline))
+                        continue;
+
+                    imported++;
+                    modelImport.Id = modelId++;
+                    Settings.LoraAdapterModels.Add(modelImport);
+                }
+
+                await DialogService.ShowMessageAsync("Import Complete", $"{imported}/{modelImports.Length} Lora Adapters Imported.");
+                return true;
+            }
         }
 
 

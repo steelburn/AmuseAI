@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using TensorStack.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
+using TensorStack.WPF.Services;
 
 namespace Amuse.App.Dialogs
 {
@@ -126,12 +127,33 @@ namespace Amuse.App.Dialogs
         }
 
 
-        public Task<bool> ImportAsync(EnvironmentModel environmentModel)
+        public async Task<bool> ImportAsync(EnvironmentModel[] environmentImports)
         {
-            environmentModel.Id = GetNextModelId();
-            EnvironmentModel = environmentModel;
-            Populate();
-            return base.ShowDialogAsync();
+            var environmentId = GetNextModelId();
+            if (environmentImports.Length == 1)
+            {
+                var environmentImport = environmentImports[0];
+                environmentImport.Id = environmentId++;
+                EnvironmentModel = environmentImport;
+                Populate();
+                return await base.ShowDialogAsync();
+            }
+            else
+            {
+                var imported = 0;
+                foreach (var environmentImport in environmentImports)
+                {
+                    if (Settings.Environments.Any(x => x.Name == environmentImport.Name && x.Vendor == environmentImport.Vendor))
+                        continue;
+
+                    imported++;
+                    environmentImport.Id = environmentId++;
+                    Settings.Environments.Add(environmentImport);
+                }
+
+                await DialogService.ShowMessageAsync("Import Complete", $"{imported}/{environmentImports.Length} Environments Imported.");
+                return true;
+            }
         }
 
 

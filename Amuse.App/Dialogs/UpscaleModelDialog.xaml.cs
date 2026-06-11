@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using TensorStack.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
+using TensorStack.WPF.Services;
 
 namespace Amuse.App.Dialogs
 {
@@ -86,11 +87,32 @@ namespace Amuse.App.Dialogs
         }
 
 
-        public Task<bool> ImportAsync(UpscaleModel upscaleModel)
+        public async Task<bool> ImportAsync(UpscaleModel[] modelImports)
         {
-            upscaleModel.Id = GetNextModelId();
-            UpscaleModel = upscaleModel;
-            return base.ShowDialogAsync();
+            var modelId = GetNextModelId();
+            if (modelImports.Length == 1)
+            {
+                var modelImport = modelImports[0];
+                modelImport.Id = modelId;
+                UpscaleModel = modelImport;
+                return await base.ShowDialogAsync();
+            }
+            else
+            {
+                var imported = 0;
+                foreach (var modelImport in modelImports)
+                {
+                    if (Settings.UpscaleModels.Any(x => x.Backend == modelImport.Backend && x.Name == modelImport.Name))
+                        continue;
+
+                    imported++;
+                    modelImport.Id = modelId++;
+                    Settings.UpscaleModels.Add(modelImport);
+                }
+
+                await DialogService.ShowMessageAsync("Import Complete", $"{imported}/{modelImports.Length} Models Imported.");
+                return true;
+            }
         }
 
 

@@ -233,15 +233,15 @@ namespace Amuse.App.Views
             var importPath = await DialogService.OpenFileAsync("Import Model", filter: "JSON |*.json;", defualtExt: "json");
             if (!string.IsNullOrEmpty(importPath))
             {
-                var modelJson = await Json.LoadAsync<DiffusionModel>(importPath);
-                if (modelJson == null)
+                var modelImports = await Json.LoadArrayAsync<DiffusionModel>(importPath);
+                if (modelImports.IsNullOrEmpty())
                 {
                     await DialogService.ShowMessageAsync("Import Error", "Failed to import model file.");
                     return;
                 }
 
-                var dialog = DialogService.GetDialog<DiffusionModelDialog>();
-                if (await dialog.ImportAsync(modelJson))
+                var modelDialog = DialogService.GetDialog<DiffusionModelDialog>();
+                if (await modelDialog.ImportAsync(modelImports))
                 {
                     await SaveAsync();
                 }
@@ -251,19 +251,10 @@ namespace Amuse.App.Views
 
         private async Task ExportModelAsync()
         {
-            var existingId = _selectedModel.Id;
-            try
+            var exportPath = await DialogService.SaveFileAsync("Export Model", $"{_selectedModel.Name}.json", filter: "JSON |*.json;", defualtExt: "json");
+            if (!string.IsNullOrEmpty(exportPath))
             {
-                _selectedModel.Id = 0;
-                var exportPath = await DialogService.SaveFileAsync("Export Model", $"{_selectedModel.Name}.json", filter: "JSON |*.json;", defualtExt: "json");
-                if (!string.IsNullOrEmpty(exportPath))
-                {
-                    await Json.SaveAsync<DiffusionModel>(exportPath, _selectedModel);
-                }
-            }
-            finally
-            {
-                _selectedModel.Id = existingId;
+                await Json.SaveAsync<DiffusionModel>(exportPath, _selectedModel.DeepClone(0));
             }
         }
 

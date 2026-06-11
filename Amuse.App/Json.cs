@@ -56,6 +56,16 @@ namespace Amuse.App
         }
 
 
+        public static async Task<T[]> LoadArrayAsync<T>(string modelFile) where T : class
+        {
+            var singleModel = await DeserializeAsync<T>(modelFile);
+            if (singleModel != null)
+                return [singleModel];
+
+            return await DeserializeAsync<T[]>(modelFile);
+        }
+
+
         public static void Save<T>(string filePath, T obj)
         {
             try
@@ -91,6 +101,20 @@ namespace Amuse.App
             {
                 FileHelper.DeleteFile(temp);
             }
+        }
+
+
+        private static async Task<T> DeserializeAsync<T>(string filePath)
+        {
+            try
+            {
+                using (var jsonReader = File.OpenRead(filePath))
+                {
+                    return await JsonSerializer.DeserializeAsync<T>(jsonReader, DefaultOptions);
+                }
+            }
+            catch { return default; }
+
         }
     }
 }

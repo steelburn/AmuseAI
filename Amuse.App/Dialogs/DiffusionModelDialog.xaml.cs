@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using TensorStack.Common;
 using TensorStack.WPF;
 using TensorStack.WPF.Controls;
+using TensorStack.WPF.Services;
 
 namespace Amuse.App.Dialogs
 {
@@ -94,12 +95,33 @@ namespace Amuse.App.Dialogs
         }
 
 
-        public Task<bool> ImportAsync(DiffusionModel diffusionModel)
+        public async Task<bool> ImportAsync(DiffusionModel[] modelImports)
         {
-            diffusionModel.Id = GetNextModelId();
-            DiffusionModel = diffusionModel;
-            Populate();
-            return base.ShowDialogAsync();
+            var modelId = GetNextModelId();
+            if (modelImports.Length == 1)
+            {
+                var modelImport = modelImports[0];
+                modelImport.Id = modelId;
+                DiffusionModel = modelImport;
+                Populate();
+                return await base.ShowDialogAsync();
+            }
+            else
+            {
+                var imported = 0;
+                foreach (var modelImport in modelImports)
+                {
+                    if (Settings.DiffusionModels.Any(x => x.Backend == modelImport.Backend && x.Name == modelImport.Name))
+                        continue;
+
+                    imported++;
+                    modelImport.Id = modelId++;
+                    Settings.DiffusionModels.Add(modelImport);
+                }
+
+                await DialogService.ShowMessageAsync("Import Complete", $"{imported}/{modelImports.Length} Models Imported.");
+                return true;
+            }
         }
 
 

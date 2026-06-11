@@ -183,7 +183,7 @@ namespace Amuse.App.Common
                 if (component.Type == CheckpointType.Component)
                     continue;
 
-                var resolvedPath = component.Resolve(settings.DirectoryDiffusion, settings.Components);
+                var resolvedPath = component.Resolve(settings, settings.DirectoryDiffusion);
                 if (component.Type == CheckpointType.LocalFile || component.Type == CheckpointType.OnlineFile)
                     FileHelper.DeleteFile(resolvedPath);
                 else if (component.Type == CheckpointType.LocalFolder || component.Type == CheckpointType.LocalFolder)
