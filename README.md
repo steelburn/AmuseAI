@@ -1,24 +1,5 @@
-
-<p align="center">
-   <img width="30%" src="Assets/Amuse-Logo-512.png">
-</p>
-
-[![GitHub Release](https://img.shields.io/github/v/release/TensorStack-AI/AmuseAI?include_prereleases&label=Amuse&color=%2344cc11)](https://github.com/TensorStack-AI/AmuseAI/releases)
-[![Common Badge](https://img.shields.io/nuget/v/TensorStack.Common?color=4bc51e&label=TensorStack)](https://www.nuget.org/packages/TensorStack.Common)
-![Nuget](https://img.shields.io/nuget/dt/TensorStack.Common?label=Nuget%20Downloads)
-[![GitHub last commit](https://img.shields.io/github/last-commit/TensorStack-AI/AmuseAI)](https://github.com/TensorStack-AI/AmuseAI/commits/master/)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/TensorStack-AI/AmuseAI/total)
-[![Discord](https://img.shields.io/discord/1457477275246268451?label=Discord&)]([https://discord.gg/ptgMMv36Xu](https://discord.gg/ptgMMv36Xu))
-
-
-
 # Amuse
-Amuse is the flagship demo application for the [TensorStack SDK](https://github.com/TensorStack-AI/TensorStack), showcasing high-performance local AI image, video, audio and text generation through a modern, extensible .NET architecture.
-
-<p align="center" width="100%">
-    <img src="Assets/Screenshots/TextToImage.PNG">
-</p>
-
+Amuse is the flagship demo application for the [TensorStack SDK](https://github.com/saddam213/TensorStack), showcasing high-performance local AI image, video, audio and text generation through a modern, extensible .NET architecture.
 
 
 ## Features
@@ -115,23 +96,3 @@ Lemonade Server for AMD
 https://lemonade-server.ai/
 
 ---
-
-## Demo Videos
-
-### Video Editor
-https://github.com/user-attachments/assets/bc7968e6-0e3a-42c9-b08f-ec47476d1d22
-
----
-
-### VideoFrame Viewer
-https://github.com/user-attachments/assets/95989ba0-24f8-4a8b-ba6b-f68ec173d304
-
----
-
-### Image Edit
-https://github.com/user-attachments/assets/cec3838f-57d6-48f2-8ceb-5dd0634a7fbc
-
----
-
-### Automations
-https://github.com/user-attachments/assets/ce761642-caa8-4c35-b814-77079ee2f271
