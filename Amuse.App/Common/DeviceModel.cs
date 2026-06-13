@@ -12,6 +12,7 @@ namespace Amuse.App.Common
         {
             PCIBusId = gpuDevice.PCIBusId;
             DeviceType = gpuDevice.DeviceType;
+            DeviceCode = GetDeviceCode(Vendor);
             QualityModes = GetQualityModes(Vendor);
             SupportedBackends = GetSupportedBackends(Vendor, DeviceType);
             DefaultQualityMode = QualityModes.Contains(QualityMode.Standard) ? QualityMode.Standard : QualityMode.Production;
@@ -19,6 +20,7 @@ namespace Amuse.App.Common
 
         public int PCIBusId { get; init; }
         public string DeviceType { get; init; }
+        public string DeviceCode { get; init; }
         public QualityMode[] QualityModes { get; init; }
         public QualityMode DefaultQualityMode { get; init; }
         public BackendType[] SupportedBackends { get; init; }
@@ -41,6 +43,15 @@ namespace Amuse.App.Common
                 return [BackendType.OnnxRuntime];
 
             return [BackendType.PyTorch, BackendType.OnnxRuntime];
+        }
+
+
+        private static string GetDeviceCode(VendorType vendor)
+        {
+            if (vendor == VendorType.Intel)
+                return "xpu";
+
+            return "cuda";
         }
 
 

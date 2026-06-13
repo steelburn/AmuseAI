@@ -43,7 +43,7 @@
                                 <DockPanel Margin="2">
                                     <StackPanel DockPanel.Dock="Left" Margin="3,0,0,0">
                                         <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="Medium" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Text="{Binding Type}" Opacity=".7" FontSize="11"/>
+                                        <TextBlock Text="{Binding Checkpoint.Folder}" Opacity=".7" FontSize="11"/>
                                     </StackPanel>
                                     <StackPanel>
                                         <TextBlock Text="{Binding Status}" TextAlignment="Right" Opacity=".7" FontSize="11"/>

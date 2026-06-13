@@ -208,7 +208,7 @@ namespace Amuse.App
                 Pipeline = model.Pipeline.ToString(),
                 ModelType = model.ModelType,
                 ProcessType = pipelineConfig.ProcessType,
-                Device = device.Type == DeviceType.GPU ? "cuda" : "cpu",
+                Device = device.DeviceCode,
                 DeviceId = device.DeviceId,
                 DeviceBusId = device.PCIBusId,
                 DataType = model.BaseType,
