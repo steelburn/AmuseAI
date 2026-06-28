@@ -97,7 +97,7 @@ Amuse leverages `CUDA 12.8`, providing native support for the latest generation 
 ---
 
 ### AMD GPU Support
-AMD GPU's are currently not supported
+AMD GPU's are currently not supported<br />
 For `AMD` devices I recommend `ComfyUI` or `AMD Lemonade Server`, these will have full support for AMD.
 
 ComfyUI:
@@ -109,7 +109,7 @@ Lemonade Server:
 ---
 
 ### Intel GPU Support
-Intel GPU's are currently not supported
+Intel GPU's are currently not supported<br />
 For `Intel` devices I recommend `ComfyUI` or `Intel AI Playground`, these will have full support for Intel.
 
 ComfyUI:
