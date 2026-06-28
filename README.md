@@ -30,6 +30,13 @@ Amuse is the flagship demo application for the [TensorStack SDK](https://github.
 - Kandinsky5
 - StableDiffusion-XL
 - StableDiffusion-3
+- Ernie Image
+- Anima
+- JoyAI Image
+- PRX-Pixel
+- Krea2
+- GLM Image
+- Ideogram4
 
 ## Video Pipelines
 - LTX
@@ -44,11 +51,12 @@ Amuse is the flagship demo application for the [TensorStack SDK](https://github.
 - ACE-Step XL
 - Whisper
 - Supertonic
+- LongCat Audio
 
 ---
 
 ## GPU Support
-Amuse utilizes `NVIDIA CUDA 12.8` and `AMD ROCm 7.2` for local hardware acceleration.
+Amuse utilizes `NVIDIA CUDA 12.8` for local hardware acceleration.
 
 ### Nvidia GPU Support
 Amuse leverages `CUDA 12.8`, providing native support for the latest generation of hardware.<br /> While legacy architectures (Pascal/Maxwell) are technically supported, an RTX-enabled card is strongly recommended to utilize Tensor Cores for efficient generation speeds.
@@ -89,16 +97,29 @@ Amuse leverages `CUDA 12.8`, providing native support for the latest generation 
 ---
 
 ### AMD GPU Support
-Amuse currently only supports the `7000 series` GPU's (7900XTX & W7900)<br/>
-For `AMD` devices I recommend `ComfyUI` or `AMD Lemonade Server`, these will have way better support for AMD.
+AMD GPU's are currently not supported
+For `AMD` devices I recommend `ComfyUI` or `AMD Lemonade Server`, these will have full support for AMD.
 
-ComfyUI for AMD:
-https://www.amd.com/en/blogs/2026/amd-comfyui-advancing-professional-quality-generative-ai-ryzen-radeon.html
+ComfyUI:
+[https://comfy.org/](https://comfy.org/)
 
-Lemonade Server for AMD
-https://lemonade-server.ai/
+Lemonade Server:
+[https://lemonade-server.ai/](https://lemonade-server.ai/)
 
 ---
+
+### Intel GPU Support
+Intel GPU's are currently not supported
+For `Intel` devices I recommend `ComfyUI` or `Intel AI Playground`, these will have full support for Intel.
+
+ComfyUI:
+[https://comfy.org/](https://comfy.org/)
+
+Intel AI Playground:
+[https://www.intel.com/content/www/us/en/products/docs/discrete-gpus/arc/software/ai-playground.html](https://www.intel.com/content/www/us/en/products/docs/discrete-gpus/arc/software/ai-playground.html)
+
+---
+
 
 <div align="center">
    <h1><a href="https://github.com/saddam213/AmuseAI/releases/download/v3.5.7/Amuse_v3.5.7.exe">Download Amuse v3.5.7</a></h1>
